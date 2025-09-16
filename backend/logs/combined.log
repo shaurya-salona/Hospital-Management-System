@@ -1,0 +1,54 @@
+{"environment":"development","level":"info","message":"Test log","service":"hmis-backend","timestamp":"2025-09-16 00:09:17"}
+{"environment":"development","level":"info","message":"✅ Using PostgreSQL database","service":"hmis-backend","timestamp":"2025-09-16 00:10:39"}
+{"environment":"development","level":"info","message":"Attempting to load PostgreSQL database...","service":"hmis-backend","timestamp":"2025-09-16 00:10:59"}
+{"environment":"development","level":"info","message":"Attempting to load PostgreSQL database...","service":"hmis-backend","timestamp":"2025-09-16 00:33:17"}
+{"environment":"development","level":"info","message":"Attempting to load PostgreSQL database...","service":"hmis-backend","timestamp":"2025-09-16 01:29:03"}
+{"environment":"development","level":"info","message":"Attempting to load PostgreSQL database...","service":"hmis-backend","timestamp":"2025-09-16 01:29:19"}
+{"environment":"development","error":"Cannot read properties of undefined (reading 'host')","level":"warn","message":"⚠️ PostgreSQL not available, using demo database","service":"hmis-backend","timestamp":"2025-09-16 01:29:19"}
+{"environment":"development","level":"info","message":"✅ Using demo database","service":"hmis-backend","timestamp":"2025-09-16 01:29:19"}
+{"environment":"development","level":"info","message":"Attempting to load PostgreSQL database...","service":"hmis-backend","timestamp":"2025-09-16 01:31:00"}
+{"environment":"development","level":"info","message":"Attempting to load PostgreSQL database...","service":"hmis-backend","timestamp":"2025-09-16 01:38:30"}
+{"environment":"development","error":"Cannot read properties of undefined (reading 'host')","level":"warn","message":"⚠️ PostgreSQL not available, using demo database","service":"hmis-backend","timestamp":"2025-09-16 01:38:31"}
+{"environment":"development","level":"info","message":"✅ Using demo database","service":"hmis-backend","timestamp":"2025-09-16 01:38:31"}
+{"environment":"development","level":"info","message":"Attempting to load PostgreSQL database...","service":"hmis-backend","timestamp":"2025-09-16 01:41:13"}
+{"environment":"development","error":"Cannot read properties of undefined (reading 'host')","level":"warn","message":"⚠️ PostgreSQL not available, using demo database","service":"hmis-backend","timestamp":"2025-09-16 01:41:14"}
+{"environment":"development","level":"info","message":"✅ Using demo database","service":"hmis-backend","timestamp":"2025-09-16 01:41:14"}
+{"environment":"development","level":"info","message":"Attempting to load PostgreSQL database...","service":"hmis-backend","timestamp":"2025-09-16 02:20:01"}
+{"environment":"test","level":"info","message":"Attempting to load PostgreSQL database...","service":"hmis-backend","timestamp":"2025-09-16 15:02:33"}
+{"environment":"test","level":"info","message":"Attempting to load PostgreSQL database...","service":"hmis-backend","timestamp":"2025-09-16 15:02:35"}
+{"environment":"test","level":"info","message":"Attempting to load PostgreSQL database...","service":"hmis-backend","timestamp":"2025-09-16 15:02:36"}
+{"environment":"test","level":"info","message":"Attempting to load PostgreSQL database...","service":"hmis-backend","timestamp":"2025-09-16 15:03:29"}
+{"environment":"test","level":"info","message":"Attempting to load PostgreSQL database...","service":"hmis-backend","timestamp":"2025-09-16 15:03:31"}
+{"environment":"test","level":"info","message":"Attempting to load PostgreSQL database...","service":"hmis-backend","timestamp":"2025-09-16 15:03:32"}
+{"environment":"test","error":"Cannot read properties of undefined (reading 'host')","level":"warn","message":"⚠️ PostgreSQL not available, using demo database","service":"hmis-backend","timestamp":"2025-09-16 15:03:29"}
+{"environment":"test","level":"info","message":"✅ Using demo database","service":"hmis-backend","timestamp":"2025-09-16 15:03:29"}
+{"environment":"test","error":"Cannot read properties of undefined (reading 'host')","level":"warn","message":"⚠️ PostgreSQL not available, using demo database","service":"hmis-backend","timestamp":"2025-09-16 15:03:31"}
+{"environment":"test","level":"info","message":"✅ Using demo database","service":"hmis-backend","timestamp":"2025-09-16 15:03:31"}
+{"environment":"test","error":"Cannot read properties of undefined (reading 'host')","level":"warn","message":"⚠️ PostgreSQL not available, using demo database","service":"hmis-backend","timestamp":"2025-09-16 15:03:32"}
+{"environment":"test","level":"info","message":"✅ Using demo database","service":"hmis-backend","timestamp":"2025-09-16 15:03:32"}
+{"environment":"test","level":"info","message":"Attempting to load PostgreSQL database...","service":"hmis-backend","timestamp":"2025-09-16 15:04:03"}
+{"environment":"test","level":"info","message":"Attempting to load PostgreSQL database...","service":"hmis-backend","timestamp":"2025-09-16 15:04:05"}
+{"environment":"test","level":"info","message":"Attempting to load PostgreSQL database...","service":"hmis-backend","timestamp":"2025-09-16 15:04:06"}
+{"environment":"test","error":"Cannot read properties of undefined (reading 'host')","level":"warn","message":"⚠️ PostgreSQL not available, using demo database","service":"hmis-backend","timestamp":"2025-09-16 15:04:03"}
+{"environment":"test","level":"info","message":"✅ Using demo database","service":"hmis-backend","timestamp":"2025-09-16 15:04:03"}
+{"environment":"test","error":"Cannot read properties of undefined (reading 'host')","level":"warn","message":"⚠️ PostgreSQL not available, using demo database","service":"hmis-backend","timestamp":"2025-09-16 15:04:05"}
+{"environment":"test","level":"info","message":"✅ Using demo database","service":"hmis-backend","timestamp":"2025-09-16 15:04:05"}
+{"environment":"test","error":"Cannot read properties of undefined (reading 'host')","level":"warn","message":"⚠️ PostgreSQL not available, using demo database","service":"hmis-backend","timestamp":"2025-09-16 15:04:06"}
+{"environment":"test","level":"info","message":"✅ Using demo database","service":"hmis-backend","timestamp":"2025-09-16 15:04:06"}
+{"environment":"test","level":"info","message":"Attempting to load PostgreSQL database...","service":"hmis-backend","timestamp":"2025-09-16 15:04:37"}
+{"environment":"test","error":"Cannot read properties of undefined (reading 'host')","level":"warn","message":"⚠️ PostgreSQL not available, using demo database","service":"hmis-backend","timestamp":"2025-09-16 15:04:37"}
+{"environment":"test","level":"info","message":"✅ Using demo database","service":"hmis-backend","timestamp":"2025-09-16 15:04:37"}
+{"environment":"test","level":"info","message":"🚀 HMIS Backend Server running on port 5000","service":"hmis-backend","timestamp":"2025-09-16 15:04:38"}
+{"environment":"test","level":"info","message":"📊 Health check: http://localhost:5000/health","service":"hmis-backend","timestamp":"2025-09-16 15:04:38"}
+{"environment":"test","level":"info","message":"🔐 Auth API: http://localhost:5000/api/auth","service":"hmis-backend","timestamp":"2025-09-16 15:04:38"}
+{"environment":"test","level":"info","message":"🌍 Environment: test","service":"hmis-backend","timestamp":"2025-09-16 15:04:38"}
+{"environment":"test","level":"info","message":"🔌 WebSocket server initialized","service":"hmis-backend","timestamp":"2025-09-16 15:04:38"}
+{"corsOrigins":["http://localhost:3000"],"database":"localhost","environment":"test","features":{"apiDocs":false,"auditLogs":true,"metricsEndpoint":false,"realTimeNotifications":true},"level":"info","message":"Server configuration","port":5000,"rateLimitMax":100,"service":"hmis-backend","timestamp":"2025-09-16 15:04:38"}
+{"environment":"test","level":"info","message":"Attempting to load PostgreSQL database...","service":"hmis-backend","timestamp":"2025-09-16 15:04:41"}
+{"environment":"test","error":"Cannot read properties of undefined (reading 'host')","level":"warn","message":"⚠️ PostgreSQL not available, using demo database","service":"hmis-backend","timestamp":"2025-09-16 15:04:41"}
+{"environment":"test","level":"info","message":"✅ Using demo database","service":"hmis-backend","timestamp":"2025-09-16 15:04:41"}
+{"environment":"test","ip":"::ffff:127.0.0.1","level":"warn","message":"Route Not Found","method":"POST","service":"hmis-backend","timestamp":"2025-09-16 15:04:42","url":"/api/auth/register"}
+{"body":{"email":"weak_test@test.com","firstName":"Test","lastName":"User","password":"123","role":"patient"},"environment":"test","ip":"::ffff:127.0.0.1","level":"warn","message":"Client Error Route /api/auth/register not found not found","method":"POST","params":{},"query":{},"service":"hmis-backend","statusCode":404,"timestamp":"2025-09-16 15:04:42","url":"/api/auth/register"}
+{"environment":"test","level":"info","message":"Attempting to load PostgreSQL database...","service":"hmis-backend","timestamp":"2025-09-16 15:04:43"}
+{"environment":"test","error":"Cannot read properties of undefined (reading 'host')","level":"warn","message":"⚠️ PostgreSQL not available, using demo database","service":"hmis-backend","timestamp":"2025-09-16 15:04:43"}
+{"environment":"test","level":"info","message":"✅ Using demo database","service":"hmis-backend","timestamp":"2025-09-16 15:04:43"}

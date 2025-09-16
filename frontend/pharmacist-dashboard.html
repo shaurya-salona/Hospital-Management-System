@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pharmacist Dashboard - HMIS</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .dashboard-container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Enhanced Header */
+        .dashboard-header {
+            background: rgba(255, 255, 255, 0.1);
+            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .hospital-logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .hospital-logo i {
+            font-size: 2.5rem;
+            color: white;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+            padding: 15px;
+            border-radius: 15px;
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .hospital-logo h1 {
+            color: white;
+            font-size: 2rem;
+            font-weight: 800;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            letter-spacing: -0.02em;
+        }
+
+        .header-center {
+            flex: 1;
+            max-width: 500px;
+            margin: 0 40px;
+        }
+
+        .search-bar {
+            position: relative;
+            width: 100%;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 15px 50px 15px 20px;
+            border: none;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            font-size: 1rem;
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .search-bar input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .search-bar input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .search-bar button {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .search-bar button:hover {
+            color: white;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            color: white;
+        }
+
+        .user-name {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .user-role {
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Enhanced Navigation */
+        .dashboard-nav {
+            background: rgba(255, 255, 255, 0.1);
+            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+            width: 280px;
+            min-height: calc(100vh - 80px);
+            position: fixed;
+            left: 0;
+            top: 80px;
+            z-index: 999;
+            padding: 30px 0;
+        }
+
+        .nav-menu {
+            list-style: none;
+            padding: 0 20px;
+        }
+
+        .nav-item {
+            margin-bottom: 8px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 20px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .nav-link:hover::before {
+            opacity: 1;
+        }
+
+        .nav-link i {
+            font-size: 1.2rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .nav-link.active {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            transform: translateX(5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .nav-link:hover {
+            color: white;
+            transform: translateX(5px);
+        }
+
+        /* Enhanced Main Content */
+        .dashboard-main {
+            margin-left: 280px;
+            padding: 30px;
+            min-height: calc(100vh - 80px);
+        }
+
+        .dashboard-section {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .dashboard-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 25px 30px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-header h2 {
+            color: white;
+            font-size: 1.8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            letter-spacing: -0.01em;
+        }
+
+        .section-header h2 i {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+            padding: 12px;
+            border-radius: 12px;
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .section-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Enhanced Content Cards */
+        .content-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .content-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        /* Enhanced Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-card i {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+        }
+
+        .stat-card h3 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .stat-card p {
+            color: #6b7280;
+            font-weight: 500;
+            font-size: 1rem;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .stat-change {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            padding: 5px 10px;
+            border-radius: 8px;
+            background: rgba(16, 185, 129, 0.1);
+            color: #059669;
+        }
+
+        /* Enhanced Tables */
+        .table-container {
+            overflow-x: auto;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 20px;
+            text-align: left;
+            border-bottom: 1px solid rgba(229, 231, 235, 0.5);
+        }
+
+        .data-table th {
+            background: linear-gradient(135deg, #f9fafb, #f3f4f6);
+            font-weight: 700;
+            color: #374151;
+            font-size: 0.95rem;
+            letter-spacing: 0.025em;
+        }
+
+        .data-table tr:hover {
+            background: rgba(102, 126, 234, 0.05);
+            transform: scale(1.01);
+            transition: all 0.2s ease;
+        }
+
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Enhanced Action Buttons */
+        .action-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 0 2px;
+        }
+
+        .action-btn.edit {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+        }
+
+        .action-btn.delete {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Enhanced Mobile Responsiveness */
+        @media (max-width: 1200px) {
+            .dashboard-main {
+                margin-left: 0;
+                padding: 20px 15px;
+            }
+
+            .dashboard-nav {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+            .dashboard-nav.open {
+                transform: translateX(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-header {
+                padding: 15px 20px;
+                flex-wrap: wrap;
+                gap: 15px;
+            }
+
+            .header-center {
+                order: 3;
+                width: 100%;
+                margin: 0;
+            }
+
+            .hospital-logo h1 {
+                font-size: 1.5rem;
+            }
+
+            .section-header {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+
+            .section-actions {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .data-table th,
+            .data-table td {
+                padding: 15px 12px;
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .dashboard-header {
+                padding: 10px 15px;
+            }
+
+            .hospital-logo h1 {
+                font-size: 1.2rem;
+            }
+
+            .content-card {
+                padding: 20px 15px;
+            }
+
+            .section-header {
+                padding: 20px 15px;
+            }
+
+            .section-header h2 {
+                font-size: 1.4rem;
+            }
+
+            .stat-card h3 {
+                font-size: 2rem;
+            }
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #5a67d8, #6b46c1);
+        }
+
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <div class="header-left">
+                <div class="hospital-logo">
+                    <i class="fas fa-pills"></i>
+                    <h1>Pharmacist Dashboard</h1>
+                </div>
+            </div>
+            <div class="header-center">
+                <div class="search-bar">
+                    <input type="text" placeholder="Search prescriptions, medications, or patients..." id="global-search">
+                    <button type="button" title="Search" aria-label="Search"><i class="fas fa-search"></i></button>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="user-info" id="user-info">
+                    <span class="user-name">Loading...</span>
+                    <span class="user-role">Pharmacist</span>
+                </div>
+                <button id="logout-btn" class="logout-btn" title="Logout" aria-label="Logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="dashboard-nav">
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="#" class="nav-link active" onclick="showSection('prescription-management')">
+                        <i class="fas fa-prescription-bottle"></i>
+                        <span>Prescription Management</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" onclick="showSection('inventory-management')">
+                        <i class="fas fa-boxes"></i>
+                        <span>Inventory Management</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" onclick="showSection('drug-interactions')">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>Drug Interactions</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" onclick="showSection('patient-counseling')">
+                        <i class="fas fa-comments"></i>
+                        <span>Patient Counseling</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" onclick="showSection('pharmacy-billing')">
+                        <i class="fas fa-receipt"></i>
+                        <span>Pharmacy Billing</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" onclick="showSection('reports-analytics')">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Reports & Analytics</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="dashboard-main">
+            <!-- Prescription Management Section -->
+            <section id="prescription-management" class="dashboard-section active">
+                <div class="section-header">
+                    <h2><i class="fas fa-prescription-bottle"></i> Prescription Management</h2>
+                    <div class="section-actions">
+                        <button class="btn btn-primary" onclick="showDispensePrescriptionModal()">
+                            <i class="fas fa-plus"></i> Dispense Prescription
+                        </button>
+                        <button class="btn btn-secondary" onclick="verifyPrescription()">
+                            <i class="fas fa-check-circle"></i> Verify Prescription
+                        </button>
+                    </div>
+                </div>
+                <div class="content-card">
+                    <div class="prescription-stats">
+                        <div class="stat-card">
+                            <h3 id="pending-prescriptions">0</h3>
+                            <p>Pending</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3 id="dispensed-today">0</h3>
+                            <p>Dispensed Today</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3 id="rejected-prescriptions">0</h3>
+                            <p>Rejected</p>
+                        </div>
+                    </div>
+                    <div class="filters">
+                        <input type="text" placeholder="Search prescriptions..." id="prescription-search">
+                        <select id="prescription-status-filter" title="Filter prescriptions by status" aria-label="Filter prescriptions by status">
+                            <option value="">All Status</option>
+                            <option value="pending">Pending</option>
+                            <option value="dispensed">Dispensed</option>
+                            <option value="rejected">Rejected</option>
+                        </select>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Prescription ID</th>
+                                    <th>Patient</th>
+                                    <th>Doctor</th>
+                                    <th>Medication</th>
+                                    <th>Dosage</th>
+                                    <th>Quantity</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="prescriptions-table-body">
+                                <!-- Prescriptions will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Inventory Management Section -->
+            <section id="inventory-management" class="dashboard-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-boxes"></i> Inventory Management</h2>
+                    <div class="section-actions">
+                        <button class="btn btn-primary" onclick="showAddInventoryModal()">
+                            <i class="fas fa-plus"></i> Add Inventory
+                        </button>
+                        <button class="btn btn-secondary" onclick="checkLowStock()">
+                            <i class="fas fa-exclamation-triangle"></i> Check Low Stock
+                        </button>
+                    </div>
+                </div>
+                <div class="content-card">
+                    <div class="inventory-stats">
+                        <div class="stat-card">
+                            <h3 id="total-medications">0</h3>
+                            <p>Total Medications</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3 id="low-stock-items">0</h3>
+                            <p>Low Stock</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3 id="out-of-stock">0</h3>
+                            <p>Out of Stock</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3 id="expiring-soon">0</h3>
+                            <p>Expiring Soon</p>
+                        </div>
+                    </div>
+                    <div class="filters">
+                        <input type="text" placeholder="Search medications..." id="inventory-search">
+                        <select id="inventory-status-filter" title="Filter inventory by status" aria-label="Filter inventory by status">
+                            <option value="">All Status</option>
+                            <option value="in-stock">In Stock</option>
+                            <option value="low-stock">Low Stock</option>
+                            <option value="out-of-stock">Out of Stock</option>
+                            <option value="expired">Expired</option>
+                        </select>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Medication ID</th>
+                                    <th>Name</th>
+                                    <th>Category</th>
+                                    <th>Quantity</th>
+                                    <th>Unit Price</th>
+                                    <th>Expiry Date</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inventory-table-body">
+                                <!-- Inventory items will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Drug Interactions Section -->
+            <section id="drug-interactions" class="dashboard-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-exclamation-triangle"></i> Drug Interactions</h2>
+                    <div class="section-actions">
+                        <button class="btn btn-primary" onclick="checkDrugInteractions()">
+                            <i class="fas fa-search"></i> Check Interactions
+                        </button>
+                        <button class="btn btn-secondary" onclick="viewInteractionDatabase()">
+                            <i class="fas fa-database"></i> View Database
+                        </button>
+                    </div>
+                </div>
+                <div class="content-card">
+                    <div class="interaction-stats">
+                        <div class="stat-card">
+                            <h3 id="interactions-checked">0</h3>
+                            <p>Checked Today</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3 id="severe-interactions">0</h3>
+                            <p>Severe Interactions</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3 id="moderate-interactions">0</h3>
+                            <p>Moderate Interactions</p>
+                        </div>
+                    </div>
+                    <div class="interaction-checker">
+                        <h3>Drug Interaction Checker</h3>
+                        <div class="form-group">
+                            <label>Select Medications:</label>
+                            <select id="medication-selector" multiple title="Select medications to check interactions" aria-label="Select medications to check interactions">
+                                <!-- Medications will be loaded here -->
+                            </select>
+                        </div>
+                        <button class="btn btn-primary" onclick="checkSelectedInteractions()">
+                            Check Interactions
+                        </button>
+                    </div>
+                    <div class="interaction-results" id="interaction-results">
+                        <!-- Interaction results will be displayed here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Patient Counseling Section -->
+            <section id="patient-counseling" class="dashboard-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-comments"></i> Patient Counseling</h2>
+                    <div class="section-actions">
+                        <button class="btn btn-primary" onclick="showCounselingModal()">
+                            <i class="fas fa-plus"></i> Add Counseling Session
+                        </button>
+                        <button class="btn btn-secondary" onclick="viewCounselingHistory()">
+                            <i class="fas fa-history"></i> View History
+                        </button>
+                    </div>
+                </div>
+                <div class="content-card">
+                    <div class="counseling-stats">
+                        <div class="stat-card">
+                            <h3 id="counseling-sessions">0</h3>
+                            <p>Sessions Today</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3 id="patients-counseled">0</h3>
+                            <p>Patients Counseled</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3 id="follow-up-required">0</h3>
+                            <p>Follow-up Required</p>
+                        </div>
+                    </div>
+                    <div class="filters">
+                        <input type="text" placeholder="Search counseling sessions..." id="counseling-search">
+                        <select id="counseling-status-filter" title="Filter counseling sessions by status" aria-label="Filter counseling sessions by status">
+                            <option value="">All Sessions</option>
+                            <option value="completed">Completed</option>
+                            <option value="scheduled">Scheduled</option>
+                            <option value="follow-up">Follow-up Required</option>
+                        </select>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Session ID</th>
+                                    <th>Patient</th>
+                                    <th>Medication</th>
+                                    <th>Date</th>
+                                    <th>Duration</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="counseling-table-body">
+                                <!-- Counseling sessions will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Pharmacy Billing Section -->
+            <section id="pharmacy-billing" class="dashboard-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-receipt"></i> Pharmacy Billing</h2>
+                    <div class="section-actions">
+                        <button class="btn btn-primary" onclick="showCreatePharmacyBillModal()">
+                            <i class="fas fa-plus"></i> Create Bill
+                        </button>
+                        <button class="btn btn-secondary" onclick="processPharmacyPayment()">
+                            <i class="fas fa-credit-card"></i> Process Payment
+                        </button>
+                    </div>
+                </div>
+                <div class="content-card">
+                    <div class="pharmacy-billing-stats">
+                        <div class="stat-card">
+                            <h3 id="pharmacy-bills-today">0</h3>
+                            <p>Bills Today</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3 id="pharmacy-revenue">$0</h3>
+                            <p>Revenue Today</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3 id="insurance-claims">0</h3>
+                            <p>Insurance Claims</p>
+                        </div>
+                    </div>
+                    <div class="filters">
+                        <input type="text" placeholder="Search pharmacy bills..." id="pharmacy-billing-search">
+                        <select id="pharmacy-payment-status-filter" title="Filter pharmacy payment status" aria-label="Filter pharmacy payment status">
+                            <option value="">All Status</option>
+                            <option value="paid">Paid</option>
+                            <option value="pending">Pending</option>
+                            <option value="insurance">Insurance Claim</option>
+                        </select>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Bill ID</th>
+                                    <th>Patient</th>
+                                    <th>Medications</th>
+                                    <th>Amount</th>
+                                    <th>Date</th>
+                                    <th>Payment Method</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pharmacy-billing-table-body">
+                                <!-- Pharmacy billing records will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Reports & Analytics Section -->
+            <section id="reports-analytics" class="dashboard-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-chart-line"></i> Reports & Analytics</h2>
+                    <div class="section-actions">
+                        <button class="btn btn-primary" onclick="generatePharmacyReport()">
+                            <i class="fas fa-file-pdf"></i> Generate Report
+                        </button>
+                        <button class="btn btn-secondary" onclick="exportPharmacyData()">
+                            <i class="fas fa-download"></i> Export Data
+                        </button>
+                    </div>
+                </div>
+                <div class="content-card">
+                    <div class="analytics-grid">
+                        <div class="chart-container">
+                            <h3>Prescription Trends</h3>
+                            <canvas id="prescription-trends-chart"></canvas>
+                        </div>
+                        <div class="chart-container">
+                            <h3>Medication Sales</h3>
+                            <canvas id="medication-sales-chart"></canvas>
+                        </div>
+                        <div class="chart-container">
+                            <h3>Inventory Levels</h3>
+                            <canvas id="inventory-levels-chart"></canvas>
+                        </div>
+                        <div class="chart-container">
+                            <h3>Revenue Analysis</h3>
+                            <canvas id="pharmacy-revenue-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="modal-overlay" class="modal-overlay">
+        <!-- Modals will be dynamically created here -->
+    </div>
+
+    <!-- Scripts -->
+    <script src="pharmacist-dashboard.js"></script>
+</body>
+</html>

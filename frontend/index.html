@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HMIS - Hospital Management Information System</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="hospital-icon">
+                    <i class="fas fa-hospital"></i>
+                </div>
+                <h1>HMIS - Hospital Management Information System</h1>
+                <p class="subtitle">Welcome to the Hospital Management Information System</p>
+                <p class="description">Please select your role to access the appropriate portal:</p>
+            </div>
+        </header>
+
+        <!-- Main Content - Portals -->
+        <main class="main-content">
+            <div class="portals-grid">
+                <!-- Admin Portal -->
+                <div class="portal-card admin-portal" onclick="openPortal('admin')">
+                    <div class="portal-header">
+                        <i class="fas fa-user-tie portal-icon"></i>
+                        <span class="access-level">Full System Access</span>
+                    </div>
+                    <h3>Admin Portal</h3>
+                    <p class="access-type">System Administrator Access</p>
+                    <p class="portal-description">Complete system control and management</p>
+                    <div class="features">
+                        <span class="feature-tag">User Management</span>
+                        <span class="feature-tag">System Analytics</span>
+                        <span class="feature-tag">Configuration</span>
+                        <span class="feature-tag">Data Management</span>
+                    </div>
+                    <div class="access-link">
+                        <span>Access Portal</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                </div>
+
+                <!-- Doctor Portal -->
+                <div class="portal-card doctor-portal" onclick="openPortal('doctor')">
+                    <div class="portal-header">
+                        <i class="fas fa-user-md portal-icon"></i>
+                        <span class="access-level">Patient Management</span>
+                    </div>
+                    <h3>Doctor Portal</h3>
+                    <p class="access-type">Medical Professional Access</p>
+                    <p class="portal-description">Comprehensive patient care and medical records</p>
+                    <div class="features">
+                        <span class="feature-tag">Patient Records</span>
+                        <span class="feature-tag">Prescriptions</span>
+                        <span class="feature-tag">Appointments</span>
+                        <span class="feature-tag">Diagnosis Tools</span>
+                    </div>
+                    <div class="access-link">
+                        <span>Access Portal</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                </div>
+
+                <!-- Receptionist Portal -->
+                <div class="portal-card receptionist-portal" onclick="openPortal('receptionist')">
+                    <div class="portal-header">
+                        <i class="fas fa-user-tie portal-icon"></i>
+                        <span class="access-level">Appointments & Registration</span>
+                    </div>
+                    <h3>Receptionist Portal</h3>
+                    <p class="access-type">Front Desk Staff Access</p>
+                    <p class="portal-description">Patient registration and scheduling</p>
+                    <div class="features">
+                        <span class="feature-tag">Patient Registration</span>
+                        <span class="feature-tag">Appointments</span>
+                        <span class="feature-tag">Billing Support</span>
+                        <span class="feature-tag">Communication</span>
+                    </div>
+                    <div class="access-link">
+                        <span>Access Portal</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                </div>
+
+                <!-- Nurse Portal -->
+                <div class="portal-card nurse-portal" onclick="openPortal('nurse')">
+                    <div class="portal-header">
+                        <i class="fas fa-user-nurse portal-icon"></i>
+                        <span class="access-level">Patient Care</span>
+                    </div>
+                    <h3>Nurse Portal</h3>
+                    <p class="access-type">Nursing Staff Access</p>
+                    <p class="portal-description">Direct patient care and monitoring</p>
+                    <div class="features">
+                        <span class="feature-tag">Vital Signs</span>
+                        <span class="feature-tag">Medication</span>
+                        <span class="feature-tag">Patient Assessment</span>
+                        <span class="feature-tag">Care Plans</span>
+                    </div>
+                    <div class="access-link">
+                        <span>Access Portal</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                </div>
+
+                <!-- Pharmacist Portal -->
+                <div class="portal-card pharmacist-portal" onclick="openPortal('pharmacist')">
+                    <div class="portal-header">
+                        <i class="fas fa-pills portal-icon"></i>
+                        <span class="access-level">Medication Management</span>
+                    </div>
+                    <h3>Pharmacist Portal</h3>
+                    <p class="access-type">Pharmacy Staff Access</p>
+                    <p class="portal-description">Pharmacy operations and patient counseling</p>
+                    <div class="features">
+                        <span class="feature-tag">Prescriptions</span>
+                        <span class="feature-tag">Inventory</span>
+                        <span class="feature-tag">Drug Interactions</span>
+                        <span class="feature-tag">Patient Counseling</span>
+                    </div>
+                    <div class="access-link">
+                        <span>Access Portal</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                </div>
+
+                <!-- Patient Portal -->
+                <div class="portal-card patient-portal" onclick="openPortal('patient')">
+                    <div class="portal-header">
+                        <i class="fas fa-user portal-icon"></i>
+                        <span class="access-level">Limited Access</span>
+                    </div>
+                    <h3>Patient Portal</h3>
+                    <p class="access-type">Patient Self-Service</p>
+                    <p class="portal-description">Personal health information and appointments</p>
+                    <div class="features">
+                        <span class="feature-tag">Medical Records</span>
+                        <span class="feature-tag">Appointments</span>
+                        <span class="feature-tag">Prescriptions</span>
+                        <span class="feature-tag">Billing</span>
+                    </div>
+                    <div class="access-link">
+                        <span>Access Portal</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2024 HMIS - Hospital Management Information System</p>
+            <p>Secure Access - Role-Based Authentication Required</p>
+        </footer>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Portal Login</h2>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="login-form">
+                    <div class="form-group">
+                        <label for="username">Username:</label>
+                        <input type="text" id="username" name="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password:</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-primary" onclick="handleLogin()">Login</button>
+                        <button type="button" class="btn btn-secondary" onclick="demoLogin()">Demo Login</button>
+                    </div>
+                    <div class="demo-credentials">
+                        <p>Demo: <span id="demoCredentials">admin / password123</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
