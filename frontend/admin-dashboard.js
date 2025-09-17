@@ -44,6 +44,7 @@ class AdminDashboard {
         await this.loadUserData();
         this.setupEventListeners();
         this.loadDashboardData();
+        this.startRealTimeClock();
         this.showNotification('Admin Dashboard loaded successfully!', 'success');
     }
 
@@ -487,10 +488,10 @@ class AdminDashboard {
 
     logout() {
         if (confirm('Are you sure you want to logout?')) {
-            localStorage.removeItem('token');
+        localStorage.removeItem('token');
             this.showNotification('Logged out successfully', 'success');
             setTimeout(() => {
-                window.location.href = '/';
+        window.location.href = '/';
             }, 1000);
         }
     }
@@ -526,21 +527,21 @@ class AdminDashboard {
             window.dashboardCommon.showModal(title, content);
         } else {
             // Fallback for when dashboard-common.js is not loaded
-            const modalOverlay = document.getElementById('modal-overlay');
-            if (!modalOverlay) return;
+        const modalOverlay = document.getElementById('modal-overlay');
+        if (!modalOverlay) return;
 
-            modalOverlay.innerHTML = `
-                <div class="modal">
-                    <div class="modal-header">
-                        <h3>${title}</h3>
-                        <button class="modal-close" onclick="this.closest('.modal-overlay').style.display='none'">×</button>
-                    </div>
-                    <div class="modal-body">
-                        ${content}
-                    </div>
+        modalOverlay.innerHTML = `
+            <div class="modal">
+                <div class="modal-header">
+                    <h3>${title}</h3>
+                    <button class="modal-close" onclick="this.closest('.modal-overlay').style.display='none'">×</button>
                 </div>
-            `;
-            modalOverlay.style.display = 'flex';
+                <div class="modal-body">
+                    ${content}
+                </div>
+            </div>
+        `;
+        modalOverlay.style.display = 'flex';
         }
     }
 
@@ -992,6 +993,34 @@ class AdminDashboard {
             await this.loadSectionData(activeSection.id);
         }
     }
+
+    startRealTimeClock() {
+        const updateClock = () => {
+            const now = new Date();
+            const dateElement = document.getElementById('current-date');
+            const timeElement = document.getElementById('current-time');
+            
+            if (dateElement) {
+                dateElement.textContent = now.toLocaleDateString('en-IN', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+            }
+            
+            if (timeElement) {
+                timeElement.textContent = now.toLocaleTimeString('en-IN', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true
+                });
+            }
+        };
+        
+        updateClock();
+        setInterval(updateClock, 1000);
+    }
 }
 
 // Global function for navigation (called from HTML)
@@ -1074,41 +1103,41 @@ function exportAnalytics() {
     }
 }
 
-// Missing Admin Dashboard Functions
-function exportUsers() {
-    dashboardCommon.showNotification('success', 'Export Users', 'User data exported successfully');
+// Additional Admin Dashboard Functions for new sections
+function showSystemHealth() {
+    if (window.adminDashboard) {
+        window.adminDashboard.showNotification('System Health Dashboard', 'info');
+    }
 }
 
-function showAddPatientModal() {
-    dashboardCommon.showNotification('info', 'Add Patient', 'Add patient modal opened');
+function showSecurity() {
+    if (window.adminDashboard) {
+        window.adminDashboard.showNotification('Security Dashboard', 'info');
+    }
 }
 
-function exportPatients() {
-    dashboardCommon.showNotification('success', 'Export Patients', 'Patient data exported successfully');
+function showReports() {
+    if (window.adminDashboard) {
+        window.adminDashboard.showNotification('Reports Dashboard', 'info');
+    }
 }
 
-function showScheduleAppointmentModal() {
-    dashboardCommon.showNotification('info', 'Schedule Appointment', 'Schedule appointment modal opened');
+function showSettings() {
+    if (window.adminDashboard) {
+        window.adminDashboard.showNotification('Settings Dashboard', 'info');
+    }
 }
 
-function viewSchedule() {
-    dashboardCommon.showNotification('info', 'View Schedule', 'Schedule view opened');
+function showBackup() {
+    if (window.adminDashboard) {
+        window.adminDashboard.showNotification('Backup Dashboard', 'info');
+    }
 }
 
-function showCreateBillModal() {
-    dashboardCommon.showNotification('info', 'Create Bill', 'Create bill modal opened');
-}
-
-function processPayroll() {
-    dashboardCommon.showNotification('info', 'Process Payroll', 'Payroll processing started');
-}
-
-function showAddInventoryModal() {
-    dashboardCommon.showNotification('info', 'Add Inventory', 'Add inventory modal opened');
-}
-
-function checkLowStock() {
-    dashboardCommon.showNotification('info', 'Check Low Stock', 'Low stock items checked');
+function showEmergency() {
+    if (window.adminDashboard) {
+        window.adminDashboard.showNotification('Emergency Dashboard', 'warning');
+    }
 }
 
 // Initialize dashboard when DOM is loaded
