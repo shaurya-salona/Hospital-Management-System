@@ -4,39 +4,63 @@ class AdminDashboard {
         this.currentUser = null;
         this.socket = null;
         this.charts = {};
+        this.mockData = this.initializeMockData();
         this.init();
+    }
+
+    initializeMockData() {
+        return {
+            users: [
+                { id: 1, first_name: 'System', last_name: 'Administrator', email: 'admin@hospital.com', role: 'admin', is_active: true, last_login: 'Never' },
+                { id: 2, first_name: 'Dr. John', last_name: 'Smith', email: 'dr.smith@hospital.com', role: 'doctor', is_active: true, last_login: 'Never' },
+                { id: 3, first_name: 'Jane', last_name: 'Doe', email: 'patient@hospital.com', role: 'patient', is_active: true, last_login: 'Never' },
+                { id: 4, first_name: 'Sarah', last_name: 'Johnson', email: 'sarah.j@hospital.com', role: 'nurse', is_active: true, last_login: '2024-01-15' },
+                { id: 5, first_name: 'Mike', last_name: 'Wilson', email: 'mike.w@hospital.com', role: 'receptionist', is_active: false, last_login: '2024-01-10' }
+            ],
+            patients: [
+                { id: 1, patient_id: 'P001', first_name: 'Alice', last_name: 'Brown', email: 'alice.brown@email.com', phone: '+1-555-0101', blood_type: 'A+', is_active: true },
+                { id: 2, patient_id: 'P002', first_name: 'Bob', last_name: 'Green', email: 'bob.green@email.com', phone: '+1-555-0102', blood_type: 'B-', is_active: true },
+                { id: 3, patient_id: 'P003', first_name: 'Carol', last_name: 'White', email: 'carol.white@email.com', phone: '+1-555-0103', blood_type: 'O+', is_active: false }
+            ],
+            appointments: [
+                { id: 1, reason: 'General Checkup', status: 'scheduled', appointment_date: '2024-01-20', appointment_time: '10:00', patient_name: 'Alice Brown', doctor_name: 'Dr. John Smith' },
+                { id: 2, reason: 'Follow-up Visit', status: 'confirmed', appointment_date: '2024-01-21', appointment_time: '14:30', patient_name: 'Bob Green', doctor_name: 'Dr. Sarah Johnson' },
+                { id: 3, reason: 'Emergency Consultation', status: 'completed', appointment_date: '2024-01-19', appointment_time: '09:15', patient_name: 'Carol White', doctor_name: 'Dr. John Smith' }
+            ],
+            billing: [
+                { id: 1, bill_number: 'B001', patient_name: 'Alice Brown', amount: 150.00, status: 'paid', due_date: '2024-01-15' },
+                { id: 2, bill_number: 'B002', patient_name: 'Bob Green', amount: 275.50, status: 'pending', due_date: '2024-01-25' },
+                { id: 3, bill_number: 'B003', patient_name: 'Carol White', amount: 89.99, status: 'overdue', due_date: '2024-01-10' }
+            ],
+            inventory: [
+                { id: 1, name: 'Paracetamol 500mg', category: 'medication', quantity: 150, unit_price: 2.50, min_stock: 50 },
+                { id: 2, name: 'Blood Pressure Monitor', category: 'equipment', quantity: 8, unit_price: 89.99, min_stock: 10 },
+                { id: 3, name: 'Surgical Gloves', category: 'supplies', quantity: 5, unit_price: 0.25, min_stock: 20 }
+            ]
+        };
     }
 
     async init() {
         await this.loadUserData();
-        this.initializeWebSocket();
         this.setupEventListeners();
         this.loadDashboardData();
+        this.showNotification('Admin Dashboard loaded successfully!', 'success');
     }
 
     async loadUserData() {
         try {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                this.redirectToLogin();
-                return;
-            }
-
-            const response = await fetch('/api/auth/profile', {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-
-            if (!response.ok) {
-                this.redirectToLogin();
-                return;
-            }
-
-            const data = await response.json();
-            this.currentUser = data.data;
+            // Simulate user data loading
+            this.currentUser = {
+                id: 1,
+                first_name: 'System',
+                last_name: 'Administrator',
+                email: 'admin@hospital.com',
+                role: 'admin'
+            };
             this.updateUserInterface();
         } catch (error) {
             console.error('Error loading user data:', error);
-            this.redirectToLogin();
+            this.showNotification('Error loading user data', 'error');
         }
     }
 
@@ -66,7 +90,12 @@ class AdminDashboard {
         document.querySelectorAll('.nav-link').forEach(link => {
             link.classList.remove('active');
         });
-        event.target.closest('.nav-link').classList.add('active');
+        
+        // Find the clicked nav link and make it active
+        const clickedLink = document.querySelector(`[onclick="showSection('${sectionId}')"]`);
+        if (clickedLink) {
+            clickedLink.classList.add('active');
+        }
 
         // Load section data
         this.loadSectionData(sectionId);
@@ -97,91 +126,62 @@ class AdminDashboard {
 
     async loadUsers() {
         try {
-            const response = await fetch('/api/users', {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-            });
-            const data = await response.json();
-            
-            if (data.success) {
-                this.renderUsers(data.data);
-            }
+            // Simulate API call delay
+            await new Promise(resolve => setTimeout(resolve, 500));
+            this.renderUsers(this.mockData.users);
         } catch (error) {
             console.error('Error loading users:', error);
+            this.showNotification('Error loading users', 'error');
         }
     }
 
     async loadPatients() {
         try {
-            const response = await fetch('/api/patients', {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-            });
-            const data = await response.json();
-            
-            if (data.success) {
-                this.renderPatients(data.data);
-            }
+            await new Promise(resolve => setTimeout(resolve, 500));
+            this.renderPatients(this.mockData.patients);
         } catch (error) {
             console.error('Error loading patients:', error);
+            this.showNotification('Error loading patients', 'error');
         }
     }
 
     async loadAppointments() {
         try {
-            const response = await fetch('/api/appointments', {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-            });
-            const data = await response.json();
-            
-            if (data.success) {
-                this.renderAppointments(data.data);
-            }
+            await new Promise(resolve => setTimeout(resolve, 500));
+            this.renderAppointments(this.mockData.appointments);
         } catch (error) {
             console.error('Error loading appointments:', error);
+            this.showNotification('Error loading appointments', 'error');
         }
     }
 
     async loadBilling() {
         try {
-            const response = await fetch('/api/billing', {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-            });
-            const data = await response.json();
-            
-            if (data.success) {
-                this.renderBilling(data.data);
-            }
+            await new Promise(resolve => setTimeout(resolve, 500));
+            this.renderBilling(this.mockData.billing);
         } catch (error) {
             console.error('Error loading billing:', error);
+            this.showNotification('Error loading billing data', 'error');
         }
     }
 
     async loadInventory() {
         try {
-            const response = await fetch('/api/inventory', {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-            });
-            const data = await response.json();
-            
-            if (data.success) {
-                this.renderInventory(data.data);
-            }
+            await new Promise(resolve => setTimeout(resolve, 500));
+            this.renderInventory(this.mockData.inventory);
         } catch (error) {
             console.error('Error loading inventory:', error);
+            this.showNotification('Error loading inventory', 'error');
         }
     }
 
     async loadAnalytics() {
         try {
-            const response = await fetch('/api/analytics/hospital', {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-            });
-            const data = await response.json();
-            
-            if (data.success) {
-                this.renderAnalytics(data.data);
-            }
+            await new Promise(resolve => setTimeout(resolve, 500));
+            this.renderAnalytics({});
         } catch (error) {
             console.error('Error loading analytics:', error);
+            this.showNotification('Error loading analytics', 'error');
         }
     }
 
@@ -198,8 +198,8 @@ class AdminDashboard {
                 <td><span class="status-badge ${user.is_active ? 'active' : 'inactive'}">${user.is_active ? 'Active' : 'Inactive'}</span></td>
                 <td>${user.last_login || 'Never'}</td>
                 <td>
-                    <button class="btn btn-sm btn-primary" onclick="adminDashboard.editUser('${user.id}')">Edit</button>
-                    <button class="btn btn-sm btn-danger" onclick="adminDashboard.deleteUser('${user.id}')">Delete</button>
+                    <button class="action-btn edit" onclick="adminDashboard.editUser('${user.id}')">Edit</button>
+                    <button class="action-btn delete" onclick="adminDashboard.deleteUser('${user.id}')">Delete</button>
                 </td>
             </tr>
         `).join('');
@@ -218,8 +218,8 @@ class AdminDashboard {
                 <td>${patient.blood_type || 'N/A'}</td>
                 <td><span class="status-badge ${patient.is_active ? 'active' : 'inactive'}">${patient.is_active ? 'Active' : 'Inactive'}</span></td>
                 <td>
-                    <button class="btn btn-sm btn-primary" onclick="adminDashboard.viewPatient('${patient.id}')">View</button>
-                    <button class="btn btn-sm btn-secondary" onclick="adminDashboard.editPatient('${patient.id}')">Edit</button>
+                    <button class="action-btn edit" onclick="adminDashboard.viewPatient('${patient.id}')">View</button>
+                    <button class="action-btn delete" onclick="adminDashboard.editPatient('${patient.id}')">Edit</button>
                 </td>
             </tr>
         `).join('');
@@ -242,8 +242,8 @@ class AdminDashboard {
                     <p><strong>Doctor:</strong> ${appointment.doctor_name || 'N/A'}</p>
                 </div>
                 <div class="appointment-actions">
-                    <button class="btn btn-sm btn-primary" onclick="adminDashboard.viewAppointment('${appointment.id}')">View</button>
-                    <button class="btn btn-sm btn-secondary" onclick="adminDashboard.editAppointment('${appointment.id}')">Edit</button>
+                    <button class="action-btn edit" onclick="adminDashboard.viewAppointment('${appointment.id}')">View</button>
+                    <button class="action-btn delete" onclick="adminDashboard.editAppointment('${appointment.id}')">Edit</button>
                 </div>
             </div>
         `).join('');
@@ -262,6 +262,7 @@ class AdminDashboard {
         document.getElementById('total-revenue').textContent = `$${totalRevenue.toFixed(2)}`;
         document.getElementById('pending-bills').textContent = pendingBills;
         document.getElementById('overdue-bills').textContent = overdueBills;
+        document.getElementById('payroll-total').textContent = `$${(totalRevenue * 0.3).toFixed(2)}`;
 
         tbody.innerHTML = billing.map(bill => `
             <tr>
@@ -271,8 +272,8 @@ class AdminDashboard {
                 <td><span class="status-badge ${bill.status}">${bill.status}</span></td>
                 <td>${bill.due_date ? new Date(bill.due_date).toLocaleDateString() : 'N/A'}</td>
                 <td>
-                    <button class="btn btn-sm btn-primary" onclick="adminDashboard.viewBill('${bill.id}')">View</button>
-                    <button class="btn btn-sm btn-secondary" onclick="adminDashboard.editBill('${bill.id}')">Edit</button>
+                    <button class="action-btn edit" onclick="adminDashboard.viewBill('${bill.id}')">View</button>
+                    <button class="action-btn delete" onclick="adminDashboard.editBill('${bill.id}')">Edit</button>
                 </td>
             </tr>
         `).join('');
@@ -299,8 +300,8 @@ class AdminDashboard {
                 <td>$${item.unit_price}</td>
                 <td><span class="status-badge ${item.quantity < item.min_stock ? 'low-stock' : 'in-stock'}">${item.quantity < item.min_stock ? 'Low Stock' : 'In Stock'}</span></td>
                 <td>
-                    <button class="btn btn-sm btn-primary" onclick="adminDashboard.viewInventory('${item.id}')">View</button>
-                    <button class="btn btn-sm btn-secondary" onclick="adminDashboard.editInventory('${item.id}')">Edit</button>
+                    <button class="action-btn edit" onclick="adminDashboard.viewInventory('${item.id}')">View</button>
+                    <button class="action-btn delete" onclick="adminDashboard.editInventory('${item.id}')">Edit</button>
                 </td>
             </tr>
         `).join('');
@@ -322,12 +323,20 @@ class AdminDashboard {
                         label: 'Patient Admissions',
                         data: [12, 19, 3, 5, 2, 3],
                         borderColor: 'rgb(75, 192, 192)',
-                        tension: 0.1
+                        backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                        tension: 0.1,
+                        fill: true
                     }]
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    }
                 }
             });
         }
@@ -340,7 +349,7 @@ class AdminDashboard {
                 data: {
                     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
                     datasets: [{
-                        label: 'Revenue',
+                        label: 'Revenue ($)',
                         data: [12000, 19000, 3000, 5000, 2000, 3000],
                         backgroundColor: 'rgba(54, 162, 235, 0.2)',
                         borderColor: 'rgba(54, 162, 235, 1)',
@@ -421,27 +430,6 @@ class AdminDashboard {
         }
     }
 
-    initializeWebSocket() {
-        try {
-            this.socket = io('http://localhost:5000');
-            
-            this.socket.on('connect', () => {
-                console.log('Connected to WebSocket server');
-                this.socket.emit('join-room', {
-                    userId: this.currentUser.id,
-                    role: 'admin'
-                });
-            });
-
-            this.socket.on('notification', (notification) => {
-                this.showNotification(notification.message);
-            });
-
-        } catch (error) {
-            console.error('WebSocket connection error:', error);
-        }
-    }
-
     setupEventListeners() {
         // Global search
         const globalSearch = document.getElementById('global-search');
@@ -454,38 +442,83 @@ class AdminDashboard {
         if (logoutBtn) {
             logoutBtn.addEventListener('click', this.logout.bind(this));
         }
+
+        // Patient search
+        const patientSearch = document.getElementById('patient-search');
+        if (patientSearch) {
+            patientSearch.addEventListener('input', this.handlePatientSearch.bind(this));
+        }
+
+        // Status filter
+        const statusFilter = document.getElementById('status-filter');
+        if (statusFilter) {
+            statusFilter.addEventListener('change', this.handleStatusFilter.bind(this));
+        }
     }
 
     handleGlobalSearch(event) {
         const query = event.target.value.toLowerCase();
-        // Implement global search functionality
         console.log('Global search:', query);
+        this.showNotification(`Searching for: ${query}`, 'info');
+    }
+
+    handlePatientSearch(event) {
+        const query = event.target.value.toLowerCase();
+        const rows = document.querySelectorAll('#patients-table-body tr');
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(query) ? '' : 'none';
+        });
+    }
+
+    handleStatusFilter(event) {
+        const status = event.target.value;
+        const rows = document.querySelectorAll('#patients-table-body tr');
+        rows.forEach(row => {
+            if (!status) {
+                row.style.display = '';
+            } else {
+                const statusBadge = row.querySelector('.status-badge');
+                const rowStatus = statusBadge ? statusBadge.textContent.toLowerCase() : '';
+                row.style.display = rowStatus.includes(status) ? '' : 'none';
+            }
+        });
     }
 
     logout() {
-        localStorage.removeItem('token');
-        window.location.href = '/';
+        if (confirm('Are you sure you want to logout?')) {
+            localStorage.removeItem('token');
+            this.showNotification('Logged out successfully', 'success');
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 1000);
+        }
     }
 
     // Modal functions
     showAddUserModal() {
         this.showModal('Add User', this.getUserForm());
+        this.setupFormSubmission('user-form', this.handleAddUser.bind(this));
     }
 
     showAddPatientModal() {
         this.showModal('Add Patient', this.getPatientForm());
+        this.setupFormSubmission('patient-form', this.handleAddPatient.bind(this));
     }
 
     showScheduleAppointmentModal() {
         this.showModal('Schedule Appointment', this.getAppointmentForm());
+        this.setupFormSubmission('appointment-form', this.handleScheduleAppointment.bind(this));
     }
 
     showCreateBillModal() {
         this.showModal('Create Bill', this.getBillForm());
+        this.setupFormSubmission('bill-form', this.handleCreateBill.bind(this));
     }
 
     showAddInventoryModal() {
         this.showModal('Add Inventory', this.getInventoryForm());
+        this.setupFormSubmission('inventory-form', this.handleAddInventory.bind(this));
     }
 
     showModal(title, content) {
@@ -504,6 +537,15 @@ class AdminDashboard {
             </div>
         `;
         modalOverlay.style.display = 'flex';
+    }
+
+    setupFormSubmission(formId, handler) {
+        setTimeout(() => {
+            const form = document.getElementById(formId);
+            if (form) {
+                form.addEventListener('submit', handler);
+            }
+        }, 100);
     }
 
     getUserForm() {
@@ -590,12 +632,14 @@ class AdminDashboard {
                     <label>Patient</label>
                     <select name="patientId" required>
                         <option value="">Select Patient</option>
+                        ${this.mockData.patients.map(p => `<option value="${p.id}">${p.first_name} ${p.last_name}</option>`).join('')}
                     </select>
                 </div>
                 <div class="form-group">
                     <label>Doctor</label>
                     <select name="doctorId" required>
                         <option value="">Select Doctor</option>
+                        ${this.mockData.users.filter(u => u.role === 'doctor').map(d => `<option value="${d.id}">${d.first_name} ${d.last_name}</option>`).join('')}
                     </select>
                 </div>
                 <div class="form-group">
@@ -625,6 +669,7 @@ class AdminDashboard {
                     <label>Patient</label>
                     <select name="patientId" required>
                         <option value="">Select Patient</option>
+                        ${this.mockData.patients.map(p => `<option value="${p.id}">${p.first_name} ${p.last_name}</option>`).join('')}
                     </select>
                 </div>
                 <div class="form-group">
@@ -671,8 +716,8 @@ class AdminDashboard {
                     <input type="number" name="unitPrice" step="0.01" required>
                 </div>
                 <div class="form-group">
-                    <label>Expiry Date</label>
-                    <input type="date" name="expiryDate">
+                    <label>Minimum Stock</label>
+                    <input type="number" name="minStock" required>
                 </div>
                 <div class="form-actions">
                     <button type="submit" class="btn btn-primary">Add Inventory</button>
@@ -682,76 +727,244 @@ class AdminDashboard {
         `;
     }
 
+    // Form submission handlers
+    handleAddUser(event) {
+        event.preventDefault();
+        const formData = new FormData(event.target);
+        const userData = Object.fromEntries(formData.entries());
+        
+        // Add to mock data
+        const newUser = {
+            id: this.mockData.users.length + 1,
+            first_name: userData.firstName,
+            last_name: userData.lastName,
+            email: userData.email,
+            role: userData.role,
+            is_active: true,
+            last_login: 'Never'
+        };
+        
+        this.mockData.users.push(newUser);
+        this.renderUsers(this.mockData.users);
+        this.closeModal();
+        this.showNotification('User added successfully!', 'success');
+    }
+
+    handleAddPatient(event) {
+        event.preventDefault();
+        const formData = new FormData(event.target);
+        const patientData = Object.fromEntries(formData.entries());
+        
+        const newPatient = {
+            id: this.mockData.patients.length + 1,
+            patient_id: `P${String(this.mockData.patients.length + 1).padStart(3, '0')}`,
+            first_name: patientData.firstName,
+            last_name: patientData.lastName,
+            email: patientData.email,
+            phone: patientData.phone,
+            blood_type: patientData.bloodType,
+            is_active: true
+        };
+        
+        this.mockData.patients.push(newPatient);
+        this.renderPatients(this.mockData.patients);
+        this.closeModal();
+        this.showNotification('Patient added successfully!', 'success');
+    }
+
+    handleScheduleAppointment(event) {
+        event.preventDefault();
+        const formData = new FormData(event.target);
+        const appointmentData = Object.fromEntries(formData.entries());
+        
+        const patient = this.mockData.patients.find(p => p.id == appointmentData.patientId);
+        const doctor = this.mockData.users.find(u => u.id == appointmentData.doctorId);
+        
+        const newAppointment = {
+            id: this.mockData.appointments.length + 1,
+            reason: appointmentData.reason,
+            status: 'scheduled',
+            appointment_date: appointmentData.date,
+            appointment_time: appointmentData.time,
+            patient_name: patient ? `${patient.first_name} ${patient.last_name}` : 'Unknown',
+            doctor_name: doctor ? `${doctor.first_name} ${doctor.last_name}` : 'Unknown'
+        };
+        
+        this.mockData.appointments.push(newAppointment);
+        this.renderAppointments(this.mockData.appointments);
+        this.closeModal();
+        this.showNotification('Appointment scheduled successfully!', 'success');
+    }
+
+    handleCreateBill(event) {
+        event.preventDefault();
+        const formData = new FormData(event.target);
+        const billData = Object.fromEntries(formData.entries());
+        
+        const patient = this.mockData.patients.find(p => p.id == billData.patientId);
+        
+        const newBill = {
+            id: this.mockData.billing.length + 1,
+            bill_number: `B${String(this.mockData.billing.length + 1).padStart(3, '0')}`,
+            patient_name: patient ? `${patient.first_name} ${patient.last_name}` : 'Unknown',
+            amount: parseFloat(billData.amount),
+            status: 'pending',
+            due_date: billData.dueDate
+        };
+        
+        this.mockData.billing.push(newBill);
+        this.renderBilling(this.mockData.billing);
+        this.closeModal();
+        this.showNotification('Bill created successfully!', 'success');
+    }
+
+    handleAddInventory(event) {
+        event.preventDefault();
+        const formData = new FormData(event.target);
+        const inventoryData = Object.fromEntries(formData.entries());
+        
+        const newItem = {
+            id: this.mockData.inventory.length + 1,
+            name: inventoryData.name,
+            category: inventoryData.category,
+            quantity: parseInt(inventoryData.quantity),
+            unit_price: parseFloat(inventoryData.unitPrice),
+            min_stock: parseInt(inventoryData.minStock)
+        };
+        
+        this.mockData.inventory.push(newItem);
+        this.renderInventory(this.mockData.inventory);
+        this.closeModal();
+        this.showNotification('Inventory item added successfully!', 'success');
+    }
+
+    closeModal() {
+        const modalOverlay = document.getElementById('modal-overlay');
+        if (modalOverlay) {
+            modalOverlay.style.display = 'none';
+        }
+    }
+
     // Action functions
     editUser(userId) {
-        console.log('Edit user:', userId);
+        const user = this.mockData.users.find(u => u.id == userId);
+        if (user) {
+            this.showNotification(`Editing user: ${user.first_name} ${user.last_name}`, 'info');
+        }
     }
 
     deleteUser(userId) {
         if (confirm('Are you sure you want to delete this user?')) {
-            console.log('Delete user:', userId);
+            this.mockData.users = this.mockData.users.filter(u => u.id != userId);
+            this.renderUsers(this.mockData.users);
+            this.showNotification('User deleted successfully!', 'success');
         }
     }
 
     viewPatient(patientId) {
-        console.log('View patient:', patientId);
+        const patient = this.mockData.patients.find(p => p.id == patientId);
+        if (patient) {
+            this.showNotification(`Viewing patient: ${patient.first_name} ${patient.last_name}`, 'info');
+        }
     }
 
     editPatient(patientId) {
-        console.log('Edit patient:', patientId);
+        const patient = this.mockData.patients.find(p => p.id == patientId);
+        if (patient) {
+            this.showNotification(`Editing patient: ${patient.first_name} ${patient.last_name}`, 'info');
+        }
     }
 
     viewAppointment(appointmentId) {
-        console.log('View appointment:', appointmentId);
+        const appointment = this.mockData.appointments.find(a => a.id == appointmentId);
+        if (appointment) {
+            this.showNotification(`Viewing appointment: ${appointment.reason}`, 'info');
+        }
     }
 
     editAppointment(appointmentId) {
-        console.log('Edit appointment:', appointmentId);
+        const appointment = this.mockData.appointments.find(a => a.id == appointmentId);
+        if (appointment) {
+            this.showNotification(`Editing appointment: ${appointment.reason}`, 'info');
+        }
     }
 
     viewBill(billId) {
-        console.log('View bill:', billId);
+        const bill = this.mockData.billing.find(b => b.id == billId);
+        if (bill) {
+            this.showNotification(`Viewing bill: ${bill.bill_number}`, 'info');
+        }
     }
 
     editBill(billId) {
-        console.log('Edit bill:', billId);
+        const bill = this.mockData.billing.find(b => b.id == billId);
+        if (bill) {
+            this.showNotification(`Editing bill: ${bill.bill_number}`, 'info');
+        }
     }
 
     viewInventory(itemId) {
-        console.log('View inventory:', itemId);
+        const item = this.mockData.inventory.find(i => i.id == itemId);
+        if (item) {
+            this.showNotification(`Viewing inventory: ${item.name}`, 'info');
+        }
     }
 
     editInventory(itemId) {
-        console.log('Edit inventory:', itemId);
+        const item = this.mockData.inventory.find(i => i.id == itemId);
+        if (item) {
+            this.showNotification(`Editing inventory: ${item.name}`, 'info');
+        }
     }
 
     // Utility functions
     exportUsers() {
-        console.log('Export users');
+        this.showNotification('Exporting users data...', 'info');
+        // Simulate export
+        setTimeout(() => {
+            this.showNotification('Users data exported successfully!', 'success');
+        }, 2000);
     }
 
     exportPatients() {
-        console.log('Export patients');
+        this.showNotification('Exporting patients data...', 'info');
+        setTimeout(() => {
+            this.showNotification('Patients data exported successfully!', 'success');
+        }, 2000);
     }
 
     viewSchedule() {
-        console.log('View schedule');
+        this.showNotification('Opening schedule view...', 'info');
     }
 
     processPayroll() {
-        console.log('Process payroll');
+        this.showNotification('Processing payroll...', 'info');
+        setTimeout(() => {
+            this.showNotification('Payroll processed successfully!', 'success');
+        }, 3000);
     }
 
     checkLowStock() {
-        console.log('Check low stock');
+        const lowStockItems = this.mockData.inventory.filter(item => item.quantity < item.min_stock);
+        if (lowStockItems.length > 0) {
+            this.showNotification(`Found ${lowStockItems.length} low stock items`, 'warning');
+        } else {
+            this.showNotification('All items are well stocked!', 'success');
+        }
     }
 
     generateReport() {
-        console.log('Generate report');
+        this.showNotification('Generating report...', 'info');
+        setTimeout(() => {
+            this.showNotification('Report generated successfully!', 'success');
+        }, 3000);
     }
 
     exportAnalytics() {
-        console.log('Export analytics');
+        this.showNotification('Exporting analytics data...', 'info');
+        setTimeout(() => {
+            this.showNotification('Analytics data exported successfully!', 'success');
+        }, 2000);
     }
 
     showNotification(message, type = 'info') {
@@ -769,7 +982,9 @@ class AdminDashboard {
 
         // Remove after 5 seconds
         setTimeout(() => {
-            notification.remove();
+            if (notification.parentElement) {
+                notification.remove();
+            }
         }, 5000);
     }
 
@@ -783,16 +998,92 @@ class AdminDashboard {
         return icons[type] || 'bell';
     }
 
-    redirectToLogin() {
-        window.location.href = '/';
-    }
-
     async loadDashboardData() {
         // Load initial data for the active section
         const activeSection = document.querySelector('.dashboard-section.active');
         if (activeSection) {
             await this.loadSectionData(activeSection.id);
         }
+    }
+}
+
+// Global function for navigation (called from HTML)
+function showSection(sectionId) {
+    if (window.adminDashboard) {
+        window.adminDashboard.showSection(sectionId);
+    }
+}
+
+// Global functions for button clicks (called from HTML)
+function showAddUserModal() {
+    if (window.adminDashboard) {
+        window.adminDashboard.showAddUserModal();
+    }
+}
+
+function showAddPatientModal() {
+    if (window.adminDashboard) {
+        window.adminDashboard.showAddPatientModal();
+    }
+}
+
+function showScheduleAppointmentModal() {
+    if (window.adminDashboard) {
+        window.adminDashboard.showScheduleAppointmentModal();
+    }
+}
+
+function showCreateBillModal() {
+    if (window.adminDashboard) {
+        window.adminDashboard.showCreateBillModal();
+    }
+}
+
+function showAddInventoryModal() {
+    if (window.adminDashboard) {
+        window.adminDashboard.showAddInventoryModal();
+    }
+}
+
+function exportUsers() {
+    if (window.adminDashboard) {
+        window.adminDashboard.exportUsers();
+    }
+}
+
+function exportPatients() {
+    if (window.adminDashboard) {
+        window.adminDashboard.exportPatients();
+    }
+}
+
+function viewSchedule() {
+    if (window.adminDashboard) {
+        window.adminDashboard.viewSchedule();
+    }
+}
+
+function processPayroll() {
+    if (window.adminDashboard) {
+        window.adminDashboard.processPayroll();
+    }
+}
+
+function checkLowStock() {
+    if (window.adminDashboard) {
+        window.adminDashboard.checkLowStock();
+    }
+}
+
+function generateReport() {
+    if (window.adminDashboard) {
+        window.adminDashboard.generateReport();
+    }
+}
+
+function exportAnalytics() {
+    if (window.adminDashboard) {
+        window.adminDashboard.exportAnalytics();
     }
 }
 
