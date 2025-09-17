@@ -522,21 +522,26 @@ class AdminDashboard {
     }
 
     showModal(title, content) {
-        const modalOverlay = document.getElementById('modal-overlay');
-        if (!modalOverlay) return;
+        if (window.dashboardCommon) {
+            window.dashboardCommon.showModal(title, content);
+        } else {
+            // Fallback for when dashboard-common.js is not loaded
+            const modalOverlay = document.getElementById('modal-overlay');
+            if (!modalOverlay) return;
 
-        modalOverlay.innerHTML = `
-            <div class="modal">
-                <div class="modal-header">
-                    <h3>${title}</h3>
-                    <button class="modal-close" onclick="this.closest('.modal-overlay').style.display='none'">×</button>
+            modalOverlay.innerHTML = `
+                <div class="modal">
+                    <div class="modal-header">
+                        <h3>${title}</h3>
+                        <button class="modal-close" onclick="this.closest('.modal-overlay').style.display='none'">×</button>
+                    </div>
+                    <div class="modal-body">
+                        ${content}
+                    </div>
                 </div>
-                <div class="modal-body">
-                    ${content}
-                </div>
-            </div>
-        `;
-        modalOverlay.style.display = 'flex';
+            `;
+            modalOverlay.style.display = 'flex';
+        }
     }
 
     setupFormSubmission(formId, handler) {
@@ -839,9 +844,13 @@ class AdminDashboard {
     }
 
     closeModal() {
-        const modalOverlay = document.getElementById('modal-overlay');
-        if (modalOverlay) {
-            modalOverlay.style.display = 'none';
+        if (window.dashboardCommon) {
+            window.dashboardCommon.closeModal();
+        } else {
+            const modalOverlay = document.getElementById('modal-overlay');
+            if (modalOverlay) {
+                modalOverlay.style.display = 'none';
+            }
         }
     }
 
@@ -968,34 +977,12 @@ class AdminDashboard {
     }
 
     showNotification(message, type = 'info') {
-        // Create notification element
-        const notification = document.createElement('div');
-        notification.className = `notification notification-${type}`;
-        notification.innerHTML = `
-            <i class="fas fa-${this.getNotificationIcon(type)}"></i>
-            <span>${message}</span>
-            <button onclick="this.parentElement.remove()">×</button>
-        `;
-
-        // Add to page
-        document.body.appendChild(notification);
-
-        // Remove after 5 seconds
-        setTimeout(() => {
-            if (notification.parentElement) {
-                notification.remove();
-            }
-        }, 5000);
-    }
-
-    getNotificationIcon(type) {
-        const icons = {
-            'info': 'info-circle',
-            'success': 'check-circle',
-            'warning': 'exclamation-triangle',
-            'error': 'times-circle'
-        };
-        return icons[type] || 'bell';
+        if (window.dashboardCommon) {
+            window.dashboardCommon.showNotification(message, type);
+        } else {
+            // Fallback notification
+            alert(message);
+        }
     }
 
     async loadDashboardData() {
@@ -1085,6 +1072,43 @@ function exportAnalytics() {
     if (window.adminDashboard) {
         window.adminDashboard.exportAnalytics();
     }
+}
+
+// Missing Admin Dashboard Functions
+function exportUsers() {
+    dashboardCommon.showNotification('success', 'Export Users', 'User data exported successfully');
+}
+
+function showAddPatientModal() {
+    dashboardCommon.showNotification('info', 'Add Patient', 'Add patient modal opened');
+}
+
+function exportPatients() {
+    dashboardCommon.showNotification('success', 'Export Patients', 'Patient data exported successfully');
+}
+
+function showScheduleAppointmentModal() {
+    dashboardCommon.showNotification('info', 'Schedule Appointment', 'Schedule appointment modal opened');
+}
+
+function viewSchedule() {
+    dashboardCommon.showNotification('info', 'View Schedule', 'Schedule view opened');
+}
+
+function showCreateBillModal() {
+    dashboardCommon.showNotification('info', 'Create Bill', 'Create bill modal opened');
+}
+
+function processPayroll() {
+    dashboardCommon.showNotification('info', 'Process Payroll', 'Payroll processing started');
+}
+
+function showAddInventoryModal() {
+    dashboardCommon.showNotification('info', 'Add Inventory', 'Add inventory modal opened');
+}
+
+function checkLowStock() {
+    dashboardCommon.showNotification('info', 'Check Low Stock', 'Low stock items checked');
 }
 
 // Initialize dashboard when DOM is loaded

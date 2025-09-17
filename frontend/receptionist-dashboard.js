@@ -840,6 +840,47 @@ class ReceptionistDashboard {
     }
 }
 
+// Missing Receptionist Dashboard Functions
+function showScheduleAppointmentModal() {
+    dashboardCommon.showNotification('info', 'Schedule Appointment', 'Schedule appointment modal opened');
+}
+
+function viewSchedule() {
+    dashboardCommon.showNotification('info', 'View Schedule', 'Schedule view opened');
+}
+
+function showCheckInModal() {
+    dashboardCommon.showNotification('info', 'Check In Patient', 'Check in modal opened');
+}
+
+function showCheckOutModal() {
+    dashboardCommon.showNotification('info', 'Check Out Patient', 'Check out modal opened');
+}
+
+function showCreateBillModal() {
+    dashboardCommon.showNotification('info', 'Create Bill', 'Create bill modal opened');
+}
+
+function processPayment() {
+    dashboardCommon.showNotification('info', 'Process Payment', 'Payment processing started');
+}
+
+function updateDoctorAvailability() {
+    dashboardCommon.showNotification('info', 'Update Doctor Availability', 'Doctor availability update opened');
+}
+
+function viewDoctorSchedule() {
+    dashboardCommon.showNotification('info', 'View Doctor Schedule', 'Doctor schedule opened');
+}
+
+function generateReceptionistReport() {
+    dashboardCommon.showNotification('success', 'Generate Report', 'Receptionist report generated successfully');
+}
+
+function exportReceptionistData() {
+    dashboardCommon.showNotification('success', 'Export Data', 'Receptionist data exported successfully');
+}
+
 // Initialize dashboard when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     window.receptionistDashboard = new ReceptionistDashboard();

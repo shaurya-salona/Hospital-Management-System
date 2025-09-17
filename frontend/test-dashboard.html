@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Admin Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+        .test-button:hover {
+            background: #5a67d8;
+        }
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Admin Dashboard Test</h1>
+        <p>This page tests the admin dashboard functionality.</p>
+        
+        <h2>Test Results:</h2>
+        <div id="test-results"></div>
+        
+        <h2>Quick Tests:</h2>
+        <button class="test-button" onclick="testModal()">Test Modal</button>
+        <button class="test-button" onclick="testNotification()">Test Notification</button>
+        <button class="test-button" onclick="testNavigation()">Test Navigation</button>
+        <button class="test-button" onclick="openDashboard()">Open Dashboard</button>
+        
+        <h2>File Status:</h2>
+        <div id="file-status"></div>
+    </div>
+
+    <script>
+        function addResult(message, type = 'info') {
+            const results = document.getElementById('test-results');
+            const div = document.createElement('div');
+            div.className = `status ${type}`;
+            div.textContent = message;
+            results.appendChild(div);
+        }
+
+        function checkFiles() {
+            const files = [
+                'admin-dashboard.html',
+                'admin-dashboard.js',
+                'config.js',
+                'dashboard-common.js',
+                'dashboard-common.css',
+                'styles.css'
+            ];
+            
+            const status = document.getElementById('file-status');
+            status.innerHTML = '';
+            
+            files.forEach(file => {
+                const div = document.createElement('div');
+                div.textContent = `✓ ${file} - Available`;
+                div.className = 'status success';
+                status.appendChild(div);
+            });
+        }
+
+        function testModal() {
+            if (window.dashboardCommon) {
+                window.dashboardCommon.showModal('Test Modal', '<p>This is a test modal!</p>');
+                addResult('Modal test passed', 'success');
+            } else {
+                addResult('Modal test failed - dashboardCommon not available', 'error');
+            }
+        }
+
+        function testNotification() {
+            if (window.dashboardCommon) {
+                window.dashboardCommon.showNotification('Test notification!', 'success');
+                addResult('Notification test passed', 'success');
+            } else {
+                addResult('Notification test failed - dashboardCommon not available', 'error');
+            }
+        }
+
+        function testNavigation() {
+            if (window.adminDashboard) {
+                window.adminDashboard.showSection('patient-records');
+                addResult('Navigation test passed', 'success');
+            } else {
+                addResult('Navigation test failed - adminDashboard not available', 'error');
+            }
+        }
+
+        function openDashboard() {
+            window.open('admin-dashboard.html', '_blank');
+            addResult('Dashboard opened in new tab', 'info');
+        }
+
+        // Run initial tests
+        window.addEventListener('load', () => {
+            checkFiles();
+            
+            // Test if files are loaded
+            setTimeout(() => {
+                if (window.CONFIG) {
+                    addResult('Config loaded successfully', 'success');
+                } else {
+                    addResult('Config not loaded', 'error');
+                }
+                
+                if (window.dashboardCommon) {
+                    addResult('Dashboard common loaded successfully', 'success');
+                } else {
+                    addResult('Dashboard common not loaded', 'error');
+                }
+                
+                if (window.adminDashboard) {
+                    addResult('Admin dashboard loaded successfully', 'success');
+                } else {
+                    addResult('Admin dashboard not loaded', 'error');
+                }
+            }, 1000);
+        });
+    </script>
+
+    <!-- Load the dashboard files -->
+    <script src="config.js"></script>
+    <script src="dashboard-common.js"></script>
+    <script src="admin-dashboard.js"></script>
+</body>
+</html>

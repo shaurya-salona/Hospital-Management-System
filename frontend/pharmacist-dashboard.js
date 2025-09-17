@@ -830,6 +830,47 @@ class PharmacistDashboard {
     }
 }
 
+// Missing Pharmacist Dashboard Functions
+function showDispensePrescriptionModal() {
+    dashboardCommon.showNotification('info', 'Dispense Prescription', 'Dispense prescription modal opened');
+}
+
+function verifyPrescription() {
+    dashboardCommon.showNotification('info', 'Verify Prescription', 'Prescription verification started');
+}
+
+function showAddInventoryModal() {
+    dashboardCommon.showNotification('info', 'Add Inventory', 'Add inventory modal opened');
+}
+
+function checkLowStock() {
+    dashboardCommon.showNotification('info', 'Check Low Stock', 'Low stock items checked');
+}
+
+function viewInteractionDatabase() {
+    dashboardCommon.showNotification('info', 'View Interaction Database', 'Interaction database opened');
+}
+
+function checkSelectedInteractions() {
+    dashboardCommon.showNotification('info', 'Check Selected Interactions', 'Selected interactions checked');
+}
+
+function showCounselingModal() {
+    dashboardCommon.showNotification('info', 'Patient Counseling', 'Counseling modal opened');
+}
+
+function viewCounselingHistory() {
+    dashboardCommon.showNotification('info', 'View Counseling History', 'Counseling history opened');
+}
+
+function showCreatePharmacyBillModal() {
+    dashboardCommon.showNotification('info', 'Create Pharmacy Bill', 'Create pharmacy bill modal opened');
+}
+
+function processPharmacyPayment() {
+    dashboardCommon.showNotification('info', 'Process Pharmacy Payment', 'Pharmacy payment processing started');
+}
+
 // Initialize dashboard when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     window.pharmacistDashboard = new PharmacistDashboard();

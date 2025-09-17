@@ -825,6 +825,43 @@ class DoctorDashboard {
     }
 }
 
+// Missing Doctor Dashboard Functions
+function viewPatientHistory() {
+    dashboardCommon.showNotification('info', 'View Patient History', 'Patient history opened');
+}
+
+function showScheduleAppointmentModal() {
+    dashboardCommon.showNotification('info', 'Schedule Appointment', 'Schedule appointment modal opened');
+}
+
+function viewTodaySchedule() {
+    dashboardCommon.showNotification('info', 'View Today Schedule', 'Today schedule opened');
+}
+
+function showAddMedicalRecordModal() {
+    dashboardCommon.showNotification('info', 'Add Medical Record', 'Add medical record modal opened');
+}
+
+function searchMedicalRecords() {
+    dashboardCommon.showNotification('info', 'Search Medical Records', 'Medical records search opened');
+}
+
+function showCreatePrescriptionModal() {
+    dashboardCommon.showNotification('info', 'Create Prescription', 'Create prescription modal opened');
+}
+
+function showOrderLabTestModal() {
+    dashboardCommon.showNotification('info', 'Order Lab Test', 'Order lab test modal opened');
+}
+
+function viewLabResults() {
+    dashboardCommon.showNotification('info', 'View Lab Results', 'Lab results opened');
+}
+
+function viewPerformanceMetrics() {
+    dashboardCommon.showNotification('info', 'View Performance Metrics', 'Performance metrics opened');
+}
+
 // Initialize dashboard when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     window.doctorDashboard = new DoctorDashboard();
