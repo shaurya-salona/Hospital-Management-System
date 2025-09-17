@@ -246,6 +246,67 @@
             transform: translateX(5px);
         }
 
+        .nav-badge {
+            background: #ef4444;
+            color: white;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: 8px;
+        }
+
+        .quick-actions-section {
+            margin-bottom: 40px;
+        }
+
+        .quick-actions-section h3 {
+            color: #1f2937;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .quick-actions-section p {
+            color: #6b7280;
+            margin-bottom: 25px;
+        }
+
+        .quick-actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .quick-action-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px 20px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .quick-action-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+            border-color: #667eea;
+        }
+
+        .quick-action-card i {
+            font-size: 2.5rem;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .quick-action-card span {
+            display: block;
+            color: #1f2937;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
         /* Enhanced Main Content */
         .dashboard-main {
             margin-left: 280px;
@@ -633,69 +694,171 @@
                 <div class="hospital-logo">
                     <i class="fas fa-user-md"></i>
                     <h1>Doctor Dashboard</h1>
+                    <p class="subtitle">Professional Healthcare Management</p>
                 </div>
             </div>
             <div class="header-center">
                 <div class="search-bar">
-                    <input type="text" placeholder="Search patients, appointments, or records..." id="global-search">
+                    <input type="text" placeholder="Search patients, appointments, prescriptions..." id="global-search">
                     <button type="button" title="Search" aria-label="Search"><i class="fas fa-search"></i></button>
                 </div>
             </div>
             <div class="header-right">
+                <div class="notification-bell">
+                    <i class="fas fa-bell"></i>
+                </div>
                 <div class="user-info" id="user-info">
-                    <span class="user-name">Loading...</span>
-                    <span class="user-role">Doctor</span>
+                    <div class="user-avatar">
+                        <i class="fas fa-user-md"></i>
+                    </div>
+                    <div class="user-details">
+                        <span class="user-name">Dr. Smith</span>
+                        <span class="user-role">Cardiologist</span>
+                    </div>
                 </div>
                 <button id="logout-btn" class="logout-btn" title="Logout" aria-label="Logout">
-                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
                 </button>
             </div>
         </header>
 
         <!-- Navigation -->
         <nav class="dashboard-nav">
+            <h3 class="nav-title">Navigation</h3>
             <ul class="nav-menu">
                 <li class="nav-item">
                     <a href="#" class="nav-link active" onclick="showSection('my-patients')">
-                        <i class="fas fa-user-injured"></i>
-                        <span>My Patients</span>
+                        <i class="fas fa-home"></i>
+                        <span>Dashboard</span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a href="#" class="nav-link" onclick="showSection('appointments')">
-                        <i class="fas fa-calendar-check"></i>
-                        <span>Appointments</span>
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>Appointments <span class="nav-badge">0</span></span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link" onclick="showSection('medical-records')">
-                        <i class="fas fa-file-medical"></i>
-                        <span>Medical Records</span>
+                    <a href="#" class="nav-link" onclick="showSection('my-patients')">
+                        <i class="fas fa-users"></i>
+                        <span>Patient Records <span class="nav-badge">0</span></span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a href="#" class="nav-link" onclick="showSection('prescriptions')">
-                        <i class="fas fa-prescription-bottle"></i>
-                        <span>Prescriptions</span>
+                        <i class="fas fa-prescription-bottle-alt"></i>
+                        <span>Prescriptions <span class="nav-badge">0</span></span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a href="#" class="nav-link" onclick="showSection('lab-test-orders')">
-                        <i class="fas fa-flask"></i>
-                        <span>Lab Test Orders</span>
+                        <i class="fas fa-microscope"></i>
+                        <span>Lab Results & Reports <span class="nav-badge">0</span></span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" onclick="showSection('medical-records')">
+                        <i class="fas fa-file-medical-alt"></i>
+                        <span>Medical Notes</span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a href="#" class="nav-link" onclick="showSection('reports-analytics')">
-                        <i class="fas fa-chart-line"></i>
-                        <span>Reports & Analytics</span>
+                        <i class="fas fa-video"></i>
+                        <span>Teleconsultation</span>
                     </a>
                 </li>
             </ul>
+            <div class="system-status">
+                <div class="status-indicator">
+                    <div class="status-dot online"></div>
+                    <span>System Online</span>
+                </div>
+            </div>
         </nav>
 
         <!-- Main Content -->
         <main class="dashboard-main">
+            <!-- Welcome Banner -->
+            <div class="welcome-banner">
+                <div class="welcome-content">
+                    <h2>Welcome back, Dr. Smith! 👨‍⚕️</h2>
+                    <p>Here's what's happening today in your practice</p>
+                </div>
+                <div class="datetime-display">
+                    <div class="date" id="current-date">Wednesday, September 3, 2025</div>
+                    <div class="time" id="current-time">12:13 PM</div>
+                </div>
+            </div>
+
+            <!-- Key Metrics Cards -->
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="metric-content">
+                        <div class="metric-value" id="total-patients">0</div>
+                        <div class="metric-label">Total Patients</div>
+                        <div class="metric-change positive">+5 this month</div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div class="metric-content">
+                        <div class="metric-value" id="todays-appointments">0</div>
+                        <div class="metric-label">Today's Appointments</div>
+                        <div class="metric-change positive">On schedule</div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon">
+                        <i class="fas fa-prescription-bottle-alt"></i>
+                    </div>
+                    <div class="metric-content">
+                        <div class="metric-value" id="pending-prescriptions">0</div>
+                        <div class="metric-label">Pending Prescriptions</div>
+                        <div class="metric-change negative">Requires attention</div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon">
+                        <i class="fas fa-microscope"></i>
+                    </div>
+                    <div class="metric-content">
+                        <div class="metric-value" id="recent-lab-results">0</div>
+                        <div class="metric-label">Recent Lab Results</div>
+                        <div class="metric-change positive">+3 new</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions Section -->
+            <div class="quick-actions-section">
+                <h3>Quick Actions</h3>
+                <p>Common tasks and shortcuts</p>
+                <div class="quick-actions-grid">
+                    <div class="quick-action-card" onclick="showSection('medical-records')">
+                        <i class="fas fa-file-medical-alt"></i>
+                        <span>Medical Notes</span>
+                    </div>
+                    <div class="quick-action-card" onclick="showSection('prescriptions')">
+                        <i class="fas fa-prescription-bottle-alt"></i>
+                        <span>Prescriptions</span>
+                    </div>
+                    <div class="quick-action-card" onclick="showSection('appointments')">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>Appointments</span>
+                    </div>
+                    <div class="quick-action-card" onclick="showSection('lab-test-orders')">
+                        <i class="fas fa-microscope"></i>
+                        <span>Lab Results</span>
+                    </div>
+                </div>
+            </div>
+
             <!-- My Patients Section -->
             <section id="my-patients" class="dashboard-section active">
                 <div class="section-header">
