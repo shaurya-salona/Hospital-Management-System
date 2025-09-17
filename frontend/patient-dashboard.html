@@ -633,6 +633,7 @@
                 <div class="hospital-logo">
                     <i class="fas fa-user"></i>
                     <h1>Patient Dashboard</h1>
+                    <p class="subtitle">Personal Health Information</p>
                 </div>
             </div>
             <div class="header-center">
@@ -642,23 +643,32 @@
                 </div>
             </div>
             <div class="header-right">
+                <div class="notification-bell">
+                    <i class="fas fa-bell"></i>
+                </div>
                 <div class="user-info" id="user-info">
-                    <span class="user-name">Loading...</span>
-                    <span class="user-role">Patient</span>
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="user-details">
+                        <span class="user-name">John Smith</span>
+                        <span class="user-role">Patient</span>
+                    </div>
                 </div>
                 <button id="logout-btn" class="logout-btn" title="Logout" aria-label="Logout">
-                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
                 </button>
             </div>
         </header>
 
         <!-- Navigation -->
         <nav class="dashboard-nav">
+            <h3 class="nav-title">My Health</h3>
             <ul class="nav-menu">
                 <li class="nav-item">
                     <a href="#" class="nav-link active" onclick="showSection('overview')">
                         <i class="fas fa-home"></i>
-                        <span>Overview</span>
+                        <span>Dashboard</span>
                     </a>
                 </li>
                 <li class="nav-item">
@@ -692,10 +702,72 @@
                     </a>
                 </li>
             </ul>
+            <div class="system-status">
+                <div class="status-indicator">
+                    <div class="status-dot online"></div>
+                    <span>System Online</span>
+                </div>
+            </div>
         </nav>
 
         <!-- Main Content -->
         <main class="dashboard-main">
+            <!-- Welcome Banner -->
+            <div class="welcome-banner">
+                <div class="welcome-content">
+                    <h2>Welcome back, John! 👤</h2>
+                    <p>Here's your personal health overview and upcoming appointments</p>
+                </div>
+                <div class="datetime-display">
+                    <div class="date" id="current-date">Monday, September 1, 2025</div>
+                    <div class="time" id="current-time">2:30 PM</div>
+                </div>
+            </div>
+
+            <!-- Key Metrics Cards -->
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-icon">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div class="metric-content">
+                        <div class="metric-value" id="upcoming-appointments">2</div>
+                        <div class="metric-label">Upcoming Appointments</div>
+                        <div class="metric-change positive">Next: Tomorrow 10 AM</div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon">
+                        <i class="fas fa-prescription-bottle"></i>
+                    </div>
+                    <div class="metric-content">
+                        <div class="metric-value" id="active-prescriptions">3</div>
+                        <div class="metric-label">Active Prescriptions</div>
+                        <div class="metric-change positive">All current</div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon">
+                        <i class="fas fa-rupee-sign"></i>
+                    </div>
+                    <div class="metric-content">
+                        <div class="metric-value" id="pending-amount">₹2,500</div>
+                        <div class="metric-label">Pending Amount</div>
+                        <div class="metric-change negative">Payment due</div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <div class="metric-content">
+                        <div class="metric-value" id="unread-messages">1</div>
+                        <div class="metric-label">Unread Messages</div>
+                        <div class="metric-change neutral">From Dr. Smith</div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Overview Section -->
             <section id="overview" class="dashboard-section active">
                 <div class="section-header">
