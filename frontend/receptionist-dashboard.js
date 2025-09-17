@@ -262,7 +262,7 @@ class ReceptionistDashboard {
             <tr>
                 <td>${bill.bill_number || bill.id}</td>
                 <td>${bill.patient_name || 'N/A'}</td>
-                <td>$${bill.amount || 0}</td>
+                <td>${dashboardCommon.formatCurrency(bill.amount || 0)}</td>
                 <td>${new Date(bill.created_at).toLocaleDateString()}</td>
                 <td><span class="status-badge ${bill.status}">${bill.status}</span></td>
                 <td>${bill.payment_method || 'N/A'}</td>
@@ -465,7 +465,7 @@ class ReceptionistDashboard {
         const pendingPayments = billing.filter(bill => bill.status === 'pending').length;
 
         document.getElementById('bills-today').textContent = billsToday;
-        document.getElementById('total-revenue').textContent = `$${totalRevenue.toFixed(2)}`;
+        document.getElementById('total-revenue').textContent = dashboardCommon.formatCurrency(totalRevenue);
         document.getElementById('pending-payments').textContent = pendingPayments;
     }
 

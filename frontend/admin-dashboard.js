@@ -259,16 +259,16 @@ class AdminDashboard {
             bill.status === 'pending' && new Date(bill.due_date) < new Date()
         ).length;
 
-        document.getElementById('total-revenue').textContent = `$${totalRevenue.toFixed(2)}`;
+        document.getElementById('total-revenue').textContent = dashboardCommon.formatCurrency(totalRevenue);
         document.getElementById('pending-bills').textContent = pendingBills;
         document.getElementById('overdue-bills').textContent = overdueBills;
-        document.getElementById('payroll-total').textContent = `$${(totalRevenue * 0.3).toFixed(2)}`;
+        document.getElementById('payroll-total').textContent = dashboardCommon.formatCurrency(totalRevenue * 0.3);
 
         tbody.innerHTML = billing.map(bill => `
             <tr>
                 <td>${bill.bill_number || bill.id}</td>
                 <td>${bill.patient_name || 'N/A'}</td>
-                <td>$${bill.amount || 0}</td>
+                <td>${dashboardCommon.formatCurrency(bill.amount || 0)}</td>
                 <td><span class="status-badge ${bill.status}">${bill.status}</span></td>
                 <td>${bill.due_date ? new Date(bill.due_date).toLocaleDateString() : 'N/A'}</td>
                 <td>
@@ -297,7 +297,7 @@ class AdminDashboard {
                 <td>${item.name}</td>
                 <td>${item.category}</td>
                 <td>${item.quantity}</td>
-                <td>$${item.unit_price}</td>
+                <td>${dashboardCommon.formatCurrency(item.unit_price)}</td>
                 <td><span class="status-badge ${item.quantity < item.min_stock ? 'low-stock' : 'in-stock'}">${item.quantity < item.min_stock ? 'Low Stock' : 'In Stock'}</span></td>
                 <td>
                     <button class="action-btn edit" onclick="adminDashboard.viewInventory('${item.id}')">View</button>

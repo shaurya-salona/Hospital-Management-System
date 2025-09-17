@@ -221,7 +221,7 @@ class PharmacistDashboard {
                 <td>${item.name}</td>
                 <td>${item.category}</td>
                 <td>${item.quantity}</td>
-                <td>$${item.unit_price}</td>
+                <td>${dashboardCommon.formatCurrency(item.unit_price)}</td>
                 <td>${item.expiry_date ? new Date(item.expiry_date).toLocaleDateString() : 'N/A'}</td>
                 <td><span class="status-badge ${this.getInventoryStatus(item)}">${this.getInventoryStatus(item)}</span></td>
                 <td>
@@ -280,7 +280,7 @@ class PharmacistDashboard {
                 <td>${bill.bill_number || bill.id}</td>
                 <td>${bill.patient_name || 'N/A'}</td>
                 <td>${bill.medications || 'N/A'}</td>
-                <td>$${bill.amount || 0}</td>
+                <td>${dashboardCommon.formatCurrency(bill.amount || 0)}</td>
                 <td>${new Date(bill.created_at).toLocaleDateString()}</td>
                 <td>${bill.payment_method || 'N/A'}</td>
                 <td><span class="status-badge ${bill.status}">${bill.status}</span></td>
@@ -471,7 +471,7 @@ class PharmacistDashboard {
         const insuranceClaims = billing.filter(bill => bill.payment_method === 'insurance').length;
 
         document.getElementById('pharmacy-bills-today').textContent = billsToday;
-        document.getElementById('pharmacy-revenue').textContent = `$${revenue.toFixed(2)}`;
+        document.getElementById('pharmacy-revenue').textContent = dashboardCommon.formatCurrency(revenue);
         document.getElementById('insurance-claims').textContent = insuranceClaims;
     }
 

@@ -331,7 +331,7 @@ class PatientDashboard {
                 <td>${b.bill_number || b.id}</td>
                 <td>${b.created_at ? new Date(b.created_at).toLocaleDateString() : ''}</td>
                 <td>${[b.doctor_first_name, b.doctor_last_name].filter(Boolean).join(' ') || 'N/A'}</td>
-                <td>$${(b.amount || 0).toFixed ? (b.amount || 0).toFixed(2) : b.amount}</td>
+                <td>${dashboardCommon.formatCurrency(b.amount || 0)}</td>
                 <td><span class="status-badge ${b.status}">${b.status}</span></td>
             </tr>
         `).join('') : '<tr><td colspan="5">No billing records found.</td></tr>';
