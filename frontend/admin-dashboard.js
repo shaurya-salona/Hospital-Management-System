@@ -50,14 +50,21 @@ class AdminDashboard {
 
     async loadUserData() {
         try {
-            // Simulate user data loading
-            this.currentUser = {
-                id: 1,
-                first_name: 'System',
-                last_name: 'Administrator',
-                email: 'admin@hospital.com',
-                role: 'admin'
-            };
+            // Try to load from API first
+            const userData = await dashboardCommon.apiRequest('/api/auth/profile');
+            
+            if (userData) {
+                this.currentUser = userData;
+            } else {
+                // Fallback to mock data
+                this.currentUser = {
+                    id: 1,
+                    first_name: 'System',
+                    last_name: 'Administrator',
+                    email: 'admin@hospital.com',
+                    role: 'admin'
+                };
+            }
             this.updateUserInterface();
         } catch (error) {
             console.error('Error loading user data:', error);

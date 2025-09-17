@@ -185,7 +185,7 @@ class DashboardCommon {
 
     // API Helper Functions
     async apiRequest(endpoint, options = {}) {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('authToken') || localStorage.getItem('token');
         const defaultOptions = {
             headers: {
                 'Content-Type': 'application/json',
@@ -194,7 +194,7 @@ class DashboardCommon {
         };
 
         try {
-            const response = await fetch(`${CONFIG.API_BASE_URL}${endpoint}`, {
+            const response = await fetch(`${window.APP_CONFIG.API_BASE_URL}${endpoint}`, {
                 ...defaultOptions,
                 ...options,
                 headers: {
@@ -204,14 +204,23 @@ class DashboardCommon {
             });
 
             if (!response.ok) {
+                if (response.status === 401) {
+                    // Handle unauthorized access
+                    this.showNotification('Session expired. Please login again.', 'error');
+                    setTimeout(() => {
+                        window.location.href = '/index.html';
+                    }, 2000);
+                    return null;
+                }
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
             return await response.json();
         } catch (error) {
             console.error('API request failed:', error);
-            this.showNotification('Network error occurred', 'error');
-            throw error;
+            this.showNotification('Connection failed. Using demo data.', 'warning');
+            // Return mock data for demo purposes
+            return this.getMockData(endpoint);
         }
     }
 
@@ -243,6 +252,46 @@ class DashboardCommon {
         if (element && originalContent) {
             element.innerHTML = originalContent;
         }
+    }
+
+    // Mock Data for Demo
+    getMockData(endpoint) {
+        const mockData = {
+            '/api/users': {
+                users: [
+                    { id: 1, name: 'Dr. John Smith', email: 'john.smith@hospital.com', role: 'doctor', status: 'active' },
+                    { id: 2, name: 'Sarah Johnson', email: 'sarah.johnson@hospital.com', role: 'receptionist', status: 'active' },
+                    { id: 3, name: 'Emily Rodriguez', email: 'emily.rodriguez@hospital.com', role: 'nurse', status: 'active' },
+                    { id: 4, name: 'Dr. Michael Chen', email: 'michael.chen@hospital.com', role: 'pharmacist', status: 'active' }
+                ]
+            },
+            '/api/patients': {
+                patients: [
+                    { id: 1, name: 'John Doe', age: 45, phone: '+91-9876543210', email: 'john.doe@email.com', status: 'active' },
+                    { id: 2, name: 'Jane Smith', age: 32, phone: '+91-9876543211', email: 'jane.smith@email.com', status: 'active' },
+                    { id: 3, name: 'Bob Johnson', age: 28, phone: '+91-9876543212', email: 'bob.johnson@email.com', status: 'active' }
+                ]
+            },
+            '/api/appointments': {
+                appointments: [
+                    { id: 1, patient: 'John Doe', doctor: 'Dr. Smith', date: '2025-01-15', time: '10:00', status: 'scheduled' },
+                    { id: 2, patient: 'Jane Smith', doctor: 'Dr. Brown', date: '2025-01-15', time: '11:00', status: 'confirmed' },
+                    { id: 3, patient: 'Bob Johnson', doctor: 'Dr. Smith', date: '2025-01-16', time: '09:00', status: 'pending' }
+                ]
+            },
+            '/api/analytics/dashboard': {
+                totalPatients: 156,
+                totalDoctors: 12,
+                totalAppointments: 45,
+                totalRevenue: 2850000,
+                criticalPatients: 2,
+                bedOccupancy: 78,
+                pendingApprovals: 4,
+                totalNurses: 24
+            }
+        };
+
+        return mockData[endpoint] || { message: 'No data available' };
     }
 
     // Data Export

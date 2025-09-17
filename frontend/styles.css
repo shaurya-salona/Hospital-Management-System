@@ -7,7 +7,7 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #1d4ed8 100%);
     min-height: 100vh;
     color: #333;
 }
@@ -95,7 +95,7 @@ body {
     left: 0;
     right: 0;
     height: 4px;
-    background: linear-gradient(90deg, #667eea, #764ba2);
+    background: linear-gradient(90deg, #1e40af, #1d4ed8);
 }
 
 .portal-header {
@@ -107,7 +107,7 @@ body {
 
 .portal-icon {
     font-size: 2rem;
-    color: #667eea;
+    color: #1e40af;
 }
 
 .access-level {
@@ -173,56 +173,56 @@ body {
 /* Portal Specific Colors */
 .admin-portal .portal-icon,
 .admin-portal .access-link {
-    color: #e74c3c;
+    color: #374151;
 }
 
 .admin-portal:hover {
-    border-color: #e74c3c;
+    border-color: #374151;
 }
 
 .doctor-portal .portal-icon,
 .doctor-portal .access-link {
-    color: #27ae60;
+    color: #059669;
 }
 
 .doctor-portal:hover {
-    border-color: #27ae60;
+    border-color: #059669;
 }
 
 .receptionist-portal .portal-icon,
 .receptionist-portal .access-link {
-    color: #f39c12;
+    color: #d97706;
 }
 
 .receptionist-portal:hover {
-    border-color: #f39c12;
+    border-color: #d97706;
 }
 
 .nurse-portal .portal-icon,
 .nurse-portal .access-link {
-    color: #e91e63;
+    color: #dc2626;
 }
 
 .nurse-portal:hover {
-    border-color: #e91e63;
+    border-color: #dc2626;
 }
 
 .pharmacist-portal .portal-icon,
 .pharmacist-portal .access-link {
-    color: #9b59b6;
+    color: #059669;
 }
 
 .pharmacist-portal:hover {
-    border-color: #9b59b6;
+    border-color: #059669;
 }
 
 .patient-portal .portal-icon,
 .patient-portal .access-link {
-    color: #3498db;
+    color: #7c3aed;
 }
 
 .patient-portal:hover {
-    border-color: #3498db;
+    border-color: #7c3aed;
 }
 
 /* Footer */
