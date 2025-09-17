@@ -3,181 +3,411 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hospital Management Information System</title>
+    <title>HMIS - Hospital Management Information System</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="dashboard-common.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #3b82f6 0%, #1e40af 50%, #7c3aed 100%);
             min-height: 100vh;
-            margin: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
+            color: #333;
+            line-height: 1.6;
         }
 
-        .landing-container {
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .header {
             text-align: center;
-            max-width: 800px;
-            padding: 40px;
-        }
-
-        .logo {
-            font-size: 4rem;
-            margin-bottom: 20px;
+            margin-bottom: 50px;
             color: white;
         }
 
-        h1 {
-            font-size: 3rem;
+        .header h1 {
+            font-size: 2.5rem;
             font-weight: 800;
-            margin-bottom: 20px;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 15px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
-        .subtitle {
-            font-size: 1.2rem;
-            margin-bottom: 40px;
+        .header .subtitle {
+            font-size: 1.1rem;
             opacity: 0.9;
+            margin-bottom: 10px;
         }
 
-        .dashboard-links {
+        .header .description {
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+
+        .portals-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-top: 40px;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
         }
 
-        .dashboard-link {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+        .portal-card {
+            background: white;
             border-radius: 15px;
             padding: 30px;
-            text-decoration: none;
-            color: white;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             transition: all 0.3s ease;
-            -webkit-backdrop-filter: blur(20px);
-            backdrop-filter: blur(20px);
+            cursor: pointer;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
         }
 
-        .dashboard-link:hover {
-            background: rgba(255, 255, 255, 0.2);
+        .portal-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
         }
 
-        .dashboard-link i {
-            font-size: 2.5rem;
-            margin-bottom: 15px;
-            display: block;
+        .portal-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
         }
 
-        .dashboard-link h3 {
-            font-size: 1.5rem;
+        .portal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .portal-title {
+            font-size: 1.8rem;
             font-weight: 700;
             margin-bottom: 10px;
         }
 
-        .dashboard-link p {
-            opacity: 0.8;
-            font-size: 0.95rem;
+        .access-level {
+            background: #f0f0f0;
+            color: #666;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
         }
 
-        .status {
-            margin-top: 30px;
-            padding: 20px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+        .portal-description {
+            color: #777;
+            margin-bottom: 20px;
+            line-height: 1.5;
         }
 
-        .status-indicator {
+        .features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .feature-tag {
+            background: #f8f9fa;
+            color: #495057;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .access-link {
             display: inline-flex;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 10px;
+            gap: 8px;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            border: 2px solid;
         }
 
-        .status-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: #10b981;
-            animation: pulse 2s infinite;
+        .footer {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            margin-top: 40px;
         }
 
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+        /* Portal Specific Colors */
+        .admin-portal .portal-title,
+        .admin-portal .access-link {
+            color: #374151;
         }
 
+        .admin-portal::before {
+            background: linear-gradient(90deg, #374151, #6b7280);
+        }
+
+        .admin-portal .access-link {
+            background: #374151;
+            color: white;
+            border-color: #374151;
+        }
+
+        .doctor-portal .portal-title,
+        .doctor-portal .access-link {
+            color: #059669;
+        }
+
+        .doctor-portal::before {
+            background: linear-gradient(90deg, #059669, #10b981);
+        }
+
+        .doctor-portal .access-link {
+            background: #059669;
+            color: white;
+            border-color: #059669;
+        }
+
+        .receptionist-portal .portal-title,
+        .receptionist-portal .access-link {
+            color: #d97706;
+        }
+
+        .receptionist-portal::before {
+            background: linear-gradient(90deg, #d97706, #f59e0b);
+        }
+
+        .receptionist-portal .access-link {
+            background: #d97706;
+            color: white;
+            border-color: #d97706;
+        }
+
+        .nurse-portal .portal-title,
+        .nurse-portal .access-link {
+            color: #dc2626;
+        }
+
+        .nurse-portal::before {
+            background: linear-gradient(90deg, #dc2626, #ef4444);
+        }
+
+        .nurse-portal .access-link {
+            background: #dc2626;
+            color: white;
+            border-color: #dc2626;
+        }
+
+        .pharmacist-portal .portal-title,
+        .pharmacist-portal .access-link {
+            color: #059669;
+        }
+
+        .pharmacist-portal::before {
+            background: linear-gradient(90deg, #059669, #10b981);
+        }
+
+        .pharmacist-portal .access-link {
+            background: #059669;
+            color: white;
+            border-color: #059669;
+        }
+
+        .patient-portal .portal-title,
+        .patient-portal .access-link {
+            color: #7c3aed;
+        }
+
+        .patient-portal::before {
+            background: linear-gradient(90deg, #7c3aed, #a855f7);
+        }
+
+        .patient-portal .access-link {
+            background: #7c3aed;
+            color: white;
+            border-color: #7c3aed;
+        }
+
+        .access-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Responsive Design */
         @media (max-width: 768px) {
-            .landing-container {
+            .portals-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .portal-card {
                 padding: 20px;
             }
-
-            h1 {
+            
+            .header h1 {
                 font-size: 2rem;
-            }
-
-            .logo {
-                font-size: 3rem;
-            }
-
-            .dashboard-links {
-                grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
 <body>
-    <div class="landing-container">
-        <div class="logo">
-            <i class="fas fa-hospital"></i>
+    <div class="container">
+        <div class="header">
+            <h1>HMIS - Hospital Management Information System</h1>
+            <p class="subtitle">Welcome to the Hospital Management Information System</p>
+            <p class="description">Please select your role to access the appropriate portal:</p>
         </div>
-        
-        <h1>Hospital Management Information System</h1>
-        <p class="subtitle">Comprehensive healthcare management solution for modern hospitals</p>
-        
-        <div class="dashboard-links">
-            <a href="admin-dashboard.html" class="dashboard-link">
-                <i class="fas fa-user-shield"></i>
-                <h3>Admin Dashboard</h3>
-                <p>System administration and control center</p>
-            </a>
-            
-            <a href="doctor-dashboard.html" class="dashboard-link">
-                <i class="fas fa-user-md"></i>
-                <h3>Doctor Dashboard</h3>
-                <p>Patient management and medical records</p>
-            </a>
-            
-            <a href="patient-dashboard.html" class="dashboard-link">
-                <i class="fas fa-user-injured"></i>
-                <h3>Patient Portal</h3>
-                <p>Access your medical records and appointments</p>
-            </a>
-            
-            <a href="receptionist-dashboard.html" class="dashboard-link">
-                <i class="fas fa-user-tie"></i>
-                <h3>Reception Dashboard</h3>
-                <p>Appointment scheduling and patient check-in</p>
-            </a>
-        </div>
-        
-        <div class="status">
-            <div class="status-indicator">
-                <div class="status-dot"></div>
-                <span>System Online</span>
+
+        <div class="portals-grid">
+            <!-- Admin Portal -->
+            <div class="portal-card admin-portal" onclick="navigateToPortal('admin-dashboard.html')">
+                <div class="portal-header">
+                    <h3 class="portal-title">Admin Portal</h3>
+                    <span class="access-level">System Administrator Access</span>
+                </div>
+                <p class="portal-description">Full System Access & Control</p>
+                <div class="features">
+                    <span class="feature-tag">User Management</span>
+                    <span class="feature-tag">System Analytics</span>
+                    <span class="feature-tag">Configuration</span>
+                    <span class="feature-tag">Data Management</span>
+                </div>
+                <a href="admin-dashboard.html" class="access-link">
+                    <i class="fas fa-arrow-right"></i>
+                    Access Portal
+                </a>
             </div>
-            <p>All services are operational</p>
+
+            <!-- Doctor Portal -->
+            <div class="portal-card doctor-portal" onclick="navigateToPortal('doctor-dashboard.html')">
+                <div class="portal-header">
+                    <h3 class="portal-title">Doctor Portal</h3>
+                    <span class="access-level">Medical Professional Access</span>
+                </div>
+                <p class="portal-description">Patient Management & Medical Records</p>
+                <div class="features">
+                    <span class="feature-tag">Patient Records</span>
+                    <span class="feature-tag">Diagnosis Tools</span>
+                    <span class="feature-tag">Prescriptions</span>
+                    <span class="feature-tag">Appointments</span>
+                </div>
+                <a href="doctor-dashboard.html" class="access-link">
+                    <i class="fas fa-arrow-right"></i>
+                    Access Portal
+                </a>
+            </div>
+
+            <!-- Receptionist Portal -->
+            <div class="portal-card receptionist-portal" onclick="navigateToPortal('receptionist-dashboard.html')">
+                <div class="portal-header">
+                    <h3 class="portal-title">Receptionist Portal</h3>
+                    <span class="access-level">Front Desk Staff Access</span>
+                </div>
+                <p class="portal-description">Appointments & Patient Registration</p>
+                <div class="features">
+                    <span class="feature-tag">Patient Registration</span>
+                    <span class="feature-tag">Appointments</span>
+                    <span class="feature-tag">Communication</span>
+                    <span class="feature-tag">Billing</span>
+                </div>
+                <a href="receptionist-dashboard.html" class="access-link">
+                    <i class="fas fa-arrow-right"></i>
+                    Access Portal
+                </a>
+            </div>
+
+            <!-- Nurse Portal -->
+            <div class="portal-card nurse-portal" onclick="navigateToPortal('nurse-dashboard.html')">
+                <div class="portal-header">
+                    <h3 class="portal-title">Nurse Portal</h3>
+                    <span class="access-level">Nursing Staff Access</span>
+                </div>
+                <p class="portal-description">Patient Care & Vital Monitoring</p>
+                <div class="features">
+                    <span class="feature-tag">Vital Monitoring</span>
+                    <span class="feature-tag">Care Plans</span>
+                    <span class="feature-tag">Medication Admin</span>
+                    <span class="feature-tag">Patient Assessment</span>
+                </div>
+                <a href="nurse-dashboard.html" class="access-link">
+                    <i class="fas fa-arrow-right"></i>
+                    Access Portal
+                </a>
+            </div>
+
+            <!-- Pharmacist Portal -->
+            <div class="portal-card pharmacist-portal" onclick="navigateToPortal('pharmacist-dashboard.html')">
+                <div class="portal-header">
+                    <h3 class="portal-title">Pharmacist Portal</h3>
+                    <span class="access-level">Pharmacy Staff Access</span>
+                </div>
+                <p class="portal-description">Medication Management & Dispensing</p>
+                <div class="features">
+                    <span class="feature-tag">Prescription Processing</span>
+                    <span class="feature-tag">Inventory Management</span>
+                    <span class="feature-tag">Drug Interactions</span>
+                    <span class="feature-tag">Patient Counseling</span>
+                </div>
+                <a href="pharmacist-dashboard.html" class="access-link">
+                    <i class="fas fa-arrow-right"></i>
+                    Access Portal
+                </a>
+            </div>
+
+            <!-- Patient Portal -->
+            <div class="portal-card patient-portal" onclick="navigateToPortal('patient-dashboard.html')">
+                <div class="portal-header">
+                    <h3 class="portal-title">Patient Portal</h3>
+                    <span class="access-level">Patient Self-Service Access</span>
+                </div>
+                <p class="portal-description">Limited Access - Personal Health Information</p>
+                <div class="features">
+                    <span class="feature-tag">Medical Records</span>
+                    <span class="feature-tag">Appointments</span>
+                    <span class="feature-tag">Prescriptions</span>
+                    <span class="feature-tag">Billing</span>
+                </div>
+                <a href="patient-dashboard.html" class="access-link">
+                    <i class="fas fa-arrow-right"></i>
+                    Access Portal
+                </a>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2024 HMIS - Hospital Management Information System</p>
+            <p>Secure Access - Role-Based Authentication Required</p>
         </div>
     </div>
 
     <script src="config.js"></script>
     <script src="dashboard-common.js"></script>
+    <script>
+        function navigateToPortal(url) {
+            // Add loading state
+            const card = event.currentTarget;
+            card.style.opacity = '0.7';
+            card.style.pointerEvents = 'none';
+            
+            // Navigate after a short delay for visual feedback
+            setTimeout(() => {
+                window.location.href = url;
+            }, 200);
+        }
+
+        // Initialize dashboard common
+        const dashboardCommon = new DashboardCommon();
+    </script>
 </body>
 </html>
