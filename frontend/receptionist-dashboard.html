@@ -633,6 +633,7 @@
                 <div class="hospital-logo">
                     <i class="fas fa-user-tie"></i>
                     <h1>Receptionist Dashboard</h1>
+                    <p class="subtitle">Front Desk Management</p>
                 </div>
             </div>
             <div class="header-center">
@@ -642,21 +643,36 @@
                 </div>
             </div>
             <div class="header-right">
+                <div class="notification-bell">
+                    <i class="fas fa-bell"></i>
+                </div>
                 <div class="user-info" id="user-info">
-                    <span class="user-name">Loading...</span>
-                    <span class="user-role">Receptionist</span>
+                    <div class="user-avatar">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <div class="user-details">
+                        <span class="user-name">Sarah Johnson</span>
+                        <span class="user-role">Senior Receptionist</span>
+                    </div>
                 </div>
                 <button id="logout-btn" class="logout-btn" title="Logout" aria-label="Logout">
-                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
                 </button>
             </div>
         </header>
 
         <!-- Navigation -->
         <nav class="dashboard-nav">
+            <h3 class="nav-title">Reception</h3>
             <ul class="nav-menu">
                 <li class="nav-item">
                     <a href="#" class="nav-link active" onclick="showSection('patient-registration')">
+                        <i class="fas fa-home"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" onclick="showSection('patient-registration')">
                         <i class="fas fa-user-plus"></i>
                         <span>Patient Registration</span>
                     </a>
@@ -692,10 +708,72 @@
                     </a>
                 </li>
             </ul>
+            <div class="system-status">
+                <div class="status-indicator">
+                    <div class="status-dot online"></div>
+                    <span>System Online</span>
+                </div>
+            </div>
         </nav>
 
         <!-- Main Content -->
         <main class="dashboard-main">
+            <!-- Welcome Banner -->
+            <div class="welcome-banner">
+                <div class="welcome-content">
+                    <h2>Welcome back, Sarah! 👩‍💼</h2>
+                    <p>Here's your front desk overview and today's tasks</p>
+                </div>
+                <div class="datetime-display">
+                    <div class="date" id="current-date">Monday, September 1, 2025</div>
+                    <div class="time" id="current-time">9:15 AM</div>
+                </div>
+            </div>
+
+            <!-- Key Metrics Cards -->
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-icon">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <div class="metric-content">
+                        <div class="metric-value" id="registered-today">12</div>
+                        <div class="metric-label">Registered Today</div>
+                        <div class="metric-change positive">+3 this hour</div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div class="metric-content">
+                        <div class="metric-value" id="appointments-today">28</div>
+                        <div class="metric-label">Appointments Today</div>
+                        <div class="metric-change positive">On schedule</div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon">
+                        <i class="fas fa-sign-in-alt"></i>
+                    </div>
+                    <div class="metric-content">
+                        <div class="metric-value" id="checked-in">15</div>
+                        <div class="metric-label">Checked In</div>
+                        <div class="metric-change positive">Waiting: 8</div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon">
+                        <i class="fas fa-rupee-sign"></i>
+                    </div>
+                    <div class="metric-content">
+                        <div class="metric-value" id="revenue-today">₹45.2K</div>
+                        <div class="metric-label">Revenue Today</div>
+                        <div class="metric-change positive">+₹8.5K this hour</div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Patient Registration Section -->
             <section id="patient-registration" class="dashboard-section active">
                 <div class="section-header">
