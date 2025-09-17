@@ -633,6 +633,7 @@
                 <div class="hospital-logo">
                     <i class="fas fa-pills"></i>
                     <h1>Pharmacist Dashboard</h1>
+                    <p class="subtitle">Medication Management & Dispensing</p>
                 </div>
             </div>
             <div class="header-center">
@@ -642,23 +643,38 @@
                 </div>
             </div>
             <div class="header-right">
+                <div class="notification-bell">
+                    <i class="fas fa-bell"></i>
+                </div>
                 <div class="user-info" id="user-info">
-                    <span class="user-name">Loading...</span>
-                    <span class="user-role">Pharmacist</span>
+                    <div class="user-avatar">
+                        <i class="fas fa-pills"></i>
+                    </div>
+                    <div class="user-details">
+                        <span class="user-name">Dr. Michael Chen</span>
+                        <span class="user-role">Chief Pharmacist</span>
+                    </div>
                 </div>
                 <button id="logout-btn" class="logout-btn" title="Logout" aria-label="Logout">
-                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
                 </button>
             </div>
         </header>
 
         <!-- Navigation -->
         <nav class="dashboard-nav">
+            <h3 class="nav-title">Pharmacy</h3>
             <ul class="nav-menu">
                 <li class="nav-item">
                     <a href="#" class="nav-link active" onclick="showSection('prescription-management')">
+                        <i class="fas fa-home"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" onclick="showSection('prescription-management')">
                         <i class="fas fa-prescription-bottle"></i>
-                        <span>Prescription Management</span>
+                        <span>Prescription Processing</span>
                     </a>
                 </li>
                 <li class="nav-item">
@@ -692,10 +708,72 @@
                     </a>
                 </li>
             </ul>
+            <div class="system-status">
+                <div class="status-indicator">
+                    <div class="status-dot online"></div>
+                    <span>System Online</span>
+                </div>
+            </div>
         </nav>
 
         <!-- Main Content -->
         <main class="dashboard-main">
+            <!-- Welcome Banner -->
+            <div class="welcome-banner">
+                <div class="welcome-content">
+                    <h2>Welcome back, Dr. Chen! 💊</h2>
+                    <p>Here's your pharmacy overview and today's medication tasks</p>
+                </div>
+                <div class="datetime-display">
+                    <div class="date" id="current-date">Monday, September 1, 2025</div>
+                    <div class="time" id="current-time">10:45 AM</div>
+                </div>
+            </div>
+
+            <!-- Key Metrics Cards -->
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-icon">
+                        <i class="fas fa-prescription-bottle"></i>
+                    </div>
+                    <div class="metric-content">
+                        <div class="metric-value" id="pending-prescriptions">18</div>
+                        <div class="metric-label">Pending Prescriptions</div>
+                        <div class="metric-change negative">5 urgent</div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon">
+                        <i class="fas fa-boxes"></i>
+                    </div>
+                    <div class="metric-content">
+                        <div class="metric-value" id="low-stock-items">7</div>
+                        <div class="metric-label">Low Stock Items</div>
+                        <div class="metric-change negative">Reorder needed</div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon">
+                        <i class="fas fa-rupee-sign"></i>
+                    </div>
+                    <div class="metric-content">
+                        <div class="metric-value" id="pharmacy-revenue">₹28.5K</div>
+                        <div class="metric-label">Pharmacy Revenue</div>
+                        <div class="metric-change positive">+₹5.2K today</div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="metric-content">
+                        <div class="metric-value" id="interaction-alerts">3</div>
+                        <div class="metric-label">Interaction Alerts</div>
+                        <div class="metric-change negative">Review required</div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Prescription Management Section -->
             <section id="prescription-management" class="dashboard-section active">
                 <div class="section-header">
