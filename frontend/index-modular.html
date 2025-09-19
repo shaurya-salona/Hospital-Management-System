@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Management Information System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Loading styles */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .loading-spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: white;
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading overlay -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div style="text-align: center;">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Loading HMIS...</div>
+        </div>
+    </div>
+
+    <!-- Main content -->
+    <div id="main-content" style="display: none;">
+        <div class="main-container">
+            <div class="header">
+                <h1><i class="fas fa-hospital"></i> HMIS</h1>
+                <p>Hospital Management Information System</p>
+                <p class="subtitle">Comprehensive Healthcare Management Solution</p>
+            </div>
+
+            <div class="login-options">
+                <div class="login-grid">
+                    <div class="login-card" onclick="redirectToLogin('admin')">
+                        <div class="login-icon">
+                            <i class="fas fa-user-shield"></i>
+                        </div>
+                        <h3>Administrator</h3>
+                        <p>System administration and management</p>
+                        <div class="login-features">
+                            <span class="feature-tag">User Management</span>
+                            <span class="feature-tag">System Settings</span>
+                            <span class="feature-tag">Reports</span>
+                        </div>
+                    </div>
+
+                    <div class="login-card" onclick="redirectToLogin('doctor')">
+                        <div class="login-icon">
+                            <i class="fas fa-user-md"></i>
+                        </div>
+                        <h3>Doctor</h3>
+                        <p>Patient care and medical records</p>
+                        <div class="login-features">
+                            <span class="feature-tag">Patient Records</span>
+                            <span class="feature-tag">Prescriptions</span>
+                            <span class="feature-tag">Appointments</span>
+                        </div>
+                    </div>
+
+                    <div class="login-card" onclick="redirectToLogin('nurse')">
+                        <div class="login-icon">
+                            <i class="fas fa-user-nurse"></i>
+                        </div>
+                        <h3>Nurse</h3>
+                        <p>Patient care assistance and monitoring</p>
+                        <div class="login-features">
+                            <span class="feature-tag">Vital Signs</span>
+                            <span class="feature-tag">Medication</span>
+                            <span class="feature-tag">Care Plans</span>
+                        </div>
+                    </div>
+
+                    <div class="login-card" onclick="redirectToLogin('receptionist')">
+                        <div class="login-icon">
+                            <i class="fas fa-user-tie"></i>
+                        </div>
+                        <h3>Receptionist</h3>
+                        <p>Patient registration and scheduling</p>
+                        <div class="login-features">
+                            <span class="feature-tag">Registration</span>
+                            <span class="feature-tag">Scheduling</span>
+                            <span class="feature-tag">Check-in</span>
+                        </div>
+                    </div>
+
+                    <div class="login-card" onclick="redirectToLogin('pharmacist')">
+                        <div class="login-icon">
+                            <i class="fas fa-pills"></i>
+                        </div>
+                        <h3>Pharmacist</h3>
+                        <p>Medication management and dispensing</p>
+                        <div class="login-features">
+                            <span class="feature-tag">Prescriptions</span>
+                            <span class="feature-tag">Inventory</span>
+                            <span class="feature-tag">Dispensing</span>
+                        </div>
+                    </div>
+
+                    <div class="login-card" onclick="redirectToLogin('patient')">
+                        <div class="login-icon">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <h3>Patient</h3>
+                        <p>Personal health records and appointments</p>
+                        <div class="login-features">
+                            <span class="feature-tag">Health Records</span>
+                            <span class="feature-tag">Appointments</span>
+                            <span class="feature-tag">Prescriptions</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer">
+                <p>&copy; 2024 Hospital Management Information System. All rights reserved.</p>
+                <div class="footer-links">
+                    <a href="#" onclick="showAbout()">About</a>
+                    <a href="#" onclick="showHelp()">Help</a>
+                    <a href="#" onclick="showContact()">Contact</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load modules in order -->
+    <script src="modules/utils.js"></script>
+    <script src="modules/notification.js"></script>
+    <script src="modules/modal.js"></script>
+    <script src="config.js"></script>
+    <script src="api-service.js"></script>
+    <script src="auth-service.js"></script>
+    <script src="dashboard-common.js"></script>
+    <script src="modules/app.js"></script>
+
+    <script>
+        // Hide loading overlay when modules are loaded
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const loadingOverlay = document.getElementById('loading-overlay');
+                const mainContent = document.getElementById('main-content');
+
+                if (loadingOverlay && mainContent) {
+                    loadingOverlay.style.display = 'none';
+                    mainContent.style.display = 'block';
+                }
+            }, 1000); // Show loading for at least 1 second
+        });
+
+        // Redirect to login page
+        function redirectToLogin(role) {
+            const loginPages = {
+                'admin': 'admin-login.html',
+                'doctor': 'doctor-login.html',
+                'nurse': 'nurse-login.html',
+                'receptionist': 'receptionist-login.html',
+                'pharmacist': 'pharmacist-login.html',
+                'patient': 'patient-login.html'
+            };
+
+            const loginPage = loginPages[role];
+            if (loginPage) {
+                window.location.href = loginPage;
+            }
+        }
+
+        // Show about modal
+        function showAbout() {
+            if (window.hmisApp && window.hmisApp.modules.modal) {
+                window.hmisApp.modules.modal.showModal('About HMIS', `
+                    <div style="text-align: center; padding: 20px;">
+                        <h3 style="color: #667eea; margin-bottom: 20px;">
+                            <i class="fas fa-hospital"></i> Hospital Management Information System
+                        </h3>
+                        <p style="color: #6b7280; line-height: 1.6;">
+                            A comprehensive healthcare management solution designed to streamline
+                            hospital operations and improve patient care through digital transformation.
+                        </p>
+                        <div style="margin-top: 20px;">
+                            <p><strong>Version:</strong> 1.0.0</p>
+                            <p><strong>Built with:</strong> Node.js, PostgreSQL, Modern Web Technologies</p>
+                        </div>
+                    </div>
+                `, 'medium');
+            }
+        }
+
+        // Show help modal
+        function showHelp() {
+            if (window.hmisApp && window.hmisApp.modules.modal) {
+                window.hmisApp.modules.modal.showModal('Help & Support', `
+                    <div style="padding: 20px;">
+                        <h4 style="color: #667eea; margin-bottom: 15px;">Getting Started</h4>
+                        <p style="color: #6b7280; margin-bottom: 15px;">
+                            Select your role from the options above to access your personalized dashboard.
+                        </p>
+
+                        <h4 style="color: #667eea; margin-bottom: 15px;">Default Login Credentials</h4>
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                            <p><strong>Admin:</strong> admin / admin123</p>
+                            <p><strong>Doctor:</strong> doctor / doctor123</p>
+                            <p><strong>Nurse:</strong> nurse / nurse123</p>
+                            <p><strong>Receptionist:</strong> receptionist / receptionist123</p>
+                            <p><strong>Pharmacist:</strong> pharmacist / pharmacist123</p>
+                            <p><strong>Patient:</strong> patient / patient123</p>
+                        </div>
+
+                        <h4 style="color: #667eea; margin-bottom: 15px;">Need More Help?</h4>
+                        <p style="color: #6b7280;">
+                            Contact your system administrator or IT support team for additional assistance.
+                        </p>
+                    </div>
+                `, 'large');
+            }
+        }
+
+        // Show contact modal
+        function showContact() {
+            if (window.hmisApp && window.hmisApp.modules.modal) {
+                window.hmisApp.modules.modal.showModal('Contact Information', `
+                    <div style="padding: 20px;">
+                        <h4 style="color: #667eea; margin-bottom: 15px;">Hospital Contact</h4>
+                        <div style="color: #6b7280;">
+                            <p><i class="fas fa-phone"></i> <strong>Phone:</strong> +1-555-HOSPITAL</p>
+                            <p><i class="fas fa-envelope"></i> <strong>Email:</strong> info@hospital.com</p>
+                            <p><i class="fas fa-map-marker-alt"></i> <strong>Address:</strong> 123 Medical Center Dr, City, State 12345</p>
+                        </div>
+
+                        <h4 style="color: #667eea; margin-bottom: 15px; margin-top: 20px;">IT Support</h4>
+                        <div style="color: #6b7280;">
+                            <p><i class="fas fa-phone"></i> <strong>Support:</strong> +1-555-IT-HELP</p>
+                            <p><i class="fas fa-envelope"></i> <strong>Email:</strong> support@hospital.com</p>
+                        </div>
+                    </div>
+                `, 'medium');
+            }
+        }
+    </script>
+</body>
+</html>
