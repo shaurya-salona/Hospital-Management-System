@@ -106,7 +106,7 @@ class EnhancedAdminDashboard {
             const response = await fetch('http://localhost:5000/api/users', {
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
             });
-            
+
             if (response.ok) {
                 const data = await response.json();
                 this.mockData.users = data.data.users || this.mockData.users;
@@ -114,7 +114,7 @@ class EnhancedAdminDashboard {
         } catch (error) {
             console.error('Error loading users:', error);
         }
-        
+
         this.renderUsersTable();
     }
 
@@ -133,7 +133,7 @@ class EnhancedAdminDashboard {
     updateDashboardStats() {
         document.getElementById('total-users').textContent = this.mockData.users.length;
         document.getElementById('active-patients').textContent = this.mockData.users.filter(u => u.role === 'patient' && u.is_active).length;
-        
+
         // Update other stats
         this.updateSystemHealth();
     }
@@ -520,7 +520,7 @@ function addUser(event) {
     event.preventDefault();
     const formData = new FormData(event.target);
     const userData = Object.fromEntries(formData);
-    
+
     // Add user to mock data
     const newUser = {
         id: Date.now(),
@@ -531,7 +531,7 @@ function addUser(event) {
         is_active: true,
         last_login: 'Never'
     };
-    
+
     adminDashboard.mockData.users.push(newUser);
     adminDashboard.renderUsersTable();
     adminDashboard.updateDashboardStats();
@@ -593,7 +593,7 @@ function updateUser(event, userId) {
     event.preventDefault();
     const formData = new FormData(event.target);
     const userData = Object.fromEntries(formData);
-    
+
     const userIndex = adminDashboard.mockData.users.findIndex(u => u.id === userId);
     if (userIndex !== -1) {
         adminDashboard.mockData.users[userIndex] = {
@@ -604,7 +604,7 @@ function updateUser(event, userId) {
             role: userData.role,
             is_active: userData.is_active === 'true'
         };
-        
+
         adminDashboard.renderUsersTable();
         adminDashboard.updateDashboardStats();
         adminDashboard.showNotification('User updated successfully!', 'success');
@@ -624,7 +624,7 @@ function deleteUser(userId) {
 // Reports Functions
 function generateReport(type) {
     adminDashboard.showNotification(`Generating ${type} report...`, 'info');
-    
+
     // Simulate report generation
     setTimeout(() => {
         adminDashboard.showNotification(`${type.charAt(0).toUpperCase() + type.slice(1)} report generated successfully!`, 'success');
@@ -636,7 +636,7 @@ function saveGeneralSettings() {
     const hospitalName = document.getElementById('hospital-name').value;
     const timezone = document.getElementById('timezone').value;
     const sessionTimeout = document.getElementById('session-timeout').value;
-    
+
     adminDashboard.showNotification('General settings saved successfully!', 'success');
 }
 
@@ -644,14 +644,14 @@ function saveEmailSettings() {
     const smtpServer = document.getElementById('smtp-server').value;
     const smtpPort = document.getElementById('smtp-port').value;
     const emailAddress = document.getElementById('email-address').value;
-    
+
     adminDashboard.showNotification('Email settings saved successfully!', 'success');
 }
 
 // Backup Functions
 function createBackup() {
     adminDashboard.showNotification('Creating backup...', 'info');
-    
+
     setTimeout(() => {
         const newBackup = {
             date: new Date().toLocaleString(),
@@ -659,7 +659,7 @@ function createBackup() {
             size: '2.4 GB',
             status: 'Success'
         };
-        
+
         adminDashboard.mockData.backupHistory.unshift(newBackup);
         adminDashboard.renderBackupHistory();
         adminDashboard.showNotification('Backup created successfully!', 'success');
@@ -693,7 +693,7 @@ function showRestoreModal() {
 
 function restoreBackup() {
     adminDashboard.showNotification('Restoring backup...', 'info');
-    
+
     setTimeout(() => {
         adminDashboard.showNotification('Backup restored successfully!', 'success');
         closeModal();
