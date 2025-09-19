@@ -13,7 +13,11 @@
     "seed": "node scripts/seedDemoData.js",
     "migrate": "node scripts/migrate.js",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "setup:db": "node scripts/setup-production-db.js",
+    "generate:secrets": "node scripts/generate-jwt-secrets.js",
+    "prod:start": "NODE_ENV=production node server.js",
+    "prod:setup": "npm run generate:secrets && npm run setup:db"
   },
   "keywords": [
     "hospital",

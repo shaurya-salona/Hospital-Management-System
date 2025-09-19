@@ -1,10 +1,5 @@
-// Try to load real database, fallback to demo database
-let db;
-try {
-  db = require('../config/database');
-} catch (error) {
-  db = require('../config/demo-database');
-}
+// Use centralized database manager
+const db = require('../config/database-manager');
 
 class Appointment {
   constructor(data) {

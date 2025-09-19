@@ -47,6 +47,7 @@ try {
 
 // Import routes
 const authRoutes = require('./routes/auth');
+const dashboardRoutes = require('./routes/dashboards');
 const patientRoutes = require('./routes/patients');
 const userRoutes = require('./routes/users');
 const appointmentRoutes = require('./routes/appointments');
@@ -173,6 +174,7 @@ if (config.features.apiDocs) {
 
 // API routes
 app.use('/api/auth', authRoutes);
+app.use('/api/dashboards', dashboardRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/patients', patientRoutes);
 app.use('/api/appointments', appointmentRoutes);

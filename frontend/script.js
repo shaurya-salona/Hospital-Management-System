@@ -328,7 +328,7 @@ function redirectToPortal(portalType) {
                 window.location.href = 'pharmacist-dashboard.html';
                 break;
             case 'nurse':
-                window.location.href = 'doctor-dashboard.html'; // Nurses use doctor dashboard
+                window.location.href = 'nurse-dashboard.html';
                 break;
             case 'patient':
                 window.location.href = 'patient-dashboard.html';

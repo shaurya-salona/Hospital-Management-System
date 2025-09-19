@@ -1,477 +1,290 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pharmacist Portal - HMIS</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
 
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #10b981 0%, #047857 50%, #064e3b 100%);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: #333;
-            padding: 20px;
-        }
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Pharmacist Portal - HMIS</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
 
-        .header {
-            text-align: center;
-            margin-bottom: 40px;
-            color: white;
-        }
+            body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                min-height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 20px;
+            }
 
-        .header h1 {
-            font-size: 3rem;
-            font-weight: 800;
-            margin-bottom: 10px;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-        }
-
-        .header .subtitle {
-            font-size: 1.2rem;
-            opacity: 0.9;
-            margin-bottom: 5px;
-        }
-
-        .header .description {
-            font-size: 1rem;
-            opacity: 0.8;
-        }
-
-        .login-container {
-            display: flex;
-            gap: 30px;
-            max-width: 1000px;
-            width: 100%;
-            align-items: flex-start;
-        }
-
-        .info-card, .login-card {
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            flex: 1;
-        }
-
-        .info-card {
-            max-width: 500px;
-        }
-
-        .login-card {
-            max-width: 400px;
-        }
-
-        .access-level {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .access-level i {
-            font-size: 1.2rem;
-            color: #059669;
-        }
-
-        .access-level h3 {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: #374151;
-        }
-
-        .divider {
-            height: 2px;
-            background: linear-gradient(90deg, #059669, #10b981);
-            margin-bottom: 20px;
-        }
-
-        .features-list {
-            list-style: none;
-            margin-bottom: 30px;
-        }
-
-        .features-list li {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 12px;
-            color: #374151;
-            font-size: 1rem;
-        }
-
-        .features-list li i {
-            color: #059669;
-            font-size: 1.1rem;
-        }
-
-        .key-features {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .key-features i {
-            font-size: 1.2rem;
-            color: #dc2626;
-        }
-
-        .key-features h3 {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: #374151;
-        }
-
-        .divider-red {
-            height: 2px;
-            background: linear-gradient(90deg, #dc2626, #ef4444);
-            margin-bottom: 20px;
-        }
-
-        .features-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-
-        .feature-card {
-            background: #f8f9fa;
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-            border: 1px solid #e5e7eb;
-        }
-
-        .feature-card h4 {
-            font-size: 1rem;
-            font-weight: 600;
-            color: #374151;
-            margin-bottom: 8px;
-        }
-
-        .feature-card p {
-            font-size: 0.85rem;
-            color: #6b7280;
-            line-height: 1.4;
-        }
-
-        .login-title {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .login-title i {
-            font-size: 1.2rem;
-            color: #059669;
-        }
-
-        .login-title h3 {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: #374151;
-        }
-
-        .divider-green {
-            height: 2px;
-            background: linear-gradient(90deg, #059669, #10b981);
-            margin-bottom: 30px;
-        }
-
-        .form-group {
-            margin-bottom: 25px;
-        }
-
-        .form-group label {
-            display: block;
-            font-weight: 600;
-            color: #374151;
-            margin-bottom: 8px;
-            font-size: 1rem;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #e5e7eb;
-            border-radius: 12px;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            background: white;
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: #059669;
-            box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
-        }
-
-        .login-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .btn {
-            padding: 15px 25px;
-            border: none;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #059669, #10b981);
-            color: white;
-            box-shadow: 0 4px 15px rgba(5, 150, 105, 0.3);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(5, 150, 105, 0.4);
-        }
-
-        .btn-secondary {
-            background: #f3f4f6;
-            color: #374151;
-            border: 2px solid #e5e7eb;
-        }
-
-        .btn-secondary:hover {
-            background: #e5e7eb;
-            transform: translateY(-2px);
-        }
-
-        .demo-credentials {
-            text-align: center;
-            color: #6b7280;
-            font-size: 0.9rem;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            border: 1px solid #e5e7eb;
-        }
-
-        .footer {
-            text-align: center;
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 0.9rem;
-            margin-top: 40px;
-        }
-
-        .footer p {
-            margin-bottom: 5px;
-        }
-
-        .back-link {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            color: white;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-
-        .back-link:hover {
-            color: #fbbf24;
-            transform: translateX(-5px);
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
             .login-container {
-                flex-direction: column;
-                gap: 20px;
+                background: white;
+                border-radius: 20px;
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+                overflow: hidden;
+                width: 100%;
+                max-width: 400px;
+                position: relative;
             }
 
-            .header h1 {
+            .login-header {
+                background: linear-gradient(135deg, #059669 0%, #047857 100%);
+                color: white;
+                padding: 40px 30px;
+                text-align: center;
+                position: relative;
+            }
+
+            .login-header::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/><circle cx="10" cy="60" r="0.5" fill="white" opacity="0.1"/><circle cx="90" cy="40" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+                opacity: 0.3;
+            }
+
+            .login-header h1 {
                 font-size: 2rem;
+                margin-bottom: 10px;
+                position: relative;
+                z-index: 1;
             }
 
-            .info-card, .login-card {
-                padding: 25px;
+            .login-header p {
+                opacity: 0.9;
+                font-size: 1rem;
+                position: relative;
+                z-index: 1;
             }
 
-            .features-grid {
-                grid-template-columns: 1fr;
+            .login-form {
+                padding: 40px 30px;
             }
-        }
-    </style>
-</head>
-<body>
-    <a href="index.html" class="back-link">
-        <i class="fas fa-arrow-left"></i>
-        Back to Portal
-    </a>
 
-    <div class="header">
-        <h1>Pharmacist Portal</h1>
-        <p class="subtitle">Pharmacy Staff Access</p>
-        <p class="description">Medication Management & Dispensing</p>
-    </div>
+            .form-group {
+                margin-bottom: 25px;
+            }
 
-    <div class="login-container">
-        <div class="info-card">
-            <div class="access-level">
-                <i class="fas fa-lock"></i>
-                <h3>Access Level: Pharmacy Staff</h3>
-            </div>
-            <div class="divider"></div>
-            <ul class="features-list">
-                <li><i class="fas fa-check"></i> Prescription processing and verification</li>
-                <li><i class="fas fa-check"></i> Inventory management and stock control</li>
-                <li><i class="fas fa-check"></i> Drug interaction checking and alerts</li>
-                <li><i class="fas fa-check"></i> Patient counseling and medication education</li>
-                <li><i class="fas fa-check"></i> Pharmacy billing and insurance processing</li>
-            </ul>
+            .form-group label {
+                display: block;
+                color: #374151;
+                margin-bottom: 8px;
+                font-size: 1rem;
+                font-weight: 500;
+            }
 
-            <div class="key-features">
-                <i class="fas fa-bolt"></i>
-                <h3>Key Features</h3>
-            </div>
-            <div class="divider-red"></div>
-            <div class="features-grid">
-                <div class="feature-card">
-                    <h4>Prescription Processing</h4>
-                    <p>Process and verify prescription orders</p>
-                </div>
-                <div class="feature-card">
-                    <h4>Inventory Management</h4>
-                    <p>Manage pharmacy stock and supplies</p>
-                </div>
-                <div class="feature-card">
-                    <h4>Drug Interactions</h4>
-                    <p>Check for potential drug interactions</p>
-                </div>
-                <div class="feature-card">
-                    <h4>Patient Counseling</h4>
-                    <p>Provide medication education and support</p>
-                </div>
-            </div>
-        </div>
+            .form-group input {
+                width: 100%;
+                padding: 15px;
+                border: 2px solid #e5e7eb;
+                border-radius: 12px;
+                font-size: 1rem;
+                transition: all 0.3s ease;
+                background: white;
+            }
 
-        <div class="login-card">
-            <div class="login-title">
-                <i class="fas fa-key"></i>
-                <h3>Pharmacist Login</h3>
-            </div>
-            <div class="divider-green"></div>
+            .form-group input:focus {
+                outline: none;
+                border-color: #059669;
+                box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+            }
 
-            <form id="pharmacistLoginForm">
-                <div class="form-group">
-                    <label for="username">Username</label>
-                    <input type="text" id="username" name="username" value="pharmacist" required>
-                </div>
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" name="password" value="password123" required>
-                </div>
+            .login-buttons {
+                display: flex;
+                flex-direction: column;
+                gap: 15px;
+                margin-bottom: 20px;
+            }
 
-                <div class="login-buttons">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-key"></i>
-                        Pharmacist Login
-                    </button>
-                    <button type="button" class="btn btn-secondary" onclick="demoLogin()">
-                        <i class="fas fa-file-alt"></i>
-                        Demo Login
-                    </button>
-                </div>
-            </form>
+            .btn {
+                padding: 15px 25px;
+                border: none;
+                border-radius: 12px;
+                font-size: 1rem;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 10px;
+            }
 
-            <div class="demo-credentials">
-                Demo: pharmacist / password123
-            </div>
-        </div>
-    </div>
+            .btn-primary {
+                background: linear-gradient(135deg, #059669 0%, #047857 100%);
+                color: white;
+            }
 
-    <div class="footer">
-        <p>© 2024 HMIS - Hospital Management Information System</p>
-        <p>Restricted Access - Pharmacy Staff Only</p>
-    </div>
+            .btn-primary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 20px rgba(5, 150, 105, 0.3);
+            }
 
-    <script src="config.js"></script>
-    <script src="dashboard-common.js"></script>
-    <script>
-        const dashboardCommon = new DashboardCommon();
+            .btn-secondary {
+                background: #f3f4f6;
+                color: #374151;
+                border: 2px solid #e5e7eb;
+            }
 
-        document.getElementById('pharmacistLoginForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
+            .btn-secondary:hover {
+                background: #e5e7eb;
+                transform: translateY(-1px);
+            }
 
-            try {
-                const response = await fetch(`${window.APP_CONFIG.API_BASE_URL}/api/auth/login`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ username, password })
-                });
+            .btn:disabled {
+                opacity: 0.6;
+                cursor: not-allowed;
+                transform: none !important;
+            }
 
-                const data = await response.json();
+            .back-link {
+                text-align: center;
+                margin-top: 20px;
+            }
 
-                if (data.success) {
-                    localStorage.setItem('authToken', data.token);
-                    localStorage.setItem('userRole', 'pharmacist');
-                    localStorage.setItem('userData', JSON.stringify(data.user));
-                    
-                    dashboardCommon.showNotification('Login successful! Redirecting...', 'success');
-                    
-                    setTimeout(() => {
-                        window.location.href = 'pharmacist-dashboard.html';
-                    }, 1500);
-                } else {
-                    dashboardCommon.showNotification(data.message || 'Login failed', 'error');
+            .back-link a {
+                color: #6b7280;
+                text-decoration: none;
+                font-size: 0.9rem;
+                transition: color 0.3s ease;
+            }
+
+            .back-link a:hover {
+                color: #059669;
+            }
+
+            .demo-info {
+                background: #f0f9ff;
+                border: 1px solid #bae6fd;
+                border-radius: 8px;
+                padding: 15px;
+                margin-bottom: 20px;
+                font-size: 0.9rem;
+                color: #0369a1;
+            }
+
+            .demo-info strong {
+                display: block;
+                margin-bottom: 5px;
+            }
+
+            @media (max-width: 480px) {
+                .login-container {
+                    margin: 10px;
+                    border-radius: 15px;
                 }
-            } catch (error) {
-                console.error('Login error:', error);
-                dashboardCommon.showNotification('Connection error. Using demo mode.', 'warning');
-                demoLogin();
-            }
-        });
 
-        function demoLogin() {
-            localStorage.setItem('authToken', 'demo-token');
-            localStorage.setItem('userRole', 'pharmacist');
-            localStorage.setItem('userData', JSON.stringify({
-                id: 4,
-                first_name: 'Dr. Michael',
-                last_name: 'Chen',
-                email: 'michael.chen@hospital.com',
-                role: 'pharmacist'
-            }));
-            
-            dashboardCommon.showNotification('Demo login successful!', 'success');
-            
-            setTimeout(() => {
-                window.location.href = 'pharmacist-dashboard.html';
-            }, 1000);
-        }
-    </script>
-</body>
+                .login-header {
+                    padding: 30px 20px;
+                }
+
+                .login-form {
+                    padding: 30px 20px;
+                }
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="login-container">
+            <div class="login-header">
+                <h1><i class="fas fa-pills"></i> Pharmacist Portal</h1>
+                <p>Access your pharmacy management dashboard</p>
+            </div>
+
+            <div class="login-form">
+                <div class="demo-info">
+                    <strong>Demo Credentials:</strong>
+                    Username: pharmacist<br>
+                    Password: pharmacist123
+                </div>
+
+                <form id="pharmacistLoginForm">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username" value="pharmacist" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" value="pharmacist123" required>
+                    </div>
+
+                    <div class="login-buttons">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-sign-in-alt"></i>
+                            Login to Dashboard
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="demoLogin()">
+                            <i class="fas fa-flask"></i>
+                            Demo Login
+                        </button>
+                    </div>
+                </form>
+
+                <div class="back-link">
+                    <a href="index.html">
+                        <i class="fas fa-arrow-left"></i>
+                        Back to Main Portal
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <script src="auth-service.js"></script>
+        <script>
+            document.getElementById('pharmacistLoginForm').addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+
+                // Show loading state
+                const submitBtn = e.target.querySelector('button[type="submit"]');
+                const originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
+                submitBtn.disabled = true;
+
+                try {
+                    const result = await authService.login(username, password);
+
+                    if (result.success) {
+                        authService.showNotification('Login successful! Redirecting...', 'success');
+
+                        setTimeout(() => {
+                            authService.redirectToDashboard();
+                        }, 1500);
+                    } else {
+                        authService.showNotification(result.message || 'Login failed', 'error');
+                        submitBtn.innerHTML = originalText;
+                        submitBtn.disabled = false;
+                    }
+                } catch (error) {
+                    console.error('Login error:', error);
+                    authService.showNotification('Connection error. Using demo mode.', 'warning');
+                    demoLogin();
+                }
+            });
+
+            function demoLogin() {
+                const result = authService.demoLogin('pharmacist');
+                if (result.success) {
+                    authService.showNotification('Demo login successful!', 'success');
+                    setTimeout(() => {
+                        authService.redirectToDashboard();
+                    }, 1000);
+                }
+            }
+        </script>
+    </body>
+
 </html>

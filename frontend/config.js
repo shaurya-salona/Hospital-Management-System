@@ -1,7 +1,7 @@
 // Configuration file for HMIS Dashboard
 const CONFIG = {
     // API Configuration
-    API_BASE_URL: 'http://localhost:5000/api',
+    API_BASE_URL: 'http://localhost:5000',
     
     // WebSocket Configuration
     WS_URL: 'http://localhost:5000',
@@ -59,3 +59,5 @@ const CONFIG = {
 
 // Make CONFIG available globally
 window.CONFIG = CONFIG;
+window.APP_CONFIG = CONFIG;
+

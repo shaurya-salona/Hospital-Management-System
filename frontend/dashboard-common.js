@@ -359,6 +359,74 @@ class DashboardCommon {
             'error'
         );
     }
+
+    // Authentication and Authorization
+    checkAuthentication(expectedRole = null) {
+        // Use auth service if available
+        if (typeof authService !== 'undefined') {
+            const validation = authService.validateDashboardAccess(expectedRole);
+            if (!validation.valid) {
+                this.showNotification(validation.message, 'error');
+                setTimeout(() => {
+                    window.location.href = validation.redirectTo;
+                }, 2000);
+                return false;
+            }
+            return true;
+        }
+
+        // Fallback to manual check
+        const token = localStorage.getItem('authToken') || localStorage.getItem('token');
+        const userRole = localStorage.getItem('userRole');
+        const userData = localStorage.getItem('userData');
+
+        if (!token) {
+            this.showNotification('No authentication token found. Redirecting to login...', 'error');
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 2000);
+            return false;
+        }
+
+        // More flexible role checking - allow access if no specific role expected or if roles match
+        if (expectedRole && userRole && userRole !== expectedRole) {
+            this.showNotification(`Access denied. This dashboard is for ${expectedRole}s only.`, 'error');
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 2000);
+            return false;
+        }
+
+        return true;
+    }
+
+    redirectToLogin(role = null) {
+        const loginPages = {
+            'admin': 'admin-login.html',
+            'doctor': 'doctor-login.html',
+            'nurse': 'nurse-login.html',
+            'patient': 'patient-login.html',
+            'receptionist': 'receptionist-login.html',
+            'pharmacist': 'pharmacist-login.html'
+        };
+
+        const loginPage = role ? loginPages[role] : 'index.html';
+        window.location.href = loginPage;
+    }
+
+    logout() {
+        // Clear all authentication data
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('token');
+        localStorage.removeItem('userRole');
+        localStorage.removeItem('userData');
+        localStorage.removeItem('user');
+
+        this.showNotification('Logged out successfully', 'success');
+        setTimeout(() => {
+            window.location.href = 'index.html';
+        }, 1500);
+    }
 }
 
 // Initialize global dashboard common instance

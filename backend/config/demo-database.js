@@ -5,8 +5,9 @@ const demoData = {
   users: [
     {
       id: '1',
+      username: 'admin',
       email: 'admin@hospital.com',
-      password_hash: '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password: admin123
+      password_hash: '$2a$10$fNrEgP0XCid7TwZD75brGenAcYtRcOVq0dF1qxDEINpTVCAJ8X6M.', // password: admin123
       first_name: 'System',
       last_name: 'Administrator',
       role: 'admin',
@@ -16,8 +17,9 @@ const demoData = {
     },
     {
       id: '2',
+      username: 'doctor',
       email: 'dr.smith@hospital.com',
-      password_hash: '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password: doctor123
+      password_hash: '$2a$10$uVjf6u6CGVpzB0tk9XcHiOyhCQtupWCA2FwhmdDWcrxDJtOKP14zi', // password: doctor123
       first_name: 'Dr. John',
       last_name: 'Smith',
       role: 'doctor',
@@ -27,12 +29,49 @@ const demoData = {
     },
     {
       id: '3',
+      username: 'nurse',
+      email: 'nurse.jones@hospital.com',
+      password_hash: '$2a$10$2YQZlkoJ3xRuLObo6ZkreeKTaSbiNJ//2hP92k5yRZEkoEZWlIae.', // password: nurse123
+      first_name: 'Sarah',
+      last_name: 'Jones',
+      role: 'nurse',
+      phone: '+1234567892',
+      is_active: true,
+      created_at: new Date().toISOString()
+    },
+    {
+      id: '4',
+      username: 'receptionist',
+      email: 'reception.mike@hospital.com',
+      password_hash: '$2a$10$.VfIIB/eDX774ThlqCr8wOS0RUOYPOz7H3cuh2ziStGNfucnFrb6S', // password: receptionist123
+      first_name: 'Mike',
+      last_name: 'Johnson',
+      role: 'receptionist',
+      phone: '+1234567893',
+      is_active: true,
+      created_at: new Date().toISOString()
+    },
+    {
+      id: '5',
+      username: 'pharmacist',
+      email: 'pharm.wilson@hospital.com',
+      password_hash: '$2a$10$gkpD4SgEeB1KvRGMnHUP5uKMtLLjn7pvHC5a9ZZ5v282jBBTfpqRK', // password: pharmacist123
+      first_name: 'Emily',
+      last_name: 'Wilson',
+      role: 'pharmacist',
+      phone: '+1234567894',
+      is_active: true,
+      created_at: new Date().toISOString()
+    },
+    {
+      id: '6',
+      username: 'patient',
       email: 'patient@hospital.com',
-      password_hash: '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password: patient123
+      password_hash: '$2a$10$GOJZvHh6dUbCebstj4sH3eC74Vk8AixSG4.B..yGAFkMmu3inHPH6', // password: patient123
       first_name: 'Jane',
       last_name: 'Doe',
       role: 'patient',
-      phone: '+1234567892',
+      phone: '+1234567895',
       is_active: true,
       created_at: new Date().toISOString()
     }
@@ -91,10 +130,38 @@ const query = async (text, params = []) => {
   await new Promise(resolve => setTimeout(resolve, 10));
   
   // Handle different query types
+  if (text.includes('SELECT') && text.includes('users') && text.includes('username') && text.includes('LEFT JOIN')) {
+    const username = params[0];
+    const user = demoData.users.find(u => u.username === username);
+    if (user) {
+      // Add staff information if it exists
+      const userWithStaff = { ...user };
+      return { rows: [userWithStaff] };
+    }
+    return { rows: [] };
+  }
+  
+  if (text.includes('SELECT') && text.includes('users') && text.includes('username')) {
+    const username = params[0];
+    const user = demoData.users.find(u => u.username === username);
+    return { rows: user ? [user] : [] };
+  }
+  
   if (text.includes('SELECT') && text.includes('users') && text.includes('email')) {
     const email = params[0];
     const user = demoData.users.find(u => u.email === email);
     return { rows: user ? [user] : [] };
+  }
+  
+  if (text.includes('SELECT') && text.includes('users') && text.includes('id') && text.includes('LEFT JOIN')) {
+    const id = params[0];
+    const user = demoData.users.find(u => u.id === id);
+    if (user) {
+      // Add staff information if it exists
+      const userWithStaff = { ...user };
+      return { rows: [userWithStaff] };
+    }
+    return { rows: [] };
   }
   
   if (text.includes('SELECT') && text.includes('users') && text.includes('id')) {

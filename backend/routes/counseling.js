@@ -1,3 +1,36 @@
+
+router.get('/stats', async (req, res) => {
+  try {
+    // Mock counseling statistics - replace with actual database queries
+    const stats = {
+      total_sessions: 45,
+      sessions_today: 8,
+      patients_counseled: 35,
+      follow_up_required: 12,
+      average_duration: 18,
+      top_medications: [
+        { medication: 'Lisinopril', count: 8 },
+        { medication: 'Metformin', count: 6 },
+        { medication: 'Warfarin', count: 5 },
+        { medication: 'Atorvastatin', count: 4 }
+      ]
+    };
+
+    res.json({
+      success: true,
+      data: stats
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching counseling statistics',
+      error: error.message
+    });
+  }
+});
+
+module.exports = router;
+
 const express = require('express');
 const router = express.Router();
 const { authenticateToken, staffOnly } = require('../middlewares/auth');

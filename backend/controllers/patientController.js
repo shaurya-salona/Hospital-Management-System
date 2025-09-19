@@ -39,13 +39,8 @@ class PatientController {
       if (bloodType) totalValues.push(bloodType);
       if (gender) totalValues.push(gender);
 
-      // Try to load real database, fallback to demo database
-      let db;
-      try {
-        db = require('../config/database');
-      } catch (error) {
-        db = require('../config/demo-database');
-      }
+      // Use centralized database manager
+      const db = require('../config/database-manager');
       const totalResult = await db.query(totalQuery, totalValues);
       const total = parseInt(totalResult.rows[0].total);
 

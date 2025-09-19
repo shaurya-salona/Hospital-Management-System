@@ -1,59 +1,51 @@
-# Multi-stage Docker build for HMIS Backend
-# Stage 1: Build stage
-FROM node:18-alpine AS builder
+# Multi-stage Dockerfile for HMIS Backend
+FROM node:18-alpine AS base
 
 # Set working directory
 WORKDIR /app
 
-# Copy package files
-COPY backend/package*.json ./
-
-# Install dependencies (including dev dependencies for building)
-RUN npm ci --only=production --silent
-
-# Stage 2: Production stage
-FROM node:18-alpine AS production
-
-# Install security updates and required packages
-RUN apk update && apk upgrade && \
-    apk add --no-cache \
-    dumb-init \
+# Install system dependencies
+RUN apk add --no-cache \
     postgresql-client \
     curl \
     && rm -rf /var/cache/apk/*
 
-# Create app user (don't run as root)
+# Copy package files
+COPY backend/package*.json ./
+
+# Install dependencies
+RUN npm ci --only=production && npm cache clean --force
+
+# Development stage
+FROM base AS development
+RUN npm ci
+COPY backend/ .
+EXPOSE 5000
+CMD ["npm", "run", "dev"]
+
+# Production stage
+FROM base AS production
+
+# Create non-root user
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S hmis -u 1001
 
-# Set working directory
-WORKDIR /app
-
-# Copy package files and install production dependencies
-COPY backend/package*.json ./
-RUN npm ci --only=production --silent && \
-    npm cache clean --force
-
 # Copy application code
-COPY backend/ ./
+COPY backend/ .
 
-# Create necessary directories and set permissions
+# Create necessary directories
 RUN mkdir -p logs uploads backups && \
     chown -R hmis:nodejs /app
 
 # Switch to non-root user
 USER hmis
 
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD curl -f http://localhost:5000/health || exit 1
+
 # Expose port
 EXPOSE 5000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:5000/health || exit 1
-
-# Use dumb-init to handle signals properly
-ENTRYPOINT ["dumb-init", "--"]
-
-# Start the application
-CMD ["node", "server.js"]
-
+# Start application
+CMD ["npm", "start"]

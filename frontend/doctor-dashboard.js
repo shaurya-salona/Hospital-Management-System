@@ -22,7 +22,7 @@ class DoctorDashboard {
                 return;
             }
 
-            const response = await fetch('/api/auth/profile', {
+            const response = await fetch('http://localhost:5000/api/auth/profile', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
@@ -97,7 +97,7 @@ class DoctorDashboard {
 
     async loadMyPatients() {
         try {
-            const response = await fetch('/api/patients', {
+            const response = await fetch('http://localhost:5000/api/patients', {
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
             });
             const data = await response.json();
@@ -112,7 +112,7 @@ class DoctorDashboard {
 
     async loadAppointments() {
         try {
-            const response = await fetch('/api/appointments', {
+            const response = await fetch('http://localhost:5000/api/appointments', {
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
             });
             const data = await response.json();
@@ -128,7 +128,7 @@ class DoctorDashboard {
 
     async loadMedicalRecords() {
         try {
-            const response = await fetch('/api/medical/records', {
+            const response = await fetch('http://localhost:5000/api/medical/records', {
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
             });
             const data = await response.json();
@@ -143,7 +143,7 @@ class DoctorDashboard {
 
     async loadPrescriptions() {
         try {
-            const response = await fetch('/api/medical/prescriptions', {
+            const response = await fetch('http://localhost:5000/api/medical/prescriptions', {
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
             });
             const data = await response.json();
@@ -159,7 +159,7 @@ class DoctorDashboard {
 
     async loadLabTests() {
         try {
-            const response = await fetch('/api/lab/tests', {
+            const response = await fetch('http://localhost:5000/api/lab/tests', {
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
             });
             const data = await response.json();
@@ -175,7 +175,7 @@ class DoctorDashboard {
 
     async loadAnalytics() {
         try {
-            const response = await fetch('/api/analytics/doctor', {
+            const response = await fetch('http://localhost:5000/api/analytics/doctor', {
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
             });
             const data = await response.json();
@@ -497,7 +497,7 @@ class DoctorDashboard {
 
     logout() {
         localStorage.removeItem('token');
-        window.location.href = '/';
+        window.location.href = 'doctor-login.html';
     }
 
     // Action functions
@@ -814,7 +814,7 @@ class DoctorDashboard {
     }
 
     redirectToLogin() {
-        window.location.href = '/';
+        window.location.href = 'doctor-login.html';
     }
 
     async loadDashboardData() {

@@ -82,13 +82,21 @@ global.testHelpers = {
       role: 'doctor',
       first_name: 'Test',
       last_name: 'User',
-      phone: '+1-555-0199'
+      phone: '+1-555-0199',
+      is_active: true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
     };
     
     const user = { ...defaultUser, ...userData };
     
     if (process.env.USE_DEMO_MODE) {
-      return { id: 'test-user-id', ...user };
+      // Add to demo data for consistency
+      const demoDb = require('../config/demo-database');
+      const userId = 'test-user-' + Date.now();
+      const newUser = { id: userId, ...user };
+      demoDb.demoData.users.push(newUser);
+      return newUser;
     }
     
     const query = `
@@ -109,18 +117,34 @@ global.testHelpers = {
   createTestPatient: async (userId, patientData = {}) => {
     const defaultPatient = {
       patient_id: 'TEST_' + Date.now(),
+      first_name: 'Test',
+      last_name: 'Patient',
+      email: `testpatient_${Date.now()}@test.com`,
+      phone: '+1-555-0199',
       date_of_birth: '1990-01-01',
       gender: 'male',
       address: '123 Test St',
       blood_type: 'O+',
       allergies: 'None',
-      medical_history: 'Test history'
+      medical_history: 'Test history',
+      insurance_provider: 'Test Insurance',
+      insurance_number: 'TEST123456',
+      emergency_contact_name: 'Emergency Contact',
+      emergency_contact_phone: '+1-555-0198',
+      is_active: true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
     };
     
     const patient = { ...defaultPatient, ...patientData };
     
     if (process.env.USE_DEMO_MODE) {
-      return { id: 'test-patient-id', user_id: userId, ...patient };
+      // Add to demo data for consistency
+      const demoDb = require('../config/demo-database');
+      const patientId = 'test-patient-' + Date.now();
+      const newPatient = { id: patientId, user_id: userId, ...patient };
+      demoDb.demoData.patients.push(newPatient);
+      return newPatient;
     }
     
     const query = `

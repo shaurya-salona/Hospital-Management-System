@@ -1,14 +1,9 @@
 const jwt = require('jsonwebtoken');
 
-// Try to use PostgreSQL, fallback to demo database
-let query;
-try {
-  const db = require('../config/database');
-  query = db.query;
-} catch (error) {
-  const demoDb = require('../config/demo-database');
-  query = demoDb.query;
-}
+// Use centralized database manager
+const db = require('../config/database-manager');
+const { JWT_SECRET } = require('../config/jwt');
+const query = db.query;
 
 // JWT Authentication Middleware
 const authenticateToken = async (req, res, next) => {
@@ -24,13 +19,25 @@ const authenticateToken = async (req, res, next) => {
     }
 
     // Verify JWT token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, JWT_SECRET);
     
     // Check if user still exists and is active
-    const userQuery = 'SELECT id, username, role, is_active FROM users WHERE id = $1';
-    const userResult = await query(userQuery, [decoded.userId]);
+    let user = null;
     
-    if (userResult.rows.length === 0 || !userResult.rows[0].is_active) {
+    if (db.isDemoMode && db.isDemoMode()) {
+      // Use demo data
+      const demoData = db.getDemoData();
+      if (demoData && demoData.users) {
+        user = demoData.users.find(u => u.id === decoded.userId);
+      }
+    } else {
+      // Use PostgreSQL
+      const userQuery = 'SELECT id, username, role, is_active FROM users WHERE id = $1';
+      const userResult = await query(userQuery, [decoded.userId]);
+      user = userResult.rows[0];
+    }
+    
+    if (!user || !user.is_active) {
       return res.status(401).json({
         success: false,
         message: 'User not found or inactive'

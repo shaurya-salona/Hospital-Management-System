@@ -1,1075 +1,2148 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Receptionist Dashboard - HMIS</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="dashboard-common.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
 
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            color: #333;
-            line-height: 1.6;
-            overflow-x: hidden;
-        }
-
-        .dashboard-container {
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-
-        /* Enhanced Header */
-        .dashboard-header {
-            background: rgba(255, 255, 255, 0.1);
-            -webkit-backdrop-filter: blur(20px);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 20px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-        }
-
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .hospital-logo {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .hospital-logo i {
-            font-size: 2.5rem;
-            color: white;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
-            padding: 15px;
-            border-radius: 15px;
-            -webkit-backdrop-filter: blur(10px);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .hospital-logo h1 {
-            color: white;
-            font-size: 2rem;
-            font-weight: 800;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            letter-spacing: -0.02em;
-        }
-
-        .header-center {
-            flex: 1;
-            max-width: 500px;
-            margin: 0 40px;
-        }
-
-        .search-bar {
-            position: relative;
-            width: 100%;
-        }
-
-        .search-bar input {
-            width: 100%;
-            padding: 15px 50px 15px 20px;
-            border: none;
-            border-radius: 15px;
-            background: rgba(255, 255, 255, 0.15);
-            color: white;
-            font-size: 1rem;
-            -webkit-backdrop-filter: blur(10px);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            transition: all 0.3s ease;
-        }
-
-        .search-bar input::placeholder {
-            color: rgba(255, 255, 255, 0.7);
-        }
-
-        .search-bar input:focus {
-            outline: none;
-            background: rgba(255, 255, 255, 0.25);
-            border-color: rgba(255, 255, 255, 0.4);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-        }
-
-        .search-bar button {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 1.2rem;
-            cursor: pointer;
-            transition: color 0.3s ease;
-        }
-
-        .search-bar button:hover {
-            color: white;
-        }
-
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .user-info {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            color: white;
-        }
-
-        .user-name {
-            font-weight: 600;
-            font-size: 1rem;
-        }
-
-        .user-role {
-            font-size: 0.85rem;
-            opacity: 0.8;
-        }
-
-        .logout-btn {
-            background: rgba(255, 255, 255, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            color: white;
-            padding: 12px 16px;
-            border-radius: 12px;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            -webkit-backdrop-filter: blur(10px);
-            backdrop-filter: blur(10px);
-        }
-
-        .logout-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-        }
-
-        /* Enhanced Navigation */
-        .dashboard-nav {
-            background: rgba(255, 255, 255, 0.1);
-            -webkit-backdrop-filter: blur(20px);
-            backdrop-filter: blur(20px);
-            border-right: 1px solid rgba(255, 255, 255, 0.2);
-            width: 280px;
-            min-height: calc(100vh - 80px);
-            position: fixed;
-            left: 0;
-            top: 80px;
-            z-index: 999;
-            padding: 30px 0;
-        }
-
-        .nav-menu {
-            list-style: none;
-            padding: 0 20px;
-        }
-
-        .nav-item {
-            margin-bottom: 8px;
-        }
-
-        .nav-link {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 15px 20px;
-            color: rgba(255, 255, 255, 0.8);
-            text-decoration: none;
-            border-radius: 12px;
-            transition: all 0.3s ease;
-            font-weight: 500;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .nav-link::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .nav-link:hover::before {
-            opacity: 1;
-        }
-
-        .nav-link i {
-            font-size: 1.2rem;
-            width: 20px;
-            text-align: center;
-        }
-
-        .nav-link.active {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            transform: translateX(5px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-        }
-
-        .nav-link:hover {
-            color: white;
-            transform: translateX(5px);
-        }
-
-        /* Enhanced Main Content */
-        .dashboard-main {
-            margin-left: 280px;
-            padding: 30px;
-            min-height: calc(100vh - 80px);
-        }
-
-        .dashboard-section {
-            display: none;
-            animation: fadeIn 0.5s ease-in-out;
-        }
-
-        .dashboard-section.active {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            padding: 25px 30px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            -webkit-backdrop-filter: blur(20px);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        }
-
-        .section-header h2 {
-            color: white;
-            font-size: 1.8rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            letter-spacing: -0.01em;
-        }
-
-        .section-header h2 i {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
-            padding: 12px;
-            border-radius: 12px;
-            -webkit-backdrop-filter: blur(10px);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .section-actions {
-            display: flex;
-            gap: 15px;
-        }
-
-        .btn {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.95rem;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            text-decoration: none;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.5s;
-        }
-
-        .btn:hover::before {
-            left: 100%;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-        }
-
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            -webkit-backdrop-filter: blur(10px);
-            backdrop-filter: blur(10px);
-        }
-
-        .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-        }
-
-        /* Enhanced Content Cards */
-        .content-card {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            padding: 30px;
-            -webkit-backdrop-filter: blur(20px);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .content-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #667eea, #764ba2);
-        }
-
-        /* Enhanced Stats Cards */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 25px;
-            margin-bottom: 30px;
-        }
-
-        .stat-card {
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
-            border-radius: 20px;
-            padding: 30px;
-            text-align: center;
-            border: 1px solid rgba(102, 126, 234, 0.2);
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #667eea, #764ba2);
-        }
-
-        .stat-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-        }
-
-        .stat-card i {
-            font-size: 2.5rem;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 15px;
-        }
-
-        .stat-card h3 {
-            font-size: 2.5rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 10px;
-        }
-
-        .stat-card p {
-            color: #6b7280;
-            font-weight: 500;
-            font-size: 1rem;
-            margin-bottom: 10px;
-        }
-
-        .stat-card .stat-change {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            padding: 5px 10px;
-            border-radius: 8px;
-            background: rgba(16, 185, 129, 0.1);
-            color: #059669;
-        }
-
-        /* Enhanced Tables */
-        .table-container {
-            overflow-x: auto;
-            border-radius: 15px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-        }
-
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-            border-radius: 15px;
-            overflow: hidden;
-        }
-
-        .data-table th,
-        .data-table td {
-            padding: 20px;
-            text-align: left;
-            border-bottom: 1px solid rgba(229, 231, 235, 0.5);
-        }
-
-        .data-table th {
-            background: linear-gradient(135deg, #f9fafb, #f3f4f6);
-            font-weight: 700;
-            color: #374151;
-            font-size: 0.95rem;
-            letter-spacing: 0.025em;
-        }
-
-        .data-table tr:hover {
-            background: rgba(102, 126, 234, 0.05);
-            transform: scale(1.01);
-            transition: all 0.2s ease;
-        }
-
-        .data-table tr:last-child td {
-            border-bottom: none;
-        }
-
-        /* Enhanced Action Buttons */
-        .action-btn {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.85rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            margin: 0 2px;
-        }
-
-        .action-btn.edit {
-            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-            color: white;
-        }
-
-        .action-btn.delete {
-            background: linear-gradient(135deg, #ef4444, #dc2626);
-            color: white;
-        }
-
-        .action-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        }
-
-        /* Enhanced Mobile Responsiveness */
-        @media (max-width: 1200px) {
-            .dashboard-main {
-                margin-left: 0;
-                padding: 20px 15px;
-            }
-
-            .dashboard-nav {
-                transform: translateX(-100%);
-                transition: transform 0.3s ease;
-            }
-
-            .dashboard-nav.open {
-                transform: translateX(0);
-            }
-        }
-
-        @media (max-width: 768px) {
-            .dashboard-header {
-                padding: 15px 20px;
-                flex-wrap: wrap;
-                gap: 15px;
-            }
-
-            .header-center {
-                order: 3;
-                width: 100%;
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Receptionist Dashboard - HMIS</title>
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+        <script src="auth-service.js"></script>
+        <style>
+            * {
                 margin: 0;
+                padding: 0;
+                box-sizing: border-box;
             }
 
-            .hospital-logo h1 {
+            body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                background: linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%);
+                min-height: 100vh;
+                color: #333;
+                line-height: 1.6;
+            }
+
+            .dashboard-container {
+                display: flex;
+                min-height: 100vh;
+            }
+
+            .sidebar {
+                width: 250px;
+                background: rgba(255, 255, 255, 0.1);
+                -webkit-backdrop-filter: blur(10px);
+                backdrop-filter: blur(10px);
+                border-right: 1px solid rgba(255, 255, 255, 0.2);
+                padding: 20px 0;
+            }
+
+            .sidebar-header {
+                padding: 0 20px 30px;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+                margin-bottom: 20px;
+            }
+
+            .sidebar-header h2 {
+                color: white;
                 font-size: 1.5rem;
+                font-weight: 700;
             }
 
-            .section-header {
-                flex-direction: column;
-                gap: 20px;
+            .sidebar-header p {
+                color: rgba(255, 255, 255, 0.8);
+                font-size: 0.9rem;
+                margin-top: 5px;
+            }
+
+            .nav-menu {
+                list-style: none;
+            }
+
+            .nav-item {
+                margin-bottom: 5px;
+            }
+
+            .nav-link {
+                display: flex;
+                align-items: center;
+                padding: 15px 20px;
+                color: rgba(255, 255, 255, 0.8);
+                text-decoration: none;
+                transition: all 0.3s ease;
+                border-left: 3px solid transparent;
+            }
+
+            .nav-link:hover,
+            .nav-link.active {
+                background: rgba(255, 255, 255, 0.1);
+                color: white;
+                border-left-color: #10b981;
+            }
+
+            .nav-link i {
+                margin-right: 12px;
+                width: 20px;
                 text-align: center;
             }
 
-            .section-actions {
-                justify-content: center;
-                flex-wrap: wrap;
+            .main-content {
+                flex: 1;
+                padding: 30px;
+                overflow-y: auto;
             }
 
-            .stats-grid {
-                grid-template-columns: 1fr;
+            .header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 30px;
+                background: rgba(255, 255, 255, 0.1);
+                -webkit-backdrop-filter: blur(10px);
+                backdrop-filter: blur(10px);
+                padding: 20px 30px;
+                border-radius: 15px;
+                border: 1px solid rgba(255, 255, 255, 0.2);
             }
 
-            .data-table th,
-            .data-table td {
-                padding: 15px 12px;
+            .header-left h1 {
+                color: white;
+                font-size: 2rem;
+                font-weight: 700;
+            }
+
+            .header-right {
+                display: flex;
+                align-items: center;
+                gap: 20px;
+            }
+
+            .user-info {
+                color: white;
+                text-align: right;
+            }
+
+            .user-name {
+                font-weight: 600;
+                font-size: 1.1rem;
+            }
+
+            .user-role {
                 font-size: 0.9rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .dashboard-header {
-                padding: 10px 15px;
+                opacity: 0.8;
             }
 
-            .hospital-logo h1 {
-                font-size: 1.2rem;
+            .logout-btn {
+                background: rgba(255, 255, 255, 0.2);
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 8px;
+                cursor: pointer;
+                transition: all 0.3s ease;
             }
 
-            .content-card {
-                padding: 20px 15px;
+            .logout-btn:hover {
+                background: rgba(255, 255, 255, 0.3);
+            }
+
+            .dashboard-section {
+                display: none;
+                background: white;
+                border-radius: 15px;
+                padding: 30px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            }
+
+            .dashboard-section.active {
+                display: block;
             }
 
             .section-header {
-                padding: 20px 15px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 30px;
+                padding-bottom: 20px;
+                border-bottom: 2px solid #f1f5f9;
             }
 
-            .section-header h2 {
-                font-size: 1.4rem;
+            .section-title {
+                font-size: 1.8rem;
+                font-weight: 700;
+                color: #1e293b;
             }
 
-            .stat-card h3 {
+            .btn {
+                background: #10b981;
+                color: white;
+                border: none;
+                padding: 12px 24px;
+                border-radius: 8px;
+                cursor: pointer;
+                font-weight: 600;
+                transition: all 0.3s ease;
+                text-decoration: none;
+                display: inline-block;
+            }
+
+            .btn:hover {
+                background: #059669;
+                transform: translateY(-2px);
+            }
+
+            .btn-secondary {
+                background: #6b7280;
+            }
+
+            .btn-secondary:hover {
+                background: #4b5563;
+            }
+
+            .stats-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 20px;
+                margin-bottom: 30px;
+            }
+
+            .stat-card {
+                background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+                border-radius: 12px;
+                padding: 25px;
+                text-align: center;
+                border: 1px solid #e2e8f0;
+            }
+
+            .stat-icon {
+                font-size: 2.5rem;
+                color: #10b981;
+                margin-bottom: 15px;
+            }
+
+            .stat-value {
                 font-size: 2rem;
+                font-weight: 700;
+                color: #1e293b;
+                margin-bottom: 5px;
             }
-        }
 
-        /* Custom scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
+            .stat-label {
+                color: #64748b;
+                font-weight: 500;
+            }
 
-        ::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 4px;
-        }
+            .table-container {
+                background: white;
+                border-radius: 12px;
+                overflow: hidden;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            }
 
-        ::-webkit-scrollbar-thumb {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            border-radius: 4px;
-        }
+            .table {
+                width: 100%;
+                border-collapse: collapse;
+            }
 
-        ::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(135deg, #5a67d8, #6b46c1);
-        }
+            .table th,
+            .table td {
+                padding: 15px;
+                text-align: left;
+                border-bottom: 1px solid #e2e8f0;
+            }
 
-        /* Smooth scrolling */
-        html {
-            scroll-behavior: smooth;
-        }
-    </style>
-</head>
-<body>
-    <div class="dashboard-container">
-        <!-- Header -->
-        <header class="dashboard-header">
-            <div class="header-left">
-                <div class="hospital-logo">
-                    <i class="fas fa-user-tie"></i>
-                    <h1>Receptionist Dashboard</h1>
-                    <p class="subtitle">Front Desk Management</p>
+            .table th {
+                background: #f8fafc;
+                font-weight: 600;
+                color: #374151;
+            }
+
+            .table tbody tr:hover {
+                background: #f8fafc;
+            }
+
+            .status-badge {
+                padding: 6px 12px;
+                border-radius: 20px;
+                font-size: 0.8rem;
+                font-weight: 600;
+                text-transform: uppercase;
+            }
+
+            .status-badge.active {
+                background: #dcfce7;
+                color: #166534;
+            }
+
+            .status-badge.completed {
+                background: #dbeafe;
+                color: #1e40af;
+            }
+
+            .status-badge.pending {
+                background: #fef3c7;
+                color: #92400e;
+            }
+
+            .btn-sm {
+                padding: 8px 16px;
+                font-size: 0.9rem;
+                margin-right: 8px;
+            }
+
+            .modal-overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 1000;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .modal {
+                background: white;
+                border-radius: 15px;
+                padding: 30px;
+                max-width: 500px;
+                width: 90%;
+                max-height: 80vh;
+                overflow-y: auto;
+            }
+
+            .modal-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 20px;
+                padding-bottom: 15px;
+                border-bottom: 1px solid #e2e8f0;
+            }
+
+            .modal-header h3 {
+                font-size: 1.5rem;
+                font-weight: 700;
+                color: #1e293b;
+            }
+
+            .modal-close {
+                background: none;
+                border: none;
+                font-size: 1.5rem;
+                cursor: pointer;
+                color: #6b7280;
+            }
+
+            .form-group {
+                margin-bottom: 20px;
+            }
+
+            .form-group label {
+                display: block;
+                margin-bottom: 8px;
+                font-weight: 600;
+                color: #374151;
+            }
+
+            .form-group input,
+            .form-group select,
+            .form-group textarea {
+                width: 100%;
+                padding: 12px;
+                border: 1px solid #d1d5db;
+                border-radius: 8px;
+                font-size: 1rem;
+            }
+
+            .form-group textarea {
+                resize: vertical;
+                min-height: 100px;
+            }
+
+            .form-actions {
+                display: flex;
+                gap: 15px;
+                justify-content: flex-end;
+                margin-top: 30px;
+            }
+
+            @media (max-width: 768px) {
+                .dashboard-container {
+                    flex-direction: column;
+                }
+
+                .sidebar {
+                    width: 100%;
+                    height: auto;
+                }
+
+                .main-content {
+                    padding: 20px;
+                }
+
+                .header {
+                    flex-direction: column;
+                    gap: 20px;
+                    text-align: center;
+                }
+
+                .stats-grid {
+                    grid-template-columns: 1fr;
+                }
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="dashboard-container">
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <div class="sidebar-header">
+                    <h2><i class="fas fa-user-tie"></i> Receptionist Portal</h2>
+                    <p>Front Desk Staff Access</p>
                 </div>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link active" onclick="showSection('overview')">
+                            <i class="fas fa-tachometer-alt"></i>
+                            Overview
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" onclick="showSection('appointments')">
+                            <i class="fas fa-calendar-check"></i>
+                            Appointments
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" onclick="showSection('patients')">
+                            <i class="fas fa-user-injured"></i>
+                            Patient Management
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" onclick="showSection('checkin')">
+                            <i class="fas fa-clipboard-check"></i>
+                            Check-in System
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" onclick="showSection('billing')">
+                            <i class="fas fa-credit-card"></i>
+                            Billing
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" onclick="showSection('communication')">
+                            <i class="fas fa-comments"></i>
+                            Communication
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" onclick="showSection('reports')">
+                            <i class="fas fa-chart-bar"></i>
+                            Reports
+                        </a>
+                    </li>
+                </ul>
             </div>
-            <div class="header-center">
-                <div class="search-bar">
-                    <input type="text" placeholder="Search patients, appointments, or records..." id="global-search">
-                    <button type="button" title="Search" aria-label="Search"><i class="fas fa-search"></i></button>
-                </div>
-            </div>
-            <div class="header-right">
-                <div class="notification-bell">
-                    <i class="fas fa-bell"></i>
-                </div>
-                <div class="user-info" id="user-info">
-                    <div class="user-avatar">
-                        <i class="fas fa-user-tie"></i>
-                    </div>
-                    <div class="user-details">
-                        <span class="user-name">Sarah Johnson</span>
-                        <span class="user-role">Senior Receptionist</span>
-                    </div>
-                </div>
-                <button id="logout-btn" class="logout-btn" title="Logout" aria-label="Logout">
-                    Logout
-                </button>
-            </div>
-        </header>
 
-        <!-- Navigation -->
-        <nav class="dashboard-nav">
-            <h3 class="nav-title">Reception</h3>
-            <ul class="nav-menu">
-                <li class="nav-item">
-                    <a href="#" class="nav-link active" onclick="showSection('patient-registration')">
-                        <i class="fas fa-home"></i>
-                        <span>Dashboard</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link" onclick="showSection('patient-registration')">
-                        <i class="fas fa-user-plus"></i>
-                        <span>Patient Registration</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link" onclick="showSection('appointment-scheduling')">
-                        <i class="fas fa-calendar-plus"></i>
-                        <span>Appointment Scheduling</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link" onclick="showSection('check-in-out')">
-                        <i class="fas fa-sign-in-alt"></i>
-                        <span>Check-In/Out Management</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link" onclick="showSection('billing-desk')">
-                        <i class="fas fa-cash-register"></i>
-                        <span>Billing Desk</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link" onclick="showSection('doctor-availability')">
-                        <i class="fas fa-user-md"></i>
-                        <span>Doctor Availability</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link" onclick="showSection('reports-analytics')">
-                        <i class="fas fa-chart-line"></i>
-                        <span>Reports & Analytics</span>
-                    </a>
-                </li>
-            </ul>
-            <div class="system-status">
-                <div class="status-indicator">
-                    <div class="status-dot online"></div>
-                    <span>System Online</span>
-                </div>
-            </div>
-        </nav>
-
-        <!-- Main Content -->
-        <main class="dashboard-main">
-            <!-- Welcome Banner -->
-            <div class="welcome-banner">
-                <div class="welcome-content">
-                    <h2>Welcome back, Sarah! 👩‍💼</h2>
-                    <p>Here's your front desk overview and today's tasks</p>
-                </div>
-                <div class="datetime-display">
-                    <div class="date" id="current-date">Monday, September 1, 2025</div>
-                    <div class="time" id="current-time">9:15 AM</div>
-                </div>
-            </div>
-
-            <!-- Key Metrics Cards -->
-            <div class="metrics-grid">
-                <div class="metric-card">
-                    <div class="metric-icon">
-                        <i class="fas fa-user-plus"></i>
+            <!-- Main Content -->
+            <div class="main-content">
+                <!-- Header -->
+                <div class="header">
+                    <div class="header-left">
+                        <h1>Receptionist Dashboard</h1>
                     </div>
-                    <div class="metric-content">
-                        <div class="metric-value" id="registered-today">12</div>
-                        <div class="metric-label">Registered Today</div>
-                        <div class="metric-change positive">+3 this hour</div>
-                    </div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-icon">
-                        <i class="fas fa-calendar-check"></i>
-                    </div>
-                    <div class="metric-content">
-                        <div class="metric-value" id="appointments-today">28</div>
-                        <div class="metric-label">Appointments Today</div>
-                        <div class="metric-change positive">On schedule</div>
-                    </div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-icon">
-                        <i class="fas fa-sign-in-alt"></i>
-                    </div>
-                    <div class="metric-content">
-                        <div class="metric-value" id="checked-in">15</div>
-                        <div class="metric-label">Checked In</div>
-                        <div class="metric-change positive">Waiting: 8</div>
-                    </div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-icon">
-                        <i class="fas fa-rupee-sign"></i>
-                    </div>
-                    <div class="metric-content">
-                        <div class="metric-value" id="revenue-today">₹45.2K</div>
-                        <div class="metric-label">Revenue Today</div>
-                        <div class="metric-change positive">+₹8.5K this hour</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Patient Registration Section -->
-            <section id="patient-registration" class="dashboard-section active">
-                <div class="section-header">
-                    <h2><i class="fas fa-user-plus"></i> Patient Registration</h2>
-                    <div class="section-actions">
-                        <button class="btn btn-primary" onclick="showRegisterPatientModal()">
-                            <i class="fas fa-plus"></i> Register New Patient
+                    <div class="header-right">
+                        <div class="user-info">
+                            <div class="user-name" id="user-name">Mike Johnson</div>
+                            <div class="user-role">Receptionist</div>
+                        </div>
+                        <button class="logout-btn" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i> Logout
                         </button>
-                        <button class="btn btn-secondary" onclick="searchExistingPatient()">
-                            <i class="fas fa-search"></i> Search Patient
-                        </button>
                     </div>
                 </div>
-                <div class="content-card">
-                    <div class="registration-stats">
+
+                <!-- Overview Section -->
+                <div id="overview" class="dashboard-section active">
+                    <div class="section-header">
+                        <h2 class="section-title">Overview</h2>
+                    </div>
+
+                    <div class="stats-grid">
                         <div class="stat-card">
-                            <h3 id="registered-today">0</h3>
-                            <p>Registered Today</p>
+                            <div class="stat-icon">
+                                <i class="fas fa-calendar-check"></i>
+                            </div>
+                            <div class="stat-value" id="today-appointments">12</div>
+                            <div class="stat-label">Today's Appointments</div>
                         </div>
                         <div class="stat-card">
-                            <h3 id="total-patients">0</h3>
-                            <p>Total Patients</p>
+                            <div class="stat-icon">
+                                <i class="fas fa-user-injured"></i>
+                            </div>
+                            <div class="stat-value" id="checked-in-patients">8</div>
+                            <div class="stat-label">Checked-in Patients</div>
                         </div>
                         <div class="stat-card">
-                            <h3 id="new-registrations">0</h3>
-                            <p>New This Week</p>
+                            <div class="stat-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="stat-value" id="waiting-patients">4</div>
+                            <div class="stat-label">Waiting Patients</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-credit-card"></i>
+                            </div>
+                            <div class="stat-value" id="pending-bills">6</div>
+                            <div class="stat-label">Pending Bills</div>
                         </div>
                     </div>
-                    <div class="filters">
-                        <input type="text" placeholder="Search patients..." id="patient-search">
-                        <select id="registration-status-filter" title="Filter patients by registration status" aria-label="Filter patients by registration status">
-                            <option value="">All Patients</option>
-                            <option value="new">New Registration</option>
-                            <option value="existing">Existing Patient</option>
-                            <option value="verified">Verified</option>
-                        </select>
-                    </div>
+
                     <div class="table-container">
-                        <table class="data-table">
+                        <table class="table">
                             <thead>
                                 <tr>
-                                    <th>Patient ID</th>
-                                    <th>Name</th>
-                                    <th>Phone</th>
-                                    <th>Email</th>
-                                    <th>Registration Date</th>
+                                    <th>Time</th>
+                                    <th>Patient</th>
+                                    <th>Doctor</th>
+                                    <th>Type</th>
                                     <th>Status</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
-                            <tbody id="registered-patients-table-body">
-                                <!-- Registered patients will be loaded here -->
+                            <tbody id="today-appointments">
+                                <tr>
+                                    <td>09:00 AM</td>
+                                    <td>John Doe</td>
+                                    <td>Dr. Smith</td>
+                                    <td>Consultation</td>
+                                    <td><span class="status-badge completed">Checked-in</span></td>
+                                    <td>
+                                        <button class="btn btn-sm" onclick="checkInPatient('A001')">Check-in</button>
+                                        <button class="btn btn-sm btn-secondary"
+                                            onclick="viewAppointment('A001')">View</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>10:30 AM</td>
+                                    <td>Jane Smith</td>
+                                    <td>Dr. Johnson</td>
+                                    <td>Follow-up</td>
+                                    <td><span class="status-badge pending">Waiting</span></td>
+                                    <td>
+                                        <button class="btn btn-sm" onclick="checkInPatient('A002')">Check-in</button>
+                                        <button class="btn btn-sm btn-secondary"
+                                            onclick="viewAppointment('A002')">View</button>
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
-            </section>
 
-            <!-- Appointment Scheduling Section -->
-            <section id="appointment-scheduling" class="dashboard-section">
-                <div class="section-header">
-                    <h2><i class="fas fa-calendar-plus"></i> Appointment Scheduling</h2>
-                    <div class="section-actions">
-                        <button class="btn btn-primary" onclick="showScheduleAppointmentModal()">
-                            <i class="fas fa-plus"></i> Schedule Appointment
-                        </button>
-                        <button class="btn btn-secondary" onclick="viewSchedule()">
-                            <i class="fas fa-calendar-alt"></i> View Schedule
+                <!-- Check-in System Section -->
+                <div id="checkin" class="dashboard-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Check-in System</h2>
+                        <button class="btn" onclick="showQuickCheckinModal()">
+                            <i class="fas fa-plus"></i> Quick Check-in
                         </button>
                     </div>
-                </div>
-                <div class="content-card">
-                    <div class="appointment-stats">
-                        <div class="stat-card">
-                            <h3 id="scheduled-today">0</h3>
-                            <p>Scheduled Today</p>
-                        </div>
-                        <div class="stat-card">
-                            <h3 id="pending-appointments">0</h3>
-                            <p>Pending</p>
-                        </div>
-                        <div class="stat-card">
-                            <h3 id="cancelled-appointments">0</h3>
-                            <p>Cancelled</p>
-                        </div>
-                    </div>
-                    <div class="filters">
-                        <input type="date" id="appointment-date-filter" title="Filter appointments by date" aria-label="Filter appointments by date">
-                        <select id="appointment-status-filter" title="Filter appointments by status" aria-label="Filter appointments by status">
-                            <option value="">All Status</option>
-                            <option value="scheduled">Scheduled</option>
-                            <option value="confirmed">Confirmed</option>
-                            <option value="cancelled">Cancelled</option>
-                        </select>
-                    </div>
-                    <div class="appointments-grid" id="appointments-grid">
-                        <!-- Appointments will be loaded here -->
-                    </div>
-                </div>
-            </section>
 
-            <!-- Check-In/Out Management Section -->
-            <section id="check-in-out" class="dashboard-section">
-                <div class="section-header">
-                    <h2><i class="fas fa-sign-in-alt"></i> Check-In/Out Management</h2>
-                    <div class="section-actions">
-                        <button class="btn btn-primary" onclick="showCheckInModal()">
-                            <i class="fas fa-sign-in-alt"></i> Check In Patient
-                        </button>
-                        <button class="btn btn-secondary" onclick="showCheckOutModal()">
-                            <i class="fas fa-sign-out-alt"></i> Check Out Patient
-                        </button>
-                    </div>
-                </div>
-                <div class="content-card">
-                    <div class="checkin-stats">
+                    <div class="stats-grid">
                         <div class="stat-card">
-                            <h3 id="checked-in-today">0</h3>
-                            <p>Checked In Today</p>
+                            <div class="stat-icon">
+                                <i class="fas fa-user-check"></i>
+                            </div>
+                            <div class="stat-value" id="checked-in-count">8</div>
+                            <div class="stat-label">Checked-in Today</div>
                         </div>
                         <div class="stat-card">
-                            <h3 id="waiting-patients">0</h3>
-                            <p>Waiting</p>
+                            <div class="stat-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="stat-value" id="waiting-count">4</div>
+                            <div class="stat-label">Currently Waiting</div>
                         </div>
                         <div class="stat-card">
-                            <h3 id="checked-out-today">0</h3>
-                            <p>Checked Out Today</p>
+                            <div class="stat-icon">
+                                <i class="fas fa-hourglass-half"></i>
+                            </div>
+                            <div class="stat-value" id="avg-wait-time">15</div>
+                            <div class="stat-label">Avg Wait Time (min)</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-calendar-day"></i>
+                            </div>
+                            <div class="stat-value" id="total-visits">24</div>
+                            <div class="stat-label">Total Visits Today</div>
                         </div>
                     </div>
-                    <div class="filters">
-                        <input type="text" placeholder="Search by patient name or ID..." id="checkin-search">
-                        <select id="checkin-status-filter" title="Filter check-in status" aria-label="Filter check-in status">
-                            <option value="">All Status</option>
-                            <option value="waiting">Waiting</option>
-                            <option value="in-progress">In Progress</option>
-                            <option value="completed">Completed</option>
-                        </select>
-                    </div>
+
                     <div class="table-container">
-                        <table class="data-table">
+                        <table class="table">
                             <thead>
                                 <tr>
-                                    <th>Patient ID</th>
-                                    <th>Name</th>
+                                    <th>Patient</th>
                                     <th>Appointment Time</th>
                                     <th>Doctor</th>
-                                    <th>Check-In Time</th>
+                                    <th>Check-in Time</th>
+                                    <th>Wait Time</th>
                                     <th>Status</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
-                            <tbody id="checkin-table-body">
-                                <!-- Check-in/out records will be loaded here -->
+                            <tbody id="checkin-table">
+                                <tr>
+                                    <td>John Doe</td>
+                                    <td>09:00 AM</td>
+                                    <td>Dr. Smith</td>
+                                    <td>08:55 AM</td>
+                                    <td>5 min</td>
+                                    <td><span class="status-badge completed">In Consultation</span></td>
+                                    <td>
+                                        <button class="btn btn-sm"
+                                            onclick="updatePatientStatus('P001', 'completed')">Complete</button>
+                                        <button class="btn btn-sm btn-secondary"
+                                            onclick="viewPatientDetails('P001')">View</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Jane Smith</td>
+                                    <td>10:30 AM</td>
+                                    <td>Dr. Johnson</td>
+                                    <td>10:25 AM</td>
+                                    <td>15 min</td>
+                                    <td><span class="status-badge pending">Waiting</span></td>
+                                    <td>
+                                        <button class="btn btn-sm" onclick="callPatient('P002')">Call</button>
+                                        <button class="btn btn-sm btn-secondary"
+                                            onclick="viewPatientDetails('P002')">View</button>
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
-            </section>
 
-            <!-- Billing Desk Section -->
-            <section id="billing-desk" class="dashboard-section">
-                <div class="section-header">
-                    <h2><i class="fas fa-cash-register"></i> Billing Desk</h2>
-                    <div class="section-actions">
-                        <button class="btn btn-primary" onclick="showCreateBillModal()">
+                <!-- Billing Section -->
+                <div id="billing" class="dashboard-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Billing & Payments</h2>
+                        <button class="btn" onclick="showCreateBillModal()">
                             <i class="fas fa-plus"></i> Create Bill
                         </button>
-                        <button class="btn btn-secondary" onclick="processPayment()">
-                            <i class="fas fa-credit-card"></i> Process Payment
-                        </button>
                     </div>
-                </div>
-                <div class="content-card">
-                    <div class="billing-stats">
+
+                    <div class="stats-grid">
                         <div class="stat-card">
-                            <h3 id="bills-today">0</h3>
-                            <p>Bills Today</p>
+                            <div class="stat-icon">
+                                <i class="fas fa-rupee-sign"></i>
+                            </div>
+                            <div class="stat-value" id="today-revenue">₹45,000</div>
+                            <div class="stat-label">Today's Revenue</div>
                         </div>
                         <div class="stat-card">
-                            <h3 id="total-revenue">₹0</h3>
-                            <p>Revenue Today</p>
+                            <div class="stat-icon">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div class="stat-value" id="pending-bills-count">6</div>
+                            <div class="stat-label">Pending Bills</div>
                         </div>
                         <div class="stat-card">
-                            <h3 id="pending-payments">0</h3>
-                            <p>Pending Payments</p>
+                            <div class="stat-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="stat-value" id="paid-bills-count">18</div>
+                            <div class="stat-label">Paid Today</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-percentage"></i>
+                            </div>
+                            <div class="stat-value" id="collection-rate">85%</div>
+                            <div class="stat-label">Collection Rate</div>
                         </div>
                     </div>
-                    <div class="filters">
-                        <input type="text" placeholder="Search bills..." id="billing-search">
-                        <select id="payment-status-filter" title="Filter payment status" aria-label="Filter payment status">
-                            <option value="">All Status</option>
-                            <option value="paid">Paid</option>
-                            <option value="pending">Pending</option>
-                            <option value="overdue">Overdue</option>
-                        </select>
-                    </div>
+
                     <div class="table-container">
-                        <table class="data-table">
+                        <table class="table">
                             <thead>
                                 <tr>
-                                    <th>Bill ID</th>
+                                    <th>Bill No.</th>
                                     <th>Patient</th>
                                     <th>Amount</th>
-                                    <th>Date</th>
+                                    <th>Service</th>
+                                    <th>Due Date</th>
                                     <th>Status</th>
-                                    <th>Payment Method</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
-                            <tbody id="billing-table-body">
-                                <!-- Billing records will be loaded here -->
+                            <tbody id="billing-table">
+                                <tr>
+                                    <td>BILL-001</td>
+                                    <td>John Doe</td>
+                                    <td>₹1,500</td>
+                                    <td>Consultation</td>
+                                    <td>2024-01-20</td>
+                                    <td><span class="status-badge pending">Pending</span></td>
+                                    <td>
+                                        <button class="btn btn-sm" onclick="processPayment('BILL-001')">Pay</button>
+                                        <button class="btn btn-sm btn-secondary"
+                                            onclick="viewBill('BILL-001')">View</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>BILL-002</td>
+                                    <td>Jane Smith</td>
+                                    <td>₹2,500</td>
+                                    <td>Lab Tests</td>
+                                    <td>2024-01-19</td>
+                                    <td><span class="status-badge completed">Paid</span></td>
+                                    <td>
+                                        <button class="btn btn-sm" onclick="viewBill('BILL-002')">View</button>
+                                        <button class="btn btn-sm btn-secondary"
+                                            onclick="printReceipt('BILL-002')">Print</button>
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
-            </section>
 
-            <!-- Doctor Availability Section -->
-            <section id="doctor-availability" class="dashboard-section">
-                <div class="section-header">
-                    <h2><i class="fas fa-user-md"></i> Doctor Availability</h2>
-                    <div class="section-actions">
-                        <button class="btn btn-primary" onclick="updateDoctorAvailability()">
-                            <i class="fas fa-edit"></i> Update Availability
-                        </button>
-                        <button class="btn btn-secondary" onclick="viewDoctorSchedule()">
-                            <i class="fas fa-calendar"></i> View Schedule
+                <!-- Communication Section -->
+                <div id="communication" class="dashboard-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Communication Center</h2>
+                        <button class="btn" onclick="showSendNotificationModal()">
+                            <i class="fas fa-plus"></i> Send Notification
                         </button>
                     </div>
-                </div>
-                <div class="content-card">
-                    <div class="availability-stats">
+
+                    <div class="stats-grid">
                         <div class="stat-card">
-                            <h3 id="available-doctors">0</h3>
-                            <p>Available Today</p>
+                            <div class="stat-icon">
+                                <i class="fas fa-sms"></i>
+                            </div>
+                            <div class="stat-value" id="sms-sent">24</div>
+                            <div class="stat-label">SMS Sent Today</div>
                         </div>
                         <div class="stat-card">
-                            <h3 id="busy-doctors">0</h3>
-                            <p>Busy</p>
+                            <div class="stat-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div class="stat-value" id="emails-sent">12</div>
+                            <div class="stat-label">Emails Sent</div>
                         </div>
                         <div class="stat-card">
-                            <h3 id="off-duty-doctors">0</h3>
-                            <p>Off Duty</p>
+                            <div class="stat-icon">
+                                <i class="fas fa-phone"></i>
+                            </div>
+                            <div class="stat-value" id="calls-made">8</div>
+                            <div class="stat-label">Calls Made</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-bell"></i>
+                            </div>
+                            <div class="stat-value" id="reminders-sent">16</div>
+                            <div class="stat-label">Reminders Sent</div>
                         </div>
                     </div>
-                    <div class="doctors-grid" id="doctors-availability-grid">
-                        <!-- Doctor availability will be loaded here -->
+
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Patient</th>
+                                    <th>Type</th>
+                                    <th>Message</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="communication-table">
+                                <tr>
+                                    <td>09:15 AM</td>
+                                    <td>John Doe</td>
+                                    <td>SMS</td>
+                                    <td>Appointment reminder for 10:00 AM</td>
+                                    <td><span class="status-badge completed">Delivered</span></td>
+                                    <td>
+                                        <button class="btn btn-sm" onclick="resendNotification('N001')">Resend</button>
+                                        <button class="btn btn-sm btn-secondary"
+                                            onclick="viewNotification('N001')">View</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>10:30 AM</td>
+                                    <td>Jane Smith</td>
+                                    <td>Email</td>
+                                    <td>Payment reminder for outstanding bill</td>
+                                    <td><span class="status-badge pending">Pending</span></td>
+                                    <td>
+                                        <button class="btn btn-sm" onclick="resendNotification('N002')">Resend</button>
+                                        <button class="btn btn-sm btn-secondary"
+                                            onclick="viewNotification('N002')">View</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-            </section>
 
-            <!-- Reports & Analytics Section -->
-            <section id="reports-analytics" class="dashboard-section">
-                <div class="section-header">
-                    <h2><i class="fas fa-chart-line"></i> Reports & Analytics</h2>
-                    <div class="section-actions">
-                        <button class="btn btn-primary" onclick="generateReceptionistReport()">
-                            <i class="fas fa-file-pdf"></i> Generate Report
+                <!-- Reports Section -->
+                <div id="reports" class="dashboard-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Reports & Analytics</h2>
+                        <button class="btn" onclick="generateDailyReport()">
+                            <i class="fas fa-download"></i> Generate Report
                         </button>
-                        <button class="btn btn-secondary" onclick="exportReceptionistData()">
-                            <i class="fas fa-download"></i> Export Data
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="stat-value" id="total-patients-today">24</div>
+                            <div class="stat-label">Patients Today</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-calendar-check"></i>
+                            </div>
+                            <div class="stat-value" id="appointments-completed">18</div>
+                            <div class="stat-label">Appointments Completed</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="stat-value" id="avg-wait-time-report">12</div>
+                            <div class="stat-label">Avg Wait Time (min)</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <div class="stat-value" id="satisfaction-rate">92%</div>
+                            <div class="stat-label">Satisfaction Rate</div>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Report Type</th>
+                                    <th>Period</th>
+                                    <th>Generated</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reports-table">
+                                <tr>
+                                    <td>Daily Summary</td>
+                                    <td>Today</td>
+                                    <td>2024-01-20 18:00</td>
+                                    <td><span class="status-badge completed">Ready</span></td>
+                                    <td>
+                                        <button class="btn btn-sm" onclick="downloadReport('R001')">Download</button>
+                                        <button class="btn btn-sm btn-secondary"
+                                            onclick="viewReport('R001')">View</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Weekly Analytics</td>
+                                    <td>This Week</td>
+                                    <td>2024-01-19 17:30</td>
+                                    <td><span class="status-badge completed">Ready</span></td>
+                                    <td>
+                                        <button class="btn btn-sm" onclick="downloadReport('R002')">Download</button>
+                                        <button class="btn btn-sm btn-secondary"
+                                            onclick="viewReport('R002')">View</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Patients Section -->
+                <div id="patients" class="dashboard-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Patient Management</h2>
+                        <button class="btn" onclick="registerPatient()">
+                            <i class="fas fa-plus"></i> Register Patient
                         </button>
                     </div>
+
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Patient ID</th>
+                                    <th>Name</th>
+                                    <th>Age</th>
+                                    <th>Phone</th>
+                                    <th>Last Visit</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="patients-table">
+                                <tr>
+                                    <td>P001</td>
+                                    <td>John Doe</td>
+                                    <td>45</td>
+                                    <td>+91 98765 43210</td>
+                                    <td>2024-01-15</td>
+                                    <td><span class="status-badge active">Active</span></td>
+                                    <td>
+                                        <button class="btn btn-sm" onclick="viewPatient('P001')">View</button>
+                                        <button class="btn btn-sm btn-secondary"
+                                            onclick="editPatient('P001')">Edit</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>P002</td>
+                                    <td>Jane Smith</td>
+                                    <td>32</td>
+                                    <td>+91 98765 43211</td>
+                                    <td>2024-01-14</td>
+                                    <td><span class="status-badge active">Active</span></td>
+                                    <td>
+                                        <button class="btn btn-sm" onclick="viewPatient('P002')">View</button>
+                                        <button class="btn btn-sm btn-secondary"
+                                            onclick="editPatient('P002')">Edit</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-                <div class="content-card">
-                    <div class="analytics-grid">
-                        <div class="chart-container">
-                            <h3>Daily Patient Flow</h3>
-                            <canvas id="patient-flow-chart"></canvas>
+
+                <!-- Appointments Section -->
+                <div id="appointments" class="dashboard-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Appointments</h2>
+                        <button class="btn" onclick="showScheduleAppointmentModal()">
+                            <i class="fas fa-plus"></i> Schedule Appointment
+                        </button>
+                    </div>
+
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Appointment ID</th>
+                                    <th>Patient</th>
+                                    <th>Date</th>
+                                    <th>Time</th>
+                                    <th>Reason</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="appointments-table">
+                                <tr>
+                                    <td>A001</td>
+                                    <td>John Doe</td>
+                                    <td>2024-01-20</td>
+                                    <td>10:00 AM</td>
+                                    <td>Follow-up</td>
+                                    <td><span class="status-badge pending">Scheduled</span></td>
+                                    <td>
+                                        <button class="btn btn-sm" onclick="startConsultation('A001')">Start</button>
+                                        <button class="btn btn-sm btn-secondary"
+                                            onclick="viewAppointment('A001')">View</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>A002</td>
+                                    <td>Jane Smith</td>
+                                    <td>2024-01-20</td>
+                                    <td>11:00 AM</td>
+                                    <td>Check-up</td>
+                                    <td><span class="status-badge pending">Scheduled</span></td>
+                                    <td>
+                                        <button class="btn btn-sm" onclick="startConsultation('A002')">Start</button>
+                                        <button class="btn btn-sm btn-secondary"
+                                            onclick="viewAppointment('A002')">View</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Medical Records Section -->
+                <div id="medical-records" class="dashboard-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Medical Records</h2>
+                        <button class="btn" onclick="showAddMedicalRecordModal()">
+                            <i class="fas fa-plus"></i> Add Record
+                        </button>
+                    </div>
+
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Record ID</th>
+                                    <th>Patient</th>
+                                    <th>Date</th>
+                                    <th>Type</th>
+                                    <th>Diagnosis</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="medical-records-table">
+                                <tr>
+                                    <td>MR001</td>
+                                    <td>John Doe</td>
+                                    <td>2024-01-15</td>
+                                    <td>Consultation</td>
+                                    <td>Hypertension</td>
+                                    <td><span class="status-badge completed">Completed</span></td>
+                                    <td>
+                                        <button class="btn btn-sm" onclick="viewRecord('MR001')">View</button>
+                                        <button class="btn btn-sm btn-secondary"
+                                            onclick="editRecord('MR001')">Edit</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Prescriptions Section -->
+                <div id="prescriptions" class="dashboard-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Prescriptions</h2>
+                        <button class="btn" onclick="showCreatePrescriptionModal()">
+                            <i class="fas fa-plus"></i> Create Prescription
+                        </button>
+                    </div>
+
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Prescription ID</th>
+                                    <th>Patient</th>
+                                    <th>Medication</th>
+                                    <th>Dosage</th>
+                                    <th>Start Date</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="prescriptions-table">
+                                <tr>
+                                    <td>PR001</td>
+                                    <td>John Doe</td>
+                                    <td>Lisinopril</td>
+                                    <td>10mg daily</td>
+                                    <td>2024-01-15</td>
+                                    <td><span class="status-badge active">Active</span></td>
+                                    <td>
+                                        <button class="btn btn-sm" onclick="viewPrescription('PR001')">View</button>
+                                        <button class="btn btn-sm btn-secondary"
+                                            onclick="editPrescription('PR001')">Edit</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Lab Tests Section -->
+                <div id="lab-tests" class="dashboard-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Lab Tests</h2>
+                        <button class="btn" onclick="showOrderLabTestModal()">
+                            <i class="fas fa-plus"></i> Order Test
+                        </button>
+                    </div>
+
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Test ID</th>
+                                    <th>Patient</th>
+                                    <th>Test Type</th>
+                                    <th>Ordered Date</th>
+                                    <th>Status</th>
+                                    <th>Results</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="lab-tests-table">
+                                <tr>
+                                    <td>LT001</td>
+                                    <td>John Doe</td>
+                                    <td>Blood Test</td>
+                                    <td>2024-01-15</td>
+                                    <td><span class="status-badge completed">Completed</span></td>
+                                    <td>Available</td>
+                                    <td>
+                                        <button class="btn btn-sm" onclick="viewTest('LT001')">View</button>
+                                        <button class="btn btn-sm btn-secondary"
+                                            onclick="orderTest('LT001')">Order</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Reports Section -->
+                <div id="reports" class="dashboard-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Reports & Analytics</h2>
+                        <button class="btn" onclick="generateReport()">
+                            <i class="fas fa-download"></i> Generate Report
+                        </button>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="stat-value">85%</div>
+                            <div class="stat-label">Patient Satisfaction</div>
                         </div>
-                        <div class="chart-container">
-                            <h3>Appointment Trends</h3>
-                            <canvas id="appointment-trends-chart"></canvas>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="stat-value">25 min</div>
+                            <div class="stat-label">Avg Consultation Time</div>
                         </div>
-                        <div class="chart-container">
-                            <h3>Revenue Analysis</h3>
-                            <canvas id="revenue-analysis-chart"></canvas>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="stat-value">12</div>
+                            <div class="stat-label">Patients Today</div>
                         </div>
-                        <div class="chart-container">
-                            <h3>Doctor Utilization</h3>
-                            <canvas id="doctor-utilization-chart"></canvas>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-calendar-week"></i>
+                            </div>
+                            <div class="stat-value">48</div>
+                            <div class="stat-label">This Week</div>
                         </div>
                     </div>
                 </div>
-            </section>
-        </main>
-    </div>
+            </div>
+        </div>
 
-    <!-- Modals -->
-    <div id="modal-overlay" class="modal-overlay">
-        <!-- Modals will be dynamically created here -->
-    </div>
+        <!-- Modal Overlay -->
+        <div id="modal-overlay" class="modal-overlay"></div>
 
-    <!-- Scripts -->
-    <script src="config.js"></script>
-    <script src="dashboard-common.js"></script>
-    <script src="receptionist-dashboard.js"></script>
-</body>
+        <script>
+            // Authentication check
+            document.addEventListener('DOMContentLoaded', function () {
+                if (typeof authService !== 'undefined') {
+                    authService.validateDashboardAccess('receptionist', 'receptionist-login.html');
+                }
+                loadUserData();
+                loadDashboardData();
+            });
+
+            function loadUserData() {
+                const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+                if (userData.first_name) {
+                    document.getElementById('user-name').textContent = `${userData.first_name} ${userData.last_name}`;
+                }
+            }
+
+            async function loadDashboardData() {
+                try {
+                    await Promise.all([
+                        loadTodayAppointments(),
+                        loadPatientStats(),
+                        loadBillingStats(),
+                        loadCheckinData(),
+                        loadCommunicationData(),
+                        loadReportsData()
+                    ]);
+                } catch (error) {
+                    console.error('Error loading dashboard data:', error);
+                }
+            }
+
+            async function loadTodayAppointments() {
+                try {
+                    const response = await fetch('http://localhost:5000/api/appointments?date=' + new Date().toISOString().split('T')[0], {
+                        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                    });
+                    const data = await response.json();
+
+                    if (data.success) {
+                        updateAppointmentsTable(data.data);
+                        updateAppointmentStats(data.data);
+                    }
+                } catch (error) {
+                    console.error('Error loading appointments:', error);
+                    // Use mock data if API fails
+                    updateAppointmentsTable([]);
+                }
+            }
+
+            async function loadPatientStats() {
+                try {
+                    const response = await fetch('http://localhost:5000/api/patients', {
+                        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                    });
+                    const data = await response.json();
+
+                    if (data.success) {
+                        updatePatientStats(data.data);
+                    }
+                } catch (error) {
+                    console.error('Error loading patient stats:', error);
+                }
+            }
+
+            async function loadBillingStats() {
+                try {
+                    const response = await fetch('http://localhost:5000/api/billing?status=pending', {
+                        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                    });
+                    const data = await response.json();
+
+                    if (data.success) {
+                        updateBillingStats(data.data);
+                    }
+                } catch (error) {
+                    console.error('Error loading billing stats:', error);
+                }
+            }
+
+            function showSection(sectionId) {
+                // Hide all sections
+                document.querySelectorAll('.dashboard-section').forEach(section => {
+                    section.classList.remove('active');
+                });
+
+                // Show selected section
+                document.getElementById(sectionId).classList.add('active');
+
+                // Update navigation
+                document.querySelectorAll('.nav-link').forEach(link => {
+                    link.classList.remove('active');
+                });
+                event.target.classList.add('active');
+            }
+
+            // Receptionist-specific functions
+            function checkInPatient(appointmentId) {
+                showNotification('Checking in patient for appointment: ' + appointmentId, 'success');
+                // Update the appointment status
+                updateAppointmentStatus(appointmentId, 'checked-in');
+            }
+
+            function viewAppointment(appointmentId) {
+                showNotification('Viewing appointment: ' + appointmentId, 'info');
+            }
+
+            function scheduleAppointment() {
+                showModal('Schedule Appointment', getAppointmentForm());
+            }
+
+            function registerPatient() {
+                showModal('Register New Patient', getPatientRegistrationForm());
+            }
+
+            function processPayment(billId) {
+                showModal('Process Payment', getPaymentForm(billId));
+            }
+
+            function sendNotification(patientId) {
+                showModal('Send Notification', getNotificationForm(patientId));
+            }
+
+            // Check-in System Functions
+            function showQuickCheckinModal() {
+                showModal('Quick Check-in', getQuickCheckinForm());
+            }
+
+            function updatePatientStatus(patientId, status) {
+                showNotification(`Patient ${patientId} status updated to ${status}`, 'success');
+                // Update backend
+                updateAppointmentStatus(patientId, status);
+            }
+
+            function callPatient(patientId) {
+                showNotification(`Calling patient ${patientId}...`, 'info');
+                // Update patient status to "called"
+                updatePatientStatus(patientId, 'called');
+            }
+
+            function viewPatientDetails(patientId) {
+                showNotification(`Viewing details for patient ${patientId}`, 'info');
+            }
+
+            // Billing Functions
+            function showCreateBillModal() {
+                showModal('Create New Bill', getCreateBillForm());
+            }
+
+            function processPayment(billId) {
+                showModal('Process Payment', getPaymentForm(billId));
+            }
+
+            function viewBill(billId) {
+                showNotification(`Viewing bill ${billId}`, 'info');
+            }
+
+            function printReceipt(billId) {
+                showNotification(`Printing receipt for bill ${billId}`, 'success');
+            }
+
+            // Communication Functions
+            function showSendNotificationModal() {
+                showModal('Send Notification', getNotificationForm());
+            }
+
+            function resendNotification(notificationId) {
+                showNotification(`Resending notification ${notificationId}`, 'success');
+            }
+
+            function viewNotification(notificationId) {
+                showNotification(`Viewing notification ${notificationId}`, 'info');
+            }
+
+            // Reports Functions
+            function generateDailyReport() {
+                showNotification('Generating daily report...', 'success');
+                // Simulate report generation
+                setTimeout(() => {
+                    showNotification('Daily report generated successfully!', 'success');
+                }, 2000);
+            }
+
+            function downloadReport(reportId) {
+                showNotification(`Downloading report ${reportId}`, 'success');
+            }
+
+            function viewReport(reportId) {
+                showNotification(`Viewing report ${reportId}`, 'info');
+            }
+
+            // Backend integration functions
+            async function updateAppointmentStatus(appointmentId, status) {
+                try {
+                    const response = await fetch(`http://localhost:5000/api/appointments/${appointmentId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        },
+                        body: JSON.stringify({ status })
+                    });
+
+                    if (response.ok) {
+                        showNotification('Appointment status updated successfully', 'success');
+                        loadTodayAppointments(); // Refresh data
+                    }
+                } catch (error) {
+                    console.error('Error updating appointment status:', error);
+                    showNotification('Error updating appointment status', 'error');
+                }
+            }
+
+            function updateAppointmentsTable(appointments) {
+                const tbody = document.getElementById('today-appointments');
+                if (!tbody) return;
+
+                tbody.innerHTML = appointments.map(apt => `
+                <tr>
+                    <td>${apt.appointment_time}</td>
+                    <td>${apt.patient_name || 'N/A'}</td>
+                    <td>${apt.doctor_name || 'N/A'}</td>
+                    <td>${apt.reason || 'Consultation'}</td>
+                    <td><span class="status-badge ${apt.status}">${apt.status}</span></td>
+                    <td>
+                        <button class="btn btn-sm" onclick="checkInPatient('${apt.id}')">Check-in</button>
+                        <button class="btn btn-sm btn-secondary" onclick="viewAppointment('${apt.id}')">View</button>
+                        </td>
+                    </tr>
+            `).join('');
+            }
+
+            function updateAppointmentStats(appointments) {
+                const today = appointments.filter(apt => apt.status === 'checked-in').length;
+                const waiting = appointments.filter(apt => apt.status === 'scheduled').length;
+
+                document.getElementById('checked-in-patients').textContent = today;
+                document.getElementById('waiting-patients').textContent = waiting;
+                document.getElementById('today-appointments').textContent = appointments.length;
+            }
+
+            function updatePatientStats(patients) {
+                // Update patient-related statistics
+                console.log('Patient stats updated:', patients.length);
+            }
+
+            function updateBillingStats(bills) {
+                document.getElementById('pending-bills').textContent = bills.length;
+            }
+
+            // Additional backend integration functions
+            async function loadCheckinData() {
+                try {
+                    const response = await fetch('http://localhost:5000/api/checkin', {
+                        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                    });
+                    const data = await response.json();
+
+                    if (data.success) {
+                        updateCheckinTable(data.data);
+                        updateCheckinStats(data.data);
+                    }
+                } catch (error) {
+                    console.error('Error loading check-in data:', error);
+                }
+            }
+
+            async function loadCommunicationData() {
+                try {
+                    const response = await fetch('http://localhost:5000/api/notifications', {
+                        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                    });
+                    const data = await response.json();
+
+                    if (data.success) {
+                        updateCommunicationTable(data.data);
+                        updateCommunicationStats(data.data);
+                    }
+                } catch (error) {
+                    console.error('Error loading communication data:', error);
+                }
+            }
+
+            async function loadReportsData() {
+                try {
+                    const response = await fetch('http://localhost:5000/api/reports', {
+                        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                    });
+                    const data = await response.json();
+
+                    if (data.success) {
+                        updateReportsTable(data.data);
+                        updateReportsStats(data.data);
+                    }
+                } catch (error) {
+                    console.error('Error loading reports data:', error);
+                }
+            }
+
+            function updateCheckinTable(checkins) {
+                const tbody = document.getElementById('checkin-table');
+                if (!tbody) return;
+
+                tbody.innerHTML = checkins.map(checkin => `
+                <tr>
+                    <td>${checkin.patient_name}</td>
+                    <td>${checkin.appointment_time}</td>
+                    <td>${checkin.doctor_name}</td>
+                    <td>${checkin.checkin_time}</td>
+                    <td>${checkin.wait_time} min</td>
+                    <td><span class="status-badge ${checkin.status}">${checkin.status}</span></td>
+                    <td>
+                        <button class="btn btn-sm" onclick="updatePatientStatus('${checkin.patient_id}', 'completed')">Complete</button>
+                        <button class="btn btn-sm btn-secondary" onclick="viewPatientDetails('${checkin.patient_id}')">View</button>
+                    </td>
+                </tr>
+            `).join('');
+            }
+
+            function updateCheckinStats(checkins) {
+                const checkedIn = checkins.filter(c => c.status === 'checked-in').length;
+                const waiting = checkins.filter(c => c.status === 'waiting').length;
+                const avgWaitTime = checkins.reduce((sum, c) => sum + parseInt(c.wait_time), 0) / checkins.length || 0;
+
+                document.getElementById('checked-in-count').textContent = checkedIn;
+                document.getElementById('waiting-count').textContent = waiting;
+                document.getElementById('avg-wait-time').textContent = Math.round(avgWaitTime);
+                document.getElementById('total-visits').textContent = checkins.length;
+            }
+
+            function updateCommunicationTable(notifications) {
+                const tbody = document.getElementById('communication-table');
+                if (!tbody) return;
+
+                tbody.innerHTML = notifications.map(notif => `
+                <tr>
+                    <td>${notif.sent_time}</td>
+                    <td>${notif.patient_name}</td>
+                    <td>${notif.type.toUpperCase()}</td>
+                    <td>${notif.message}</td>
+                    <td><span class="status-badge ${notif.status}">${notif.status}</span></td>
+                    <td>
+                        <button class="btn btn-sm" onclick="resendNotification('${notif.id}')">Resend</button>
+                        <button class="btn btn-sm btn-secondary" onclick="viewNotification('${notif.id}')">View</button>
+                    </td>
+                </tr>
+            `).join('');
+            }
+
+            function updateCommunicationStats(notifications) {
+                const smsCount = notifications.filter(n => n.type === 'sms').length;
+                const emailCount = notifications.filter(n => n.type === 'email').length;
+                const callCount = notifications.filter(n => n.type === 'call').length;
+                const reminderCount = notifications.filter(n => n.type === 'reminder').length;
+
+                document.getElementById('sms-sent').textContent = smsCount;
+                document.getElementById('emails-sent').textContent = emailCount;
+                document.getElementById('calls-made').textContent = callCount;
+                document.getElementById('reminders-sent').textContent = reminderCount;
+            }
+
+            function updateReportsTable(reports) {
+                const tbody = document.getElementById('reports-table');
+                if (!tbody) return;
+
+                tbody.innerHTML = reports.map(report => `
+                <tr>
+                    <td>${report.type}</td>
+                    <td>${report.period}</td>
+                    <td>${report.generated_at}</td>
+                    <td><span class="status-badge ${report.status}">${report.status}</span></td>
+                    <td>
+                        <button class="btn btn-sm" onclick="downloadReport('${report.id}')">Download</button>
+                        <button class="btn btn-sm btn-secondary" onclick="viewReport('${report.id}')">View</button>
+                        </td>
+                    </tr>
+            `).join('');
+            }
+
+            function updateReportsStats(reports) {
+                const todayPatients = reports.find(r => r.type === 'daily')?.patients_today || 0;
+                const completedAppointments = reports.find(r => r.type === 'daily')?.appointments_completed || 0;
+                const avgWaitTime = reports.find(r => r.type === 'daily')?.avg_wait_time || 0;
+                const satisfactionRate = reports.find(r => r.type === 'daily')?.satisfaction_rate || 0;
+
+                document.getElementById('total-patients-today').textContent = todayPatients;
+                document.getElementById('appointments-completed').textContent = completedAppointments;
+                document.getElementById('avg-wait-time-report').textContent = avgWaitTime;
+                document.getElementById('satisfaction-rate').textContent = satisfactionRate + '%';
+            }
+
+            // Appointment functions
+            function startConsultation(appointmentId) {
+                showNotification('Starting consultation: ' + appointmentId, 'success');
+            }
+
+            function viewAppointment(appointmentId) {
+                showNotification('Viewing appointment: ' + appointmentId, 'info');
+            }
+
+            function showScheduleAppointmentModal() {
+                showModal('Schedule Appointment', getAppointmentForm());
+            }
+
+            // Medical Record functions
+            function viewRecord(recordId) {
+                showNotification('Viewing record: ' + recordId, 'info');
+            }
+
+            function editRecord(recordId) {
+                showNotification('Editing record: ' + recordId, 'info');
+            }
+
+            function showAddMedicalRecordModal() {
+                showModal('Add Medical Record', getMedicalRecordForm());
+            }
+
+            // Prescription functions
+            function viewPrescription(prescriptionId) {
+                showNotification('Viewing prescription: ' + prescriptionId, 'info');
+            }
+
+            function editPrescription(prescriptionId) {
+                showNotification('Editing prescription: ' + prescriptionId, 'info');
+            }
+
+            function showCreatePrescriptionModal() {
+                showModal('Create Prescription', getPrescriptionForm());
+            }
+
+            // Lab Test functions
+            function viewTest(testId) {
+                showNotification('Viewing test: ' + testId, 'info');
+            }
+
+            function orderTest(testId) {
+                showNotification('Ordering test: ' + testId, 'info');
+            }
+
+            function showOrderLabTestModal() {
+                showModal('Order Lab Test', getLabTestForm());
+            }
+
+            // Report functions
+            function generateReport() {
+                showNotification('Generating report...', 'success');
+            }
+
+            // Modal functions
+            function showModal(title, content) {
+                const modalOverlay = document.getElementById('modal-overlay');
+                modalOverlay.innerHTML = `
+                <div class="modal">
+                    <div class="modal-header">
+                        <h3>${title}</h3>
+                        <button class="modal-close" onclick="closeModal()">×</button>
+                        </div>
+                    <div class="modal-body">
+                        ${content}
+                        </div>
+                    </div>
+            `;
+                modalOverlay.style.display = 'flex';
+            }
+
+            function closeModal() {
+                document.getElementById('modal-overlay').style.display = 'none';
+            }
+
+            // Form templates
+            function getPatientRegistrationForm() {
+                return `
+                <form onsubmit="handlePatientRegistration(event)">
+                    <div class="form-group">
+                        <label>First Name</label>
+                        <input type="text" name="firstName" required>
+                        </div>
+                    <div class="form-group">
+                        <label>Last Name</label>
+                        <input type="text" name="lastName" required>
+                        </div>
+                    <div class="form-group">
+                        <label>Date of Birth</label>
+                        <input type="date" name="dateOfBirth" required>
+                        </div>
+                    <div class="form-group">
+                        <label>Phone</label>
+                        <input type="tel" name="phone" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" name="email">
+                        </div>
+                    <div class="form-group">
+                        <label>Address</label>
+                        <textarea name="address" rows="3"></textarea>
+                        </div>
+                    <div class="form-group">
+                        <label>Emergency Contact</label>
+                        <input type="text" name="emergencyContact">
+                        </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn">Register Patient</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    </div>
+                </form>
+            `;
+            }
+
+            function getPaymentForm(billId) {
+                return `
+                <form onsubmit="handlePayment(event, '${billId}')">
+                    <div class="form-group">
+                        <label>Payment Method</label>
+                        <select name="paymentMethod" required>
+                            <option value="">Select Payment Method</option>
+                            <option value="cash">Cash</option>
+                            <option value="card">Credit/Debit Card</option>
+                            <option value="upi">UPI</option>
+                            <option value="netbanking">Net Banking</option>
+                            <option value="insurance">Insurance</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Amount</label>
+                        <input type="number" name="amount" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Reference Number</label>
+                        <input type="text" name="referenceNumber">
+                    </div>
+                    <div class="form-group">
+                        <label>Notes</label>
+                        <textarea name="notes" rows="3"></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn">Process Payment</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    </div>
+                </form>
+            `;
+            }
+
+            function getQuickCheckinForm() {
+                return `
+                <form onsubmit="handleQuickCheckin(event)">
+                    <div class="form-group">
+                        <label>Patient ID or Name</label>
+                        <input type="text" name="patientIdentifier" placeholder="Enter patient ID or name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Appointment Time</label>
+                        <input type="time" name="appointmentTime" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Doctor</label>
+                        <select name="doctorId" required>
+                            <option value="">Select Doctor</option>
+                            <option value="D001">Dr. Smith</option>
+                            <option value="D002">Dr. Johnson</option>
+                            <option value="D003">Dr. Williams</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Notes</label>
+                        <textarea name="notes" rows="3" placeholder="Any special notes..."></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn">Check-in Patient</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    </div>
+                </form>
+            `;
+            }
+
+            function getCreateBillForm() {
+                return `
+                <form onsubmit="handleCreateBill(event)">
+                    <div class="form-group">
+                        <label>Patient</label>
+                        <select name="patientId" required>
+                            <option value="">Select Patient</option>
+                            <option value="P001">John Doe</option>
+                            <option value="P002">Jane Smith</option>
+                            <option value="P003">Mike Johnson</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Service Type</label>
+                        <select name="serviceType" required>
+                            <option value="">Select Service</option>
+                            <option value="consultation">Consultation</option>
+                            <option value="lab">Lab Test</option>
+                            <option value="procedure">Procedure</option>
+                            <option value="medication">Medication</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <input type="text" name="description" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Amount (₹)</label>
+                        <input type="number" name="amount" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Due Date</label>
+                        <input type="date" name="dueDate" required>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn">Create Bill</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    </div>
+                </form>
+            `;
+            }
+
+            function getNotificationForm(patientId = '') {
+                return `
+                <form onsubmit="handleNotification(event, '${patientId}')">
+                    <div class="form-group">
+                        <label>Patient</label>
+                        <select name="patientId" ${patientId ? 'disabled' : 'required'}>
+                            <option value="">Select Patient</option>
+                            <option value="P001" ${patientId === 'P001' ? 'selected' : ''}>John Doe</option>
+                            <option value="P002" ${patientId === 'P002' ? 'selected' : ''}>Jane Smith</option>
+                            <option value="P003" ${patientId === 'P003' ? 'selected' : ''}>Mike Johnson</option>
+                        </select>
+                        ${patientId ? `<input type="hidden" name="patientId" value="${patientId}">` : ''}
+                    </div>
+                    <div class="form-group">
+                        <label>Notification Type</label>
+                        <select name="type" required>
+                            <option value="">Select Type</option>
+                            <option value="appointment_reminder">Appointment Reminder</option>
+                            <option value="payment_reminder">Payment Reminder</option>
+                            <option value="general">General Message</option>
+                            <option value="test_results">Test Results</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Message</label>
+                        <textarea name="message" rows="4" required placeholder="Enter your message here..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Delivery Method</label>
+                        <select name="deliveryMethod" required>
+                            <option value="sms">SMS</option>
+                            <option value="email">Email</option>
+                            <option value="both">Both SMS & Email</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Priority</label>
+                        <select name="priority" required>
+                            <option value="normal">Normal</option>
+                            <option value="high">High</option>
+                            <option value="urgent">Urgent</option>
+                        </select>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn">Send Notification</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    </div>
+                </form>
+            `;
+            }
+
+            function getAppointmentForm() {
+                return `
+                <form onsubmit="handleFormSubmit(event, 'appointment')">
+                        <div class="form-group">
+                            <label>Patient</label>
+                            <select name="patientId" required>
+                                <option value="">Select Patient</option>
+                            <option value="P001">John Doe</option>
+                            <option value="P002">Jane Smith</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Date</label>
+                            <input type="date" name="date" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Time</label>
+                            <input type="time" name="time" required>
+                        </div>
+                        <div class="form-group">
+                        <label>Reason</label>
+                        <textarea name="reason" rows="3"></textarea>
+                        </div>
+                        <div class="form-actions">
+                        <button type="submit" class="btn">Schedule Appointment</button>
+                            <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                        </div>
+                    </form>
+            `;
+            }
+
+            function getMedicalRecordForm() {
+                return `
+                <form onsubmit="handleFormSubmit(event, 'medical-record')">
+                        <div class="form-group">
+                            <label>Patient</label>
+                            <select name="patientId" required>
+                                <option value="">Select Patient</option>
+                            <option value="P001">John Doe</option>
+                            <option value="P002">Jane Smith</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                        <label>Record Type</label>
+                        <select name="type" required>
+                            <option value="consultation">Consultation</option>
+                            <option value="diagnosis">Diagnosis</option>
+                            <option value="treatment">Treatment</option>
+                        </select>
+                        </div>
+                        <div class="form-group">
+                        <label>Diagnosis</label>
+                        <input type="text" name="diagnosis" required>
+                        </div>
+                        <div class="form-group">
+                        <label>Treatment</label>
+                        <textarea name="treatment" rows="3" required></textarea>
+                        </div>
+                        <div class="form-actions">
+                        <button type="submit" class="btn">Add Record</button>
+                            <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                        </div>
+                    </form>
+            `;
+            }
+
+            function getPrescriptionForm() {
+                return `
+                <form onsubmit="handleFormSubmit(event, 'prescription')">
+                        <div class="form-group">
+                            <label>Patient</label>
+                            <select name="patientId" required>
+                                <option value="">Select Patient</option>
+                            <option value="P001">John Doe</option>
+                            <option value="P002">Jane Smith</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                        <label>Medication</label>
+                        <input type="text" name="medication" required>
+                        </div>
+                        <div class="form-group">
+                        <label>Dosage</label>
+                        <input type="text" name="dosage" required>
+                        </div>
+                        <div class="form-group">
+                        <label>Instructions</label>
+                        <textarea name="instructions" rows="3" required></textarea>
+                        </div>
+                        <div class="form-actions">
+                        <button type="submit" class="btn">Create Prescription</button>
+                            <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                        </div>
+                    </form>
+            `;
+            }
+
+            function getLabTestForm() {
+                return `
+                <form onsubmit="handleFormSubmit(event, 'lab-test')">
+                        <div class="form-group">
+                            <label>Patient</label>
+                            <select name="patientId" required>
+                                <option value="">Select Patient</option>
+                            <option value="P001">John Doe</option>
+                            <option value="P002">Jane Smith</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                        <label>Test Type</label>
+                        <select name="testType" required>
+                            <option value="blood">Blood Test</option>
+                            <option value="urine">Urine Test</option>
+                            <option value="xray">X-Ray</option>
+                            <option value="mri">MRI</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                        <label>Reason</label>
+                        <textarea name="reason" rows="3" required></textarea>
+                        </div>
+                        <div class="form-actions">
+                        <button type="submit" class="btn">Order Test</button>
+                            <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                        </div>
+                    </form>
+            `;
+            }
+
+            async function handlePatientRegistration(event) {
+                event.preventDefault();
+                const formData = new FormData(event.target);
+                const data = Object.fromEntries(formData);
+
+                try {
+                    const response = await fetch('http://localhost:5000/api/patients', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        },
+                        body: JSON.stringify(data)
+                    });
+
+                    if (response.ok) {
+                        showNotification('Patient registered successfully!', 'success');
+                        closeModal();
+                        loadPatientStats(); // Refresh data
+                    } else {
+                        showNotification('Error registering patient', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error registering patient:', error);
+                    showNotification('Error registering patient', 'error');
+                }
+            }
+
+            async function handlePayment(event, billId) {
+                event.preventDefault();
+                const formData = new FormData(event.target);
+                const data = Object.fromEntries(formData);
+
+                try {
+                    const response = await fetch(`http://localhost:5000/api/billing/${billId}/payment`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        },
+                        body: JSON.stringify(data)
+                    });
+
+                    if (response.ok) {
+                        showNotification('Payment processed successfully!', 'success');
+                        closeModal();
+                        loadBillingStats(); // Refresh data
+                    } else {
+                        showNotification('Error processing payment', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error processing payment:', error);
+                    showNotification('Error processing payment', 'error');
+                }
+            }
+
+            async function handleNotification(event, patientId) {
+                event.preventDefault();
+                const formData = new FormData(event.target);
+                const data = Object.fromEntries(formData);
+
+                try {
+                    const response = await fetch('http://localhost:5000/api/notifications', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        },
+                        body: JSON.stringify({
+                            ...data,
+                            patientId
+                        })
+                    });
+
+                    if (response.ok) {
+                        showNotification('Notification sent successfully!', 'success');
+                        closeModal();
+                    } else {
+                        showNotification('Error sending notification', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error sending notification:', error);
+                    showNotification('Error sending notification', 'error');
+                }
+            }
+
+            async function handleQuickCheckin(event) {
+                event.preventDefault();
+                const formData = new FormData(event.target);
+                const data = Object.fromEntries(formData);
+
+                try {
+                    const response = await fetch('http://localhost:5000/api/checkin', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        },
+                        body: JSON.stringify(data)
+                    });
+
+                    if (response.ok) {
+                        showNotification('Patient checked in successfully!', 'success');
+                        closeModal();
+                        loadDashboardData(); // Refresh data
+                    } else {
+                        showNotification('Error checking in patient', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error checking in patient:', error);
+                    showNotification('Error checking in patient', 'error');
+                }
+            }
+
+            async function handleCreateBill(event) {
+                event.preventDefault();
+                const formData = new FormData(event.target);
+                const data = Object.fromEntries(formData);
+
+                try {
+                    const response = await fetch('http://localhost:5000/api/billing', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        },
+                        body: JSON.stringify(data)
+                    });
+
+                    if (response.ok) {
+                        showNotification('Bill created successfully!', 'success');
+                        closeModal();
+                        loadBillingStats(); // Refresh data
+                    } else {
+                        showNotification('Error creating bill', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error creating bill:', error);
+                    showNotification('Error creating bill', 'error');
+                }
+            }
+
+            function handleFormSubmit(event, formType) {
+                event.preventDefault();
+                const formData = new FormData(event.target);
+                const data = Object.fromEntries(formData);
+
+                showNotification(`${formType} submitted successfully!`, 'success');
+                closeModal();
+            }
+
+            function showNotification(message, type = 'info') {
+                const notification = document.createElement('div');
+                notification.className = `notification notification-${type}`;
+                notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'};
+                color: white;
+                padding: 15px 20px;
+                border-radius: 8px;
+                z-index: 1001;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            `;
+                notification.textContent = message;
+
+                document.body.appendChild(notification);
+
+                setTimeout(() => {
+                    notification.remove();
+                }, 3000);
+            }
+
+            function logout() {
+                if (typeof authService !== 'undefined') {
+                    authService.logout();
+                } else {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('userData');
+                    window.location.href = 'receptionist-login.html';
+                }
+            }
+
+            // Close modal when clicking outside
+            document.getElementById('modal-overlay').addEventListener('click', function (e) {
+                if (e.target === this) {
+                    closeModal();
+                }
+            });
+        </script>
+    </body>
+
 </html>

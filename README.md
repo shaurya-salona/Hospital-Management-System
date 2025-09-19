@@ -1,259 +1,313 @@
-# 🏥 HMIS - Hospital Management Information System
+# 🏥 Hospital Management Information System (HMIS)
 
-A comprehensive Hospital Management Information System built with Node.js, Express, and PostgreSQL, featuring role-based access control and real-time notifications.
+A comprehensive, modern Hospital Management Information System built with Node.js, PostgreSQL, and vanilla JavaScript. This system provides complete hospital management functionality with role-based access control, real-time notifications, and a responsive web interface.
 
-## 🏗️ Tech Stack
+## 🌟 Features
 
-- **Backend**: Node.js + Express.js
-- **Frontend**: HTML5 + JavaScript + CSS3
-- **Database**: PostgreSQL
-- **Authentication**: JWT + bcrypt
-- **Notifications**: Nodemailer + Twilio (SMS)
-- **Security**: CORS, Rate Limiting, Input Validation
+### Core Functionality
+- **Patient Management**: Complete patient registration, medical history, and records
+- **Appointment Scheduling**: Advanced appointment booking and management system
+- **Doctor Dashboard**: Comprehensive doctor portal with patient management
+- **Medical Records**: Digital medical records with history tracking
+- **Prescription Management**: Electronic prescription system
+- **Lab Test Management**: Laboratory test ordering and results tracking
+- **Billing System**: Automated billing and payment tracking
+- **Inventory Management**: Pharmacy and medical equipment inventory
+- **User Management**: Role-based access control for all staff types
+- **Analytics Dashboard**: Comprehensive reporting and analytics
 
-## ✨ Features
+### User Roles
+- **Administrator**: Full system access and management
+- **Doctor**: Patient care, prescriptions, medical records
+- **Nurse**: Patient care assistance, vital signs, medication administration
+- **Receptionist**: Patient registration, appointment scheduling
+- **Pharmacist**: Prescription fulfillment, inventory management
+- **Patient**: Personal health records, appointment viewing
 
-### 🔐 Role-Based Authentication
-- **Admin**: Full system control and management
-- **Doctor**: Patient care, medical records, prescriptions
-- **Nurse**: Patient monitoring, vital signs, care plans
-- **Receptionist**: Patient registration, appointments, billing support
-- **Pharmacist**: Prescription management, inventory control
-- **Patient**: Personal health information and appointments
+### Technical Features
+- **RESTful API**: Comprehensive backend API with Swagger documentation
+- **Real-time Updates**: WebSocket support for live notifications
+- **Responsive Design**: Mobile-friendly interface
+- **Security**: JWT authentication, role-based authorization
+- **Database**: PostgreSQL with comprehensive schema
+- **Docker Support**: Complete containerization
+- **Monitoring**: Health checks and logging
+- **Backup System**: Automated database backups
 
-### 📋 Core Modules
-- **Patient Management**: Registration, profiles, medical history
-- **Appointment Scheduling**: Booking, rescheduling, notifications
-- **Medical Records**: Diagnosis, treatment plans, lab results
-- **Prescription Management**: Digital prescriptions, drug interactions
-- **Billing System**: Invoicing, payments, insurance claims
-- **Inventory Management**: Medication stock, reorder alerts
-- **Analytics Dashboard**: Real-time metrics and reports
-- **Notification System**: Email and SMS alerts
-
-## ⚡️ Quick Start
+## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js (v16 or higher)
-- PostgreSQL (v12 or higher)
+- Node.js 16+
 - npm or yarn
+- Docker and Docker Compose (optional)
+- PostgreSQL 12+ (if not using Docker)
 
-### 1. Clone and Setup
-```bash
-git clone <repository-url>
-cd hmis-complete
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/your-username/hmis-complete.git
+   cd hmis-complete
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   cd backend && npm install
+   ```
+
+3. **Configure environment**
+   ```bash
+   cp env.example .env
+   # Edit .env with your configuration
+   ```
+
+4. **Start the system**
+
+   **Option A: Using Docker (Recommended)**
+   ```bash
+   docker-compose up --build
+   ```
+
+   **Option B: Development Mode**
+   ```bash
+   node start-hmis.js
+   ```
+
+5. **Access the application**
+   - Frontend: http://localhost:80
+   - Backend API: http://localhost:5000
+   - API Documentation: http://localhost:5000/api-docs
+   - Health Check: http://localhost:5000/health
+
+## 🔐 Default Login Credentials
+
+| Role | Username | Password |
+|------|----------|----------|
+| Admin | admin | admin123 |
+| Doctor | doctor | doctor123 |
+| Nurse | nurse | nurse123 |
+| Receptionist | receptionist | receptionist123 |
+| Pharmacist | pharmacist | pharmacist123 |
+| Patient | patient | patient123 |
+
+## 📁 Project Structure
+
+```
+hmis-complete/
+├── backend/                 # Backend API server
+│   ├── config/             # Configuration files
+│   ├── controllers/        # Route controllers
+│   ├── middlewares/        # Express middlewares
+│   ├── models/            # Database models
+│   ├── routes/            # API routes
+│   ├── scripts/           # Database scripts
+│   ├── tests/             # Test files
+│   └── server.js          # Main server file
+├── frontend/              # Frontend application
+│   ├── *.html            # Dashboard pages
+│   ├── *.js              # JavaScript files
+│   ├── *.css             # Stylesheets
+│   └── api-service.js    # API service
+├── scripts/              # Utility scripts
+├── docker-compose.yml    # Docker configuration
+├── Dockerfile           # Backend Docker image
+├── nginx.conf           # Nginx configuration
+└── README.md           # This file
 ```
 
-### 2. Database Setup
-```bash
-# Install PostgreSQL and create database
-createdb hmis_db
+## 🛠️ Development
 
-# Run the schema
-psql -d hmis_db -f backend/schema.sql
-```
+### Backend Development
 
-### 3. Environment Configuration
-```bash
-# Copy environment template
-cp backend/env.example backend/.env
+1. **Start the backend server**
+   ```bash
+   cd backend
+   npm run dev
+   ```
 
-# Edit the .env file with your configuration
-# Update database credentials, JWT secrets, etc.
-```
+2. **Run tests**
+   ```bash
+   npm test
+   ```
 
-### 4. Install Dependencies
-```bash
-# Backend dependencies
-cd backend
-npm install
+3. **Database setup**
+   ```bash
+   npm run setup:db
+   ```
 
-# Frontend dependencies (if any)
-cd ../frontend
-npm install  # if package.json exists
-```
+### Frontend Development
 
-### 5. Run the Application
+The frontend is built with vanilla HTML, CSS, and JavaScript. Each dashboard is a separate HTML file with embedded JavaScript.
 
-#### Development Mode
-```bash
-# Start backend server
-cd backend
-npm run dev  # or node demo-server.js
+### API Documentation
 
-# Start frontend server (in another terminal)
-cd frontend
-node server.js
-```
+API documentation is available at `/api-docs` when the server is running. It includes:
+- All available endpoints
+- Request/response schemas
+- Authentication requirements
+- Example requests
 
-#### Production Mode
-```bash
-# Start production backend
-cd backend
-npm start  # or node server.js
-```
+## 🐳 Docker Deployment
 
-### 6. Access the Application
-- **Frontend**: http://localhost:3000
-- **Backend API**: http://localhost:5000
-- **API Documentation**: http://localhost:5000/api-docs
+### Production Deployment
+
+1. **Configure environment**
+   ```bash
+   cp env.example .env
+   # Update production values
+   ```
+
+2. **Start with Docker Compose**
+   ```bash
+   docker-compose -f docker-compose.production.yml up -d
+   ```
+
+3. **Monitor logs**
+   ```bash
+   docker-compose logs -f
+   ```
+
+### Docker Services
+
+- **PostgreSQL**: Database server
+- **Redis**: Caching and sessions
+- **Backend**: Node.js API server
+- **Frontend**: Nginx static file server
+- **Backup**: Automated backup service
+- **Monitoring**: Prometheus and Grafana (optional)
 
 ## 🔧 Configuration
 
 ### Environment Variables
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `PORT` | Backend server port | 5000 |
-| `NODE_ENV` | Environment mode | development |
-| `DB_HOST` | Database host | localhost |
-| `DB_PORT` | Database port | 5432 |
-| `DB_NAME` | Database name | hmis_db |
-| `DB_USER` | Database user | postgres |
-| `DB_PASSWORD` | Database password | password |
-| `JWT_SECRET` | JWT signing secret | (required) |
-| `JWT_EXPIRES_IN` | JWT expiration time | 24h |
-| `FRONTEND_URL` | Frontend URL for CORS | http://localhost:3000 |
+Key configuration options in `.env`:
+
+```env
+# Database
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=hmis_db
+DB_USER=hmis_user
+DB_PASSWORD=your_password
+
+# JWT
+JWT_SECRET=your_jwt_secret
+JWT_EXPIRES_IN=24h
+
+# Security
+CORS_ORIGIN=http://localhost:3000
+RATE_LIMIT_MAX_REQUESTS=100
+
+# Features
+API_DOCS=true
+BACKUP_ENABLED=true
+```
 
 ### Database Schema
-The system includes the following main tables:
-- `users` - User authentication and profiles
-- `staff` - Hospital staff information
-- `patients` - Patient records and medical history
-- `appointments` - Appointment scheduling
-- `medical_records` - Medical documentation
-- `prescriptions` - Medication prescriptions
-- `billing` - Financial transactions
-- `inventory` - Medication and supply inventory
-- `notifications` - System notifications
-- `audit_logs` - System audit trail
 
-## 🚀 API Endpoints
+The system uses PostgreSQL with the following main tables:
+- `users` - User accounts and authentication
+- `staff` - Staff information and roles
+- `patients` - Patient records
+- `appointments` - Appointment scheduling
+- `medical_records` - Medical history
+- `prescriptions` - Medication prescriptions
+- `billing` - Financial records
+- `inventory` - Medical inventory
+
+## 📊 Monitoring and Logging
+
+### Health Checks
+- Backend health: `GET /health`
+- Database connectivity
+- Redis connectivity
+- System resources
+
+### Logging
+- Structured logging with Winston
+- Request/response logging
+- Error tracking
+- Audit trails
+
+### Metrics (Optional)
+- Prometheus metrics
+- Grafana dashboards
+- Performance monitoring
+
+## 🔒 Security
 
 ### Authentication
-- `POST /api/auth/login` - User login
-- `POST /api/auth/logout` - User logout
-- `POST /api/auth/refresh` - Refresh JWT token
-- `GET /api/auth/profile` - Get user profile
+- JWT-based authentication
+- Role-based authorization
+- Password hashing with bcrypt
+- Session management
 
-### Patients
-- `GET /api/patients` - List patients
-- `POST /api/patients` - Create patient
-- `GET /api/patients/:id` - Get patient details
-- `PUT /api/patients/:id` - Update patient
-- `DELETE /api/patients/:id` - Delete patient
-
-### Appointments
-- `GET /api/appointments` - List appointments
-- `POST /api/appointments` - Create appointment
-- `PUT /api/appointments/:id` - Update appointment
-- `DELETE /api/appointments/:id` - Cancel appointment
-
-### Medical Records
-- `GET /api/medical-records` - List medical records
-- `POST /api/medical-records` - Create medical record
-- `GET /api/medical-records/:id` - Get medical record
-- `PUT /api/medical-records/:id` - Update medical record
-
-## 🔒 Security Features
-
-- **JWT Authentication**: Secure token-based authentication
-- **Role-Based Access Control**: Granular permissions per user role
-- **Password Hashing**: bcrypt for secure password storage
-- **CORS Protection**: Configurable cross-origin resource sharing
-- **Rate Limiting**: API request rate limiting
-- **Input Validation**: Request data validation and sanitization
-- **Audit Logging**: Complete audit trail of system activities
-
-## 📱 Demo Credentials
-
-| Role | Username | Password |
-|------|----------|----------|
-| Admin | admin | admin123 |
-| Doctor | dr.smith | admin123 |
-| Nurse | nurse.jones | admin123 |
-| Receptionist | reception.mike | admin123 |
-| Pharmacist | pharm.wilson | admin123 |
-
-## 🛠️ Development
-
-### Project Structure
-```
-hmis-complete/
-├── backend/
-│   ├── config/          # Configuration files
-│   ├── controllers/     # Business logic controllers
-│   ├── models/          # Database models
-│   ├── routes/          # API route definitions
-│   ├── middlewares/     # Custom middleware
-│   ├── schema.sql       # Database schema
-│   ├── server.js        # Main server file
-│   └── demo-server.js   # Demo server
-├── frontend/
-│   ├── index.html       # Landing page
-│   ├── dashboard.html   # Main dashboard
-│   ├── *-dashboard.html # Role-specific dashboards
-│   ├── script.js        # Frontend JavaScript
-│   ├── styles.css       # Application styles
-│   └── server.js        # Frontend server
-└── README.md
-```
-
-### Adding New Features
-1. Create database migration in `backend/schema.sql`
-2. Add API routes in `backend/routes/`
-3. Implement business logic in `backend/controllers/`
-4. Update frontend in appropriate dashboard files
-5. Test with Postman collection
+### Security Headers
+- CORS configuration
+- Rate limiting
+- Input validation
+- SQL injection prevention
+- XSS protection
 
 ## 🧪 Testing
 
+### Backend Tests
+```bash
+cd backend
+npm test
+npm run test:coverage
+```
+
 ### API Testing
-Use the included Postman collection:
-```bash
-# Import HMIS-API-Testing.postman_collection.json
-# Configure environment variables in Postman
-# Run the test suite
-```
+Use the Swagger documentation at `/api-docs` to test API endpoints.
 
-### Manual Testing
-1. Start the application
-2. Login with demo credentials
-3. Test each role's functionality
-4. Verify data persistence
-5. Check notification delivery
+## 📈 Performance
 
-## 📊 Monitoring & Logging
+### Optimization Features
+- Database indexing
+- Query optimization
+- Caching with Redis
+- Gzip compression
+- Static file caching
+- Connection pooling
 
-- **Application Logs**: Stored in `backend/logs/`
-- **Audit Trail**: Complete user action logging
-- **Error Tracking**: Comprehensive error logging
-- **Performance Metrics**: API response time tracking
+### Scalability
+- Horizontal scaling support
+- Load balancer ready
+- Database replication support
+- Microservices architecture ready
 
-## 🚀 Deployment
+## 🚨 Troubleshooting
 
-### Production Checklist
-- [ ] Update environment variables
-- [ ] Set secure JWT secrets
-- [ ] Configure production database
-- [ ] Enable HTTPS
-- [ ] Set up monitoring
-- [ ] Configure backup strategy
-- [ ] Test all functionality
-- [ ] Update documentation
+### Common Issues
 
-### Docker Deployment (Optional)
-```bash
-# Build and run with Docker Compose
-docker-compose up -d
-```
+1. **Database Connection Failed**
+   - Check PostgreSQL is running
+   - Verify connection credentials
+   - Check firewall settings
+
+2. **Authentication Issues**
+   - Verify JWT secret is set
+   - Check token expiration
+   - Clear browser cache
+
+3. **Docker Issues**
+   - Check Docker is running
+   - Verify Docker Compose version
+   - Check port conflicts
+
+### Logs
+- Backend logs: `backend/logs/`
+- Docker logs: `docker-compose logs`
+- Nginx logs: Available in container
 
 ## 🤝 Contributing
 
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
-4. Add tests if applicable
+4. Add tests
 5. Submit a pull request
 
 ## 📄 License
@@ -265,16 +319,30 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 For support and questions:
 - Create an issue in the repository
 - Check the documentation
-- Review the API endpoints
-- Test with demo credentials
+- Review the API documentation at `/api-docs`
 
-## 🔄 Version History
+## 🔄 Updates
 
-- **v1.0.0** - Initial release with core functionality
-- **v1.1.0** - Added notification system
-- **v1.2.0** - Enhanced security features
-- **v1.3.0** - Added analytics dashboard
+### Version 1.0.0
+- Initial release
+- Complete HMIS functionality
+- Docker support
+- API documentation
+- Role-based access control
 
 ---
 
 **Built with ❤️ for healthcare professionals**
+
+## 🏆 Key Highlights
+
+- **Production Ready**: Complete hospital management system
+- **Scalable Architecture**: Microservices-ready design
+- **Modern Tech Stack**: Node.js, PostgreSQL, Docker
+- **Comprehensive Features**: All hospital operations covered
+- **Security First**: JWT authentication, role-based access
+- **Developer Friendly**: Well-documented API, easy setup
+- **Docker Support**: One-command deployment
+- **Real-time Updates**: WebSocket notifications
+- **Responsive Design**: Works on all devices
+- **Open Source**: MIT License, community-driven

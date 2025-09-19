@@ -31,10 +31,9 @@ const ValidationRules = {
   // Authentication validation
   auth: {
     login: [
-      body('email')
-        .isEmail()
-        .withMessage('Must be a valid email address')
-        .normalizeEmail(),
+      body('username')
+        .isLength({ min: 1 })
+        .withMessage('Username is required'),
       
       body('password')
         .isLength({ min: 1 })

@@ -1,10 +1,5 @@
-// Try to load real database, fallback to demo database
-let db;
-try {
-  db = require('../config/database');
-} catch (error) {
-  db = require('../config/demo-database');
-}
+// Use centralized database manager
+const db = require('../config/database-manager');
 
 const logger = require('../config/logger');
 const { catchAsync } = require('../middlewares/errorHandler');
@@ -584,3 +579,8 @@ module.exports = {
   getOperationalAnalytics,
   generateCustomReport
 };
+
+
+
+
+

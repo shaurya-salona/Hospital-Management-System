@@ -1,13 +1,9 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-// Try to load real database, fallback to demo database
-let db;
-try {
-  db = require('../config/database');
-} catch (error) {
-  db = require('../config/demo-database');
-}
+// Use centralized database manager
+const db = require('../config/database-manager');
+const { generateAccessToken, generateRefreshToken } = require('../config/jwt');
 
 class AuthController {
   // User login
@@ -52,15 +48,11 @@ class AuthController {
       }
 
       // Generate JWT token
-      const token = jwt.sign(
-        { 
-          userId: user.id, 
-          username: user.username, 
-          role: user.role 
-        },
-        process.env.JWT_SECRET,
-        { expiresIn: process.env.JWT_EXPIRES_IN || '24h' }
-      );
+      const token = generateAccessToken({
+        userId: user.id, 
+        username: user.username, 
+        role: user.role 
+      });
 
       // Remove sensitive data
       const { password_hash, ...userWithoutPassword } = user;
@@ -70,7 +62,8 @@ class AuthController {
         message: 'Login successful',
         data: {
           user: userWithoutPassword,
-          token
+          token,
+          role: user.role
         }
       });
 
@@ -88,28 +81,51 @@ class AuthController {
     try {
       const userId = req.user.userId;
 
-      const userQuery = `
-        SELECT u.*, s.employee_id, s.department, s.specialization
-        FROM users u
-        LEFT JOIN staff s ON u.id = s.user_id
-        WHERE u.id = $1 AND u.is_active = true
-      `;
-      
-      const userResult = await db.query(userQuery, [userId]);
-      
-      if (userResult.rows.length === 0) {
-        return res.status(404).json({
-          success: false,
-          message: 'User not found'
+      // Check if we're in demo mode
+      if (db.isDemoMode && db.isDemoMode()) {
+        // Use demo data
+        const demoData = db.getDemoData();
+        if (demoData && demoData.users) {
+          const user = demoData.users.find(u => u.id === userId);
+          if (user) {
+            const { password_hash, ...userWithoutPassword } = user;
+            return res.json({
+              success: true,
+              data: userWithoutPassword
+            });
+          }
+        }
+      } else {
+        // Use PostgreSQL
+        const userQuery = `
+          SELECT u.*, s.employee_id, s.department, s.specialization
+          FROM users u
+          LEFT JOIN staff s ON u.id = s.user_id
+          WHERE u.id = $1 AND u.is_active = true
+        `;
+        
+        const userResult = await db.query(userQuery, [userId]);
+        
+        if (userResult.rows.length === 0) {
+          return res.status(404).json({
+            success: false,
+            message: 'User not found'
+          });
+        }
+
+        const user = userResult.rows[0];
+        const { password_hash, ...userWithoutPassword } = user;
+
+        return res.json({
+          success: true,
+          data: userWithoutPassword
         });
       }
 
-      const user = userResult.rows[0];
-      const { password_hash, ...userWithoutPassword } = user;
-
-      res.json({
-        success: true,
-        data: userWithoutPassword
+      // If we get here, user not found
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
       });
 
     } catch (error) {

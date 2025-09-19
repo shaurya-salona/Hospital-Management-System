@@ -436,3 +436,4 @@ function respondToAlert(id) {
 document.addEventListener('DOMContentLoaded', () => {
     window.nurseDashboard = new NurseDashboard();
 });
+

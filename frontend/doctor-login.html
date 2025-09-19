@@ -403,7 +403,7 @@
             </form>
 
             <div class="demo-credentials">
-                Demo: doctor / password123
+                Demo: doctor / doctor123
             </div>
         </div>
     </div>
@@ -413,10 +413,30 @@
         <p>Restricted Access - Medical Professionals Only</p>
     </div>
 
-    <script src="config.js"></script>
-    <script src="dashboard-common.js"></script>
+    <script src="auth-service.js"></script>
     <script>
-        const dashboardCommon = new DashboardCommon();
+        // Simple notification system
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'};
+                color: white;
+                padding: 15px 20px;
+                border-radius: 8px;
+                z-index: 10000;
+                font-weight: 500;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
 
         document.getElementById('doctorLoginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -424,54 +444,50 @@
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
 
+            // Show loading state
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
+            submitBtn.disabled = true;
+
             try {
-                const response = await fetch(`${window.APP_CONFIG.API_BASE_URL}/api/auth/login`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ username, password })
-                });
+                const result = await authService.login(username, password);
 
-                const data = await response.json();
-
-                if (data.success) {
-                    localStorage.setItem('authToken', data.token);
-                    localStorage.setItem('userRole', 'doctor');
-                    localStorage.setItem('userData', JSON.stringify(data.user));
-                    
-                    dashboardCommon.showNotification('Login successful! Redirecting...', 'success');
-                    
-                    setTimeout(() => {
-                        window.location.href = 'doctor-dashboard.html';
-                    }, 1500);
+                if (result.success) {
+                    // Check if user role matches the expected role
+                    if (result.role === 'doctor') {
+                        authService.showNotification('Login successful! Redirecting...', 'success');
+                        
+                        setTimeout(() => {
+                            authService.redirectToDashboard();
+                        }, 1500);
+                    } else {
+                        authService.showNotification(`Please login as doctor. You are logged in as ${result.role}.`, 'error');
+                        submitBtn.innerHTML = originalText;
+                        submitBtn.disabled = false;
+                    }
                 } else {
-                    dashboardCommon.showNotification(data.message || 'Login failed', 'error');
+                    authService.showNotification(result.message || 'Login failed', 'error');
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
                 }
             } catch (error) {
                 console.error('Login error:', error);
-                dashboardCommon.showNotification('Connection error. Using demo mode.', 'warning');
+                authService.showNotification('Connection error. Using demo mode.', 'warning');
                 demoLogin();
             }
         });
 
         function demoLogin() {
-            localStorage.setItem('authToken', 'demo-token');
-            localStorage.setItem('userRole', 'doctor');
-            localStorage.setItem('userData', JSON.stringify({
-                id: 2,
-                first_name: 'Dr. John',
-                last_name: 'Smith',
-                email: 'dr.smith@hospital.com',
-                role: 'doctor'
-            }));
-            
-            dashboardCommon.showNotification('Demo login successful!', 'success');
-            
-            setTimeout(() => {
-                window.location.href = 'doctor-dashboard.html';
-            }, 1000);
+            const result = authService.demoLogin('doctor');
+            if (result.success) {
+                authService.showNotification('Demo login successful!', 'success');
+                setTimeout(() => {
+                    authService.redirectToDashboard();
+                }, 1000);
+            }
         }
     </script>
 </body>
 </html>
+

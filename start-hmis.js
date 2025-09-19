@@ -2,136 +2,335 @@
 
 /**
  * HMIS Startup Script
- * This script starts the HMIS system with proper error handling
+ * Handles initialization and startup of the Hospital Management Information System
  */
 
-const { spawn } = require('child_process');
-const path = require('path');
+const { spawn, exec } = require('child_process');
 const fs = require('fs');
+const path = require('path');
+const os = require('os');
 
-console.log('🏥 HMIS Hospital Management System');
-console.log('===================================');
+// Colors for console output
+const colors = {
+    reset: '\x1b[0m',
+    bright: '\x1b[1m',
+    red: '\x1b[31m',
+    green: '\x1b[32m',
+    yellow: '\x1b[33m',
+    blue: '\x1b[34m',
+    magenta: '\x1b[35m',
+    cyan: '\x1b[36m'
+};
 
-// Check if we're in the right directory
-const backendPath = path.join(__dirname, 'backend');
-const frontendPath = path.join(__dirname, 'frontend');
-
-if (!fs.existsSync(backendPath) || !fs.existsSync(frontendPath)) {
-  console.error('❌ Error: Please run this script from the hmis-complete directory');
-  process.exit(1);
+function log(message, color = 'reset') {
+    console.log(`${colors[color]}${message}${colors.reset}`);
 }
 
-// Function to start backend server
+function logHeader(message) {
+    log('\n' + '='.repeat(60), 'cyan');
+    log(`  ${message}`, 'bright');
+    log('='.repeat(60), 'cyan');
+}
+
+function logSuccess(message) {
+    log(`✅ ${message}`, 'green');
+}
+
+function logError(message) {
+    log(`❌ ${message}`, 'red');
+}
+
+function logWarning(message) {
+    log(`⚠️  ${message}`, 'yellow');
+}
+
+function logInfo(message) {
+    log(`ℹ️  ${message}`, 'blue');
+}
+
+// Check if Docker is available
+function checkDocker() {
+    return new Promise((resolve) => {
+        exec('docker --version', (error) => {
+            if (error) {
+                logError('Docker is not installed or not in PATH');
+                logInfo('Please install Docker Desktop from https://www.docker.com/products/docker-desktop');
+                resolve(false);
+            } else {
+                logSuccess('Docker is available');
+                resolve(true);
+            }
+        });
+    });
+}
+
+// Check if Docker Compose is available
+function checkDockerCompose() {
+    return new Promise((resolve) => {
+        exec('docker-compose --version', (error) => {
+            if (error) {
+                logError('Docker Compose is not installed or not in PATH');
+                resolve(false);
+            } else {
+                logSuccess('Docker Compose is available');
+                resolve(true);
+            }
+        });
+    });
+}
+
+// Check if Node.js is available
+function checkNode() {
+    return new Promise((resolve) => {
+        exec('node --version', (error, stdout) => {
+            if (error) {
+                logError('Node.js is not installed or not in PATH');
+                logInfo('Please install Node.js from https://nodejs.org/');
+                resolve(false);
+            } else {
+                logSuccess(`Node.js ${stdout.trim()} is available`);
+                resolve(true);
+            }
+        });
+    });
+}
+
+// Check if npm is available
+function checkNpm() {
+    return new Promise((resolve) => {
+        exec('npm --version', (error, stdout) => {
+            if (error) {
+                logError('npm is not installed or not in PATH');
+                resolve(false);
+            } else {
+                logSuccess(`npm ${stdout.trim()} is available`);
+                resolve(true);
+            }
+        });
+    });
+}
+
+// Check if PostgreSQL is available
+function checkPostgreSQL() {
+    return new Promise((resolve) => {
+        exec('psql --version', (error) => {
+            if (error) {
+                logWarning('PostgreSQL client is not available (optional for Docker setup)');
+                resolve(false);
+            } else {
+                logSuccess('PostgreSQL client is available');
+                resolve(true);
+            }
+        });
+    });
+}
+
+// Check system requirements
+async function checkRequirements() {
+    logHeader('Checking System Requirements');
+
+    const checks = [
+        { name: 'Node.js', check: checkNode },
+        { name: 'npm', check: checkNpm },
+        { name: 'Docker', check: checkDocker },
+        { name: 'Docker Compose', check: checkDockerCompose },
+        { name: 'PostgreSQL', check: checkPostgreSQL }
+    ];
+
+    const results = await Promise.all(checks.map(async (check) => {
+        const result = await check.check();
+        return { name: check.name, available: result };
+    }));
+
+    const required = ['Node.js', 'npm'];
+    const missing = results.filter(r => required.includes(r.name) && !r.available);
+
+    if (missing.length > 0) {
+        logError('Missing required dependencies:');
+        missing.forEach(m => logError(`  - ${m.name}`));
+        process.exit(1);
+    }
+
+    logSuccess('All required dependencies are available');
+    return results;
+}
+
+// Check if .env file exists
+function checkEnvFile() {
+    const envPath = path.join(__dirname, '.env');
+    const envExamplePath = path.join(__dirname, 'env.example');
+
+    if (!fs.existsSync(envPath)) {
+        if (fs.existsSync(envExamplePath)) {
+            logWarning('.env file not found, copying from env.example');
+            fs.copyFileSync(envExamplePath, envPath);
+            logSuccess('.env file created from template');
+        } else {
+            logError('No .env file found and no env.example template available');
+            return false;
+        }
+    } else {
+        logSuccess('.env file exists');
+    }
+
+    return true;
+}
+
+// Install backend dependencies
+function installBackendDependencies() {
+    return new Promise((resolve, reject) => {
+        logInfo('Installing backend dependencies...');
+
+        const npm = spawn('npm', ['install'], {
+            cwd: path.join(__dirname, 'backend'),
+            stdio: 'inherit',
+            shell: true
+        });
+
+        npm.on('close', (code) => {
+            if (code === 0) {
+                logSuccess('Backend dependencies installed');
+                resolve();
+            } else {
+                logError('Failed to install backend dependencies');
+                reject(new Error('npm install failed'));
+            }
+        });
+    });
+}
+
+// Start backend server
 function startBackend() {
-  console.log('🚀 Starting Backend Server...');
-  
-  const backendProcess = spawn('node', ['demo-server.js'], {
-    cwd: backendPath,
-    stdio: 'inherit',
-    shell: true
-  });
-  
-  backendProcess.on('error', (error) => {
-    console.error('❌ Backend startup error:', error.message);
-    console.log('💡 Try running: cd backend && npm install && node demo-server.js');
-  });
-  
-  backendProcess.on('exit', (code) => {
-    if (code !== 0) {
-      console.log(`Backend process exited with code ${code}`);
-    }
-  });
-  
-  return backendProcess;
+    return new Promise((resolve, reject) => {
+        logInfo('Starting backend server...');
+
+        const server = spawn('npm', ['start'], {
+            cwd: path.join(__dirname, 'backend'),
+            stdio: 'inherit',
+            shell: true
+        });
+
+        // Give server time to start
+        setTimeout(() => {
+            logSuccess('Backend server started');
+            resolve(server);
+        }, 3000);
+
+        server.on('error', (error) => {
+            logError('Failed to start backend server');
+            reject(error);
+        });
+    });
 }
 
-// Function to start frontend server
-function startFrontend() {
-  console.log('🌐 Starting Frontend Server...');
-  
-  const frontendProcess = spawn('node', ['server.js'], {
-    cwd: frontendPath,
-    stdio: 'inherit',
-    shell: true
-  });
-  
-  frontendProcess.on('error', (error) => {
-    console.error('❌ Frontend startup error:', error.message);
-    console.log('💡 Try running: cd frontend && node server.js');
-  });
-  
-  frontendProcess.on('exit', (code) => {
-    if (code !== 0) {
-      console.log(`Frontend process exited with code ${code}`);
+// Start with Docker
+function startWithDocker() {
+    return new Promise((resolve, reject) => {
+        logInfo('Starting HMIS with Docker Compose...');
+
+        const docker = spawn('docker-compose', ['up', '--build'], {
+            cwd: __dirname,
+            stdio: 'inherit',
+            shell: true
+        });
+
+        docker.on('close', (code) => {
+            if (code === 0) {
+                logSuccess('HMIS started successfully with Docker');
+                resolve();
+            } else {
+                logError('Failed to start HMIS with Docker');
+                reject(new Error('Docker Compose failed'));
+            }
+        });
+    });
+}
+
+// Start without Docker (development mode)
+async function startWithoutDocker() {
+    logHeader('Starting HMIS in Development Mode');
+
+    try {
+        await installBackendDependencies();
+        const server = await startBackend();
+
+        logHeader('HMIS Started Successfully');
+        logSuccess('Backend API: http://localhost:5000');
+        logSuccess('Frontend: http://localhost:3000 (if configured)');
+        logSuccess('API Documentation: http://localhost:5000/api-docs');
+        logSuccess('Health Check: http://localhost:5000/health');
+
+        logInfo('Press Ctrl+C to stop the server');
+
+        // Handle graceful shutdown
+        process.on('SIGINT', () => {
+            logInfo('Shutting down HMIS...');
+            server.kill();
+            process.exit(0);
+        });
+
+    } catch (error) {
+        logError('Failed to start HMIS in development mode');
+        logError(error.message);
+        process.exit(1);
     }
-  });
-  
-  return frontendProcess;
 }
 
 // Main startup function
-async function startHMIS() {
-  try {
-    console.log('📋 Checking system requirements...');
-    
-    // Check if Node.js is available
-    const nodeVersion = process.version;
-    console.log(`✅ Node.js version: ${nodeVersion}`);
-    
-    // Check if backend dependencies are installed
-    const backendNodeModules = path.join(backendPath, 'node_modules');
-    if (!fs.existsSync(backendNodeModules)) {
-      console.log('📦 Installing backend dependencies...');
-      const installProcess = spawn('npm', ['install'], {
-        cwd: backendPath,
-        stdio: 'inherit',
-        shell: true
-      });
-      
-      await new Promise((resolve, reject) => {
-        installProcess.on('close', (code) => {
-          if (code === 0) {
-            resolve();
-          } else {
-            reject(new Error(`npm install failed with code ${code}`));
-          }
-        });
-      });
+async function main() {
+    logHeader('Hospital Management Information System (HMIS)');
+    logInfo('Starting HMIS initialization...');
+
+    try {
+        // Check system requirements
+        const requirements = await checkRequirements();
+
+        // Check environment configuration
+        if (!checkEnvFile()) {
+            process.exit(1);
+        }
+
+        // Determine startup method
+        const dockerAvailable = requirements.find(r => r.name === 'Docker' && r.available);
+        const dockerComposeAvailable = requirements.find(r => r.name === 'Docker Compose' && r.available);
+
+        if (dockerAvailable && dockerComposeAvailable) {
+            logInfo('Docker and Docker Compose available - starting with Docker');
+            await startWithDocker();
+        } else {
+            logInfo('Docker not available - starting in development mode');
+            await startWithoutDocker();
+        }
+
+    } catch (error) {
+        logError('Failed to start HMIS');
+        logError(error.message);
+        process.exit(1);
     }
-    
-    console.log('✅ Backend dependencies ready');
-    
-    // Start servers
-    const backendProcess = startBackend();
-    
-    // Wait a bit before starting frontend
-    setTimeout(() => {
-      const frontendProcess = startFrontend();
-      
-      console.log('\n🎉 HMIS System Started Successfully!');
-      console.log('=====================================');
-      console.log('📊 Backend API: http://localhost:5000');
-      console.log('🌐 Frontend: http://localhost:3000');
-      console.log('📋 Health Check: http://localhost:5000/health');
-      console.log('📚 API Docs: http://localhost:5000/api-docs');
-      console.log('\n💡 Press Ctrl+C to stop all servers');
-      
-      // Handle graceful shutdown
-      process.on('SIGINT', () => {
-        console.log('\n🛑 Shutting down HMIS system...');
-        backendProcess.kill();
-        frontendProcess.kill();
-        process.exit(0);
-      });
-      
-    }, 3000);
-    
-  } catch (error) {
-    console.error('❌ Failed to start HMIS:', error.message);
-    process.exit(1);
-  }
 }
 
-// Start the system
-startHMIS();
+// Handle uncaught exceptions
+process.on('uncaughtException', (error) => {
+    logError('Uncaught Exception:');
+    logError(error.message);
+    process.exit(1);
+});
 
+process.on('unhandledRejection', (reason, promise) => {
+    logError('Unhandled Rejection at:');
+    logError(promise);
+    logError('Reason:');
+    logError(reason);
+    process.exit(1);
+});
+
+// Start the application
+if (require.main === module) {
+    main();
+}
+
+module.exports = {
+    checkRequirements,
+    startWithDocker,
+    startWithoutDocker
+};

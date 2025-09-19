@@ -1,0 +1,61 @@
+{
+    "name": "hmis-complete",
+    "version": "1.0.0",
+    "description": "Hospital Management Information System - Complete Solution",
+    "main": "start-hmis.js",
+    "scripts": {
+        "start": "node start-hmis.js",
+        "dev": "cd backend && npm run dev",
+        "test": "node test-system.js",
+        "docker:up": "docker-compose up --build",
+        "docker:down": "docker-compose down",
+        "docker:logs": "docker-compose logs -f",
+        "docker:clean": "docker-compose down -v --rmi all",
+        "setup": "npm install && cd backend && npm install",
+        "setup:env": "cp env.example .env",
+        "setup:db": "cd backend && npm run setup:db",
+        "backup": "cd backend && npm run backup",
+        "logs": "cd backend && npm run logs",
+        "health": "curl -f http://localhost:5000/health",
+        "docs": "echo 'API Documentation: http://localhost:5000/api-docs'",
+        "help": "echo 'Available commands: start, dev, test, docker:up, docker:down, setup, health, docs'"
+    },
+    "keywords": [
+        "hospital",
+        "management",
+        "healthcare",
+        "medical",
+        "patient",
+        "appointment",
+        "prescription",
+        "billing",
+        "inventory",
+        "dashboard"
+    ],
+    "author": "HMIS Team",
+    "license": "MIT",
+    "engines": {
+        "node": ">=16.0.0",
+        "npm": ">=8.0.0"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/your-org/hmis-complete.git"
+    },
+    "bugs": {
+        "url": "https://github.com/your-org/hmis-complete/issues"
+    },
+    "homepage": "https://github.com/your-org/hmis-complete#readme",
+    "devDependencies": {
+        "nodemon": "^3.0.2"
+    },
+    "dependencies": {
+        "express": "^4.18.2",
+        "cors": "^2.8.5",
+        "helmet": "^7.1.0",
+        "morgan": "^1.10.0",
+        "compression": "^1.7.4",
+        "express-rate-limit": "^7.1.5",
+        "dotenv": "^16.6.1"
+    }
+}

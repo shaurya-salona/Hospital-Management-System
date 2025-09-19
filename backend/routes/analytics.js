@@ -1,12 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const analyticsController = require('../controllers/analyticsController');
-const auth = require('../middlewares/auth');
+const { authenticateToken, staffOnly } = require('../middlewares/auth');
 const { ValidationRules, handleValidationErrors } = require('../middlewares/validation');
 const { body, query } = require('express-validator');
 
 // Apply authentication to all analytics routes
-router.use(auth);
+router.use(authenticateToken);
+router.use(staffOnly);
 
 // Dashboard Analytics
 router.get('/dashboard', 

@@ -1,413 +1,435 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HMIS - Hospital Management Information System</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="dashboard-common.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
 
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #3b82f6 0%, #1e40af 50%, #7c3aed 100%);
-            min-height: 100vh;
-            color: #333;
-            line-height: 1.6;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 40px 20px;
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 50px;
-            color: white;
-        }
-
-        .header h1 {
-            font-size: 2.5rem;
-            font-weight: 800;
-            margin-bottom: 15px;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-        }
-
-        .header .subtitle {
-            font-size: 1.1rem;
-            opacity: 0.9;
-            margin-bottom: 10px;
-        }
-
-        .header .description {
-            font-size: 1rem;
-            opacity: 0.8;
-        }
-
-        .portals-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 25px;
-            margin-bottom: 40px;
-        }
-
-        .portal-card {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-            cursor: pointer;
-            border: 2px solid transparent;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .portal-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-        }
-
-        .portal-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-        }
-
-        .portal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .portal-title {
-            font-size: 1.8rem;
-            font-weight: 700;
-            margin-bottom: 10px;
-        }
-
-        .access-level {
-            background: #f0f0f0;
-            color: #666;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-
-        .portal-description {
-            color: #777;
-            margin-bottom: 20px;
-            line-height: 1.5;
-        }
-
-        .features {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 25px;
-        }
-
-        .feature-tag {
-            background: #f8f9fa;
-            color: #495057;
-            padding: 6px 12px;
-            border-radius: 15px;
-            font-size: 0.85rem;
-            font-weight: 500;
-        }
-
-        .access-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 12px 24px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            border: 2px solid;
-        }
-
-        .footer {
-            text-align: center;
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 0.9rem;
-            margin-top: 40px;
-        }
-
-        /* Portal Specific Colors */
-        .admin-portal .portal-title,
-        .admin-portal .access-link {
-            color: #374151;
-        }
-
-        .admin-portal::before {
-            background: linear-gradient(90deg, #374151, #6b7280);
-        }
-
-        .admin-portal .access-link {
-            background: #374151;
-            color: white;
-            border-color: #374151;
-        }
-
-        .doctor-portal .portal-title,
-        .doctor-portal .access-link {
-            color: #059669;
-        }
-
-        .doctor-portal::before {
-            background: linear-gradient(90deg, #059669, #10b981);
-        }
-
-        .doctor-portal .access-link {
-            background: #059669;
-            color: white;
-            border-color: #059669;
-        }
-
-        .receptionist-portal .portal-title,
-        .receptionist-portal .access-link {
-            color: #d97706;
-        }
-
-        .receptionist-portal::before {
-            background: linear-gradient(90deg, #d97706, #f59e0b);
-        }
-
-        .receptionist-portal .access-link {
-            background: #d97706;
-            color: white;
-            border-color: #d97706;
-        }
-
-        .nurse-portal .portal-title,
-        .nurse-portal .access-link {
-            color: #dc2626;
-        }
-
-        .nurse-portal::before {
-            background: linear-gradient(90deg, #dc2626, #ef4444);
-        }
-
-        .nurse-portal .access-link {
-            background: #dc2626;
-            color: white;
-            border-color: #dc2626;
-        }
-
-        .pharmacist-portal .portal-title,
-        .pharmacist-portal .access-link {
-            color: #059669;
-        }
-
-        .pharmacist-portal::before {
-            background: linear-gradient(90deg, #059669, #10b981);
-        }
-
-        .pharmacist-portal .access-link {
-            background: #059669;
-            color: white;
-            border-color: #059669;
-        }
-
-        .patient-portal .portal-title,
-        .patient-portal .access-link {
-            color: #7c3aed;
-        }
-
-        .patient-portal::before {
-            background: linear-gradient(90deg, #7c3aed, #a855f7);
-        }
-
-        .patient-portal .access-link {
-            background: #7c3aed;
-            color: white;
-            border-color: #7c3aed;
-        }
-
-        .access-link:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .portals-grid {
-                grid-template-columns: 1fr;
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Hospital Management Information System</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
             }
-            
-            .portal-card {
+
+            body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                min-height: 100vh;
                 padding: 20px;
             }
-            
-            .header h1 {
-                font-size: 2rem;
+
+            .main-container {
+                max-width: 1200px;
+                margin: 0 auto;
+                text-align: center;
             }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>HMIS - Hospital Management Information System</h1>
-            <p class="subtitle">Welcome to the Hospital Management Information System</p>
-            <p class="description">Please select your role to access the appropriate portal:</p>
+
+            .header {
+                color: white;
+                margin-bottom: 50px;
+            }
+
+            .header h1 {
+                font-size: 3.5rem;
+                font-weight: 800;
+                margin-bottom: 20px;
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            }
+
+            .header p {
+                font-size: 1.3rem;
+                opacity: 0.9;
+                margin-bottom: 10px;
+            }
+
+            .header .subtitle {
+                font-size: 1.1rem;
+                opacity: 0.8;
+            }
+
+            .logo {
+                margin-bottom: 30px;
+            }
+
+            .logo h1 {
+                font-size: 3rem;
+                color: #1e293b;
+                margin-bottom: 10px;
+            }
+
+            .logo p {
+                font-size: 1.2rem;
+                color: #64748b;
+            }
+
+            .portals-grid {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 30px;
+                margin-bottom: 50px;
+            }
+
+            .portal-card {
+                background: white;
+                border-radius: 15px;
+                padding: 30px 25px;
+                text-decoration: none;
+                color: #334155;
+                transition: all 0.3s ease;
+                position: relative;
+                overflow: hidden;
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+                border-left: 4px solid;
+            }
+
+            .portal-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+                transition: left 0.5s;
+            }
+
+            .portal-card:hover::before {
+                left: 100%;
+            }
+
+            .portal-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            }
+
+            .portal-card.admin {
+                border-left-color: #1e40af;
+            }
+
+            .portal-card.admin:hover {
+                background: #1e40af;
+                color: white;
+                transform: translateY(-5px);
+            }
+
+            .portal-card.doctor {
+                border-left-color: #059669;
+            }
+
+            .portal-card.doctor:hover {
+                background: #059669;
+                color: white;
+                transform: translateY(-5px);
+            }
+
+            .portal-card.receptionist {
+                border-left-color: #f59e0b;
+            }
+
+            .portal-card.receptionist:hover {
+                background: #f59e0b;
+                color: white;
+                transform: translateY(-5px);
+            }
+
+            .portal-card.nurse {
+                border-left-color: #ef4444;
+            }
+
+            .portal-card.nurse:hover {
+                background: #ef4444;
+                color: white;
+                transform: translateY(-5px);
+            }
+
+            .portal-card.pharmacist {
+                border-left-color: #059669;
+            }
+
+            .portal-card.pharmacist:hover {
+                background: #059669;
+                color: white;
+                transform: translateY(-5px);
+            }
+
+            .portal-card.patient {
+                border-left-color: #8b5cf6;
+            }
+
+            .portal-card.patient:hover {
+                background: #8b5cf6;
+                color: white;
+                transform: translateY(-5px);
+            }
+
+            .portal-icon {
+                font-size: 3rem;
+                margin-bottom: 15px;
+                display: block;
+            }
+
+            .portal-title {
+                font-size: 1.4rem;
+                font-weight: 700;
+                margin-bottom: 8px;
+                color: inherit;
+            }
+
+            .portal-subtitle {
+                font-size: 0.9rem;
+                font-weight: 500;
+                margin-bottom: 12px;
+                opacity: 0.8;
+                color: inherit;
+            }
+
+            .portal-description {
+                font-size: 0.85rem;
+                opacity: 0.7;
+                line-height: 1.4;
+                margin-bottom: 15px;
+                color: inherit;
+            }
+
+            .portal-features {
+                font-size: 0.8rem;
+                opacity: 0.6;
+                line-height: 1.3;
+                margin-bottom: 20px;
+                color: inherit;
+            }
+
+            .portal-features ul {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+            }
+
+            .portal-features li {
+                margin-bottom: 3px;
+            }
+
+            .portal-features li:before {
+                content: "• ";
+                font-weight: bold;
+            }
+
+            .access-btn {
+                background: transparent;
+                border: 2px solid currentColor;
+                color: inherit;
+                padding: 8px 20px;
+                border-radius: 25px;
+                font-size: 0.9rem;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                text-decoration: none;
+                display: inline-block;
+            }
+
+            .access-btn:hover {
+                background: currentColor;
+                color: white;
+            }
+
+            .footer {
+                color: white;
+                text-align: center;
+                margin-top: 50px;
+                padding-top: 30px;
+                border-top: 1px solid rgba(255, 255, 255, 0.2);
+            }
+
+            .footer p {
+                margin: 5px 0;
+                opacity: 0.8;
+            }
+
+            @media (max-width: 1024px) {
+                .portals-grid {
+                    grid-template-columns: repeat(2, 1fr);
+                    gap: 25px;
+                }
+            }
+
+            @media (max-width: 768px) {
+                .header h1 {
+                    font-size: 2.5rem;
+                }
+
+                .portals-grid {
+                    grid-template-columns: 1fr;
+                    gap: 20px;
+                }
+
+                .portal-card {
+                    padding: 25px 20px;
+                }
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="main-container">
+            <div class="header">
+                <h1>HMIS - Hospital Management Information System</h1>
+                <p>Welcome to the Hospital Management Information System</p>
+                <p class="subtitle">Please select your role to access the appropriate portal:</p>
+            </div>
+
+            <div class="portals-grid">
+                <!-- Top Row -->
+                <a href="admin-login.html" class="portal-card admin">
+                    <i class="fas fa-user-shield portal-icon"></i>
+                    <div class="portal-title">Admin Portal</div>
+                    <div class="portal-subtitle">System Administrator Access</div>
+                    <div class="portal-description">Full System Access & Control</div>
+                    <div class="portal-features">
+                        <ul>
+                            <li>User Management</li>
+                            <li>System Analytics</li>
+                            <li>Configuration</li>
+                            <li>Data Management</li>
+                        </ul>
+                    </div>
+                    <div class="access-btn">Access Portal</div>
+                </a>
+
+                <a href="doctor-login.html" class="portal-card doctor">
+                    <i class="fas fa-user-md portal-icon"></i>
+                    <div class="portal-title">Doctor Portal</div>
+                    <div class="portal-subtitle">Medical Professional Access</div>
+                    <div class="portal-description">Patient Management & Medical Records</div>
+                    <div class="portal-features">
+                        <ul>
+                            <li>Patient Records</li>
+                            <li>Diagnosis Tools</li>
+                            <li>Prescriptions</li>
+                            <li>Appointments</li>
+                        </ul>
+                    </div>
+                    <div class="access-btn">Access Portal</div>
+                </a>
+
+                <a href="receptionist-login.html" class="portal-card receptionist">
+                    <i class="fas fa-user-tie portal-icon"></i>
+                    <div class="portal-title">Receptionist Portal</div>
+                    <div class="portal-subtitle">Front Desk Staff Access</div>
+                    <div class="portal-description">Appointments & Patient Registration</div>
+                    <div class="portal-features">
+                        <ul>
+                            <li>Patient Registration</li>
+                            <li>Appointments</li>
+                            <li>Communication</li>
+                            <li>Billing</li>
+                        </ul>
+                    </div>
+                    <div class="access-btn">Access Portal</div>
+                </a>
+
+                <!-- Bottom Row -->
+                <a href="nurse-login.html" class="portal-card nurse">
+                    <i class="fas fa-user-nurse portal-icon"></i>
+                    <div class="portal-title">Nurse Portal</div>
+                    <div class="portal-subtitle">Nursing Staff Access</div>
+                    <div class="portal-description">Patient Care & Vital Monitoring</div>
+                    <div class="portal-features">
+                        <ul>
+                            <li>Vital Monitoring</li>
+                            <li>Care Plans</li>
+                            <li>Medication Admin</li>
+                            <li>Patient Assessment</li>
+                        </ul>
+                    </div>
+                    <div class="access-btn">Access Portal</div>
+                </a>
+
+                <a href="pharmacist-login.html" class="portal-card pharmacist">
+                    <i class="fas fa-pills portal-icon"></i>
+                    <div class="portal-title">Pharmacist Portal</div>
+                    <div class="portal-subtitle">Pharmacy Staff Access</div>
+                    <div class="portal-description">Medication Management & Dispensing</div>
+                    <div class="portal-features">
+                        <ul>
+                            <li>Prescription Processing</li>
+                            <li>Inventory Management</li>
+                            <li>Drug Interactions</li>
+                            <li>Patient Counseling</li>
+                        </ul>
+                    </div>
+                    <div class="access-btn">Access Portal</div>
+                </a>
+
+                <a href="patient-login.html" class="portal-card patient">
+                    <i class="fas fa-user-injured portal-icon"></i>
+                    <div class="portal-title">Patient Portal</div>
+                    <div class="portal-subtitle">Patient Self-Service Access</div>
+                    <div class="portal-description">Limited Access - Personal Health Information</div>
+                    <div class="portal-features">
+                        <ul>
+                            <li>Medical Records</li>
+                            <li>Appointments</li>
+                            <li>Prescriptions</li>
+                            <li>Billing</li>
+                        </ul>
+                    </div>
+                    <div class="access-btn">Access Portal</div>
+                </a>
+            </div>
+
+            <div class="footer">
+                <p>© 2024 HMIS - Hospital Management Information System</p>
+                <p>Secure Access - Role-Based Authentication Required</p>
+            </div>
         </div>
 
-        <div class="portals-grid">
-            <!-- Admin Portal -->
-            <div class="portal-card admin-portal" onclick="navigateToPortal('admin-login.html')">
-                <div class="portal-header">
-                    <h3 class="portal-title">Admin Portal</h3>
-                    <span class="access-level">System Administrator Access</span>
-                </div>
-                <p class="portal-description">Full System Access & Control</p>
-                <div class="features">
-                    <span class="feature-tag">User Management</span>
-                    <span class="feature-tag">System Analytics</span>
-                    <span class="feature-tag">Configuration</span>
-                    <span class="feature-tag">Data Management</span>
-                </div>
-                <a href="admin-login.html" class="access-link">
-                    <i class="fas fa-arrow-right"></i>
-                    Access Portal
-                </a>
-            </div>
+        <script>
+            // Add click animations
+            document.querySelectorAll('.portal-card').forEach(card => {
+                card.addEventListener('click', function (e) {
+                    // Add ripple effect
+                    const ripple = document.createElement('span');
+                    const rect = this.getBoundingClientRect();
+                    const size = Math.max(rect.width, rect.height);
+                    const x = e.clientX - rect.left - size / 2;
+                    const y = e.clientY - rect.top - size / 2;
 
-            <!-- Doctor Portal -->
-            <div class="portal-card doctor-portal" onclick="navigateToPortal('doctor-login.html')">
-                <div class="portal-header">
-                    <h3 class="portal-title">Doctor Portal</h3>
-                    <span class="access-level">Medical Professional Access</span>
-                </div>
-                <p class="portal-description">Patient Management & Medical Records</p>
-                <div class="features">
-                    <span class="feature-tag">Patient Records</span>
-                    <span class="feature-tag">Diagnosis Tools</span>
-                    <span class="feature-tag">Prescriptions</span>
-                    <span class="feature-tag">Appointments</span>
-                </div>
-                <a href="doctor-login.html" class="access-link">
-                    <i class="fas fa-arrow-right"></i>
-                    Access Portal
-                </a>
-            </div>
+                    ripple.style.cssText = `
+                    position: absolute;
+                    width: ${size}px;
+                    height: ${size}px;
+                    left: ${x}px;
+                    top: ${y}px;
+                    background: rgba(255,255,255,0.3);
+                    border-radius: 50%;
+                    transform: scale(0);
+                    animation: ripple 0.6s linear;
+                    pointer-events: none;
+                `;
 
-            <!-- Receptionist Portal -->
-            <div class="portal-card receptionist-portal" onclick="navigateToPortal('receptionist-login.html')">
-                <div class="portal-header">
-                    <h3 class="portal-title">Receptionist Portal</h3>
-                    <span class="access-level">Front Desk Staff Access</span>
-                </div>
-                <p class="portal-description">Appointments & Patient Registration</p>
-                <div class="features">
-                    <span class="feature-tag">Patient Registration</span>
-                    <span class="feature-tag">Appointments</span>
-                    <span class="feature-tag">Communication</span>
-                    <span class="feature-tag">Billing</span>
-                </div>
-                <a href="receptionist-login.html" class="access-link">
-                    <i class="fas fa-arrow-right"></i>
-                    Access Portal
-                </a>
-            </div>
+                    this.appendChild(ripple);
 
-            <!-- Nurse Portal -->
-            <div class="portal-card nurse-portal" onclick="navigateToPortal('nurse-login.html')">
-                <div class="portal-header">
-                    <h3 class="portal-title">Nurse Portal</h3>
-                    <span class="access-level">Nursing Staff Access</span>
-                </div>
-                <p class="portal-description">Patient Care & Vital Monitoring</p>
-                <div class="features">
-                    <span class="feature-tag">Vital Monitoring</span>
-                    <span class="feature-tag">Care Plans</span>
-                    <span class="feature-tag">Medication Admin</span>
-                    <span class="feature-tag">Patient Assessment</span>
-                </div>
-                <a href="nurse-login.html" class="access-link">
-                    <i class="fas fa-arrow-right"></i>
-                    Access Portal
-                </a>
-            </div>
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
+                });
+            });
 
-            <!-- Pharmacist Portal -->
-            <div class="portal-card pharmacist-portal" onclick="navigateToPortal('pharmacist-login.html')">
-                <div class="portal-header">
-                    <h3 class="portal-title">Pharmacist Portal</h3>
-                    <span class="access-level">Pharmacy Staff Access</span>
-                </div>
-                <p class="portal-description">Medication Management & Dispensing</p>
-                <div class="features">
-                    <span class="feature-tag">Prescription Processing</span>
-                    <span class="feature-tag">Inventory Management</span>
-                    <span class="feature-tag">Drug Interactions</span>
-                    <span class="feature-tag">Patient Counseling</span>
-                </div>
-                <a href="pharmacist-login.html" class="access-link">
-                    <i class="fas fa-arrow-right"></i>
-                    Access Portal
-                </a>
-            </div>
+            // Add CSS for ripple animation
+            const style = document.createElement('style');
+            style.textContent = `
+            @keyframes ripple {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+        `;
+            document.head.appendChild(style);
+        </script>
+    </body>
 
-            <!-- Patient Portal -->
-            <div class="portal-card patient-portal" onclick="navigateToPortal('patient-login.html')">
-                <div class="portal-header">
-                    <h3 class="portal-title">Patient Portal</h3>
-                    <span class="access-level">Patient Self-Service Access</span>
-                </div>
-                <p class="portal-description">Limited Access - Personal Health Information</p>
-                <div class="features">
-                    <span class="feature-tag">Medical Records</span>
-                    <span class="feature-tag">Appointments</span>
-                    <span class="feature-tag">Prescriptions</span>
-                    <span class="feature-tag">Billing</span>
-                </div>
-                <a href="patient-login.html" class="access-link">
-                    <i class="fas fa-arrow-right"></i>
-                    Access Portal
-                </a>
-            </div>
-        </div>
-
-        <div class="footer">
-            <p>© 2024 HMIS - Hospital Management Information System</p>
-            <p>Secure Access - Role-Based Authentication Required</p>
-        </div>
-    </div>
-
-    <script src="config.js"></script>
-    <script src="dashboard-common.js"></script>
-    <script>
-        function navigateToPortal(url) {
-            // Add loading state
-            const card = event.currentTarget;
-            card.style.opacity = '0.7';
-            card.style.pointerEvents = 'none';
-            
-            // Navigate after a short delay for visual feedback
-            setTimeout(() => {
-                window.location.href = url;
-            }, 200);
-        }
-
-        // Initialize dashboard common
-        const dashboardCommon = new DashboardCommon();
-    </script>
-</body>
 </html>

@@ -1,477 +1,260 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Patient Portal - HMIS</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
 
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #a855f7 0%, #7c3aed 50%, #6d28d9 100%);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: #333;
-            padding: 20px;
-        }
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Patient Portal - HMIS</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
 
-        .header {
-            text-align: center;
-            margin-bottom: 40px;
-            color: white;
-        }
+            body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+                min-height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 20px;
+            }
 
-        .header h1 {
-            font-size: 3rem;
-            font-weight: 800;
-            margin-bottom: 10px;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-        }
-
-        .header .subtitle {
-            font-size: 1.2rem;
-            opacity: 0.9;
-            margin-bottom: 5px;
-        }
-
-        .header .description {
-            font-size: 1rem;
-            opacity: 0.8;
-        }
-
-        .login-container {
-            display: flex;
-            gap: 30px;
-            max-width: 1000px;
-            width: 100%;
-            align-items: flex-start;
-        }
-
-        .info-card, .login-card {
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            flex: 1;
-        }
-
-        .info-card {
-            max-width: 500px;
-        }
-
-        .login-card {
-            max-width: 400px;
-        }
-
-        .access-level {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .access-level i {
-            font-size: 1.2rem;
-            color: #7c3aed;
-        }
-
-        .access-level h3 {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: #374151;
-        }
-
-        .divider {
-            height: 2px;
-            background: linear-gradient(90deg, #7c3aed, #a855f7);
-            margin-bottom: 20px;
-        }
-
-        .features-list {
-            list-style: none;
-            margin-bottom: 30px;
-        }
-
-        .features-list li {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 12px;
-            color: #374151;
-            font-size: 1rem;
-        }
-
-        .features-list li i {
-            color: #7c3aed;
-            font-size: 1.1rem;
-        }
-
-        .key-features {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .key-features i {
-            font-size: 1.2rem;
-            color: #dc2626;
-        }
-
-        .key-features h3 {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: #374151;
-        }
-
-        .divider-red {
-            height: 2px;
-            background: linear-gradient(90deg, #dc2626, #ef4444);
-            margin-bottom: 20px;
-        }
-
-        .features-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-
-        .feature-card {
-            background: #f8f9fa;
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-            border: 1px solid #e5e7eb;
-        }
-
-        .feature-card h4 {
-            font-size: 1rem;
-            font-weight: 600;
-            color: #374151;
-            margin-bottom: 8px;
-        }
-
-        .feature-card p {
-            font-size: 0.85rem;
-            color: #6b7280;
-            line-height: 1.4;
-        }
-
-        .login-title {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .login-title i {
-            font-size: 1.2rem;
-            color: #7c3aed;
-        }
-
-        .login-title h3 {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: #374151;
-        }
-
-        .divider-purple {
-            height: 2px;
-            background: linear-gradient(90deg, #7c3aed, #a855f7);
-            margin-bottom: 30px;
-        }
-
-        .form-group {
-            margin-bottom: 25px;
-        }
-
-        .form-group label {
-            display: block;
-            font-weight: 600;
-            color: #374151;
-            margin-bottom: 8px;
-            font-size: 1rem;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #e5e7eb;
-            border-radius: 12px;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            background: white;
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: #7c3aed;
-            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
-        }
-
-        .login-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .btn {
-            padding: 15px 25px;
-            border: none;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #7c3aed, #a855f7);
-            color: white;
-            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(124, 58, 237, 0.4);
-        }
-
-        .btn-secondary {
-            background: #f3f4f6;
-            color: #374151;
-            border: 2px solid #e5e7eb;
-        }
-
-        .btn-secondary:hover {
-            background: #e5e7eb;
-            transform: translateY(-2px);
-        }
-
-        .demo-credentials {
-            text-align: center;
-            color: #6b7280;
-            font-size: 0.9rem;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            border: 1px solid #e5e7eb;
-        }
-
-        .footer {
-            text-align: center;
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 0.9rem;
-            margin-top: 40px;
-        }
-
-        .footer p {
-            margin-bottom: 5px;
-        }
-
-        .back-link {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            color: white;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-
-        .back-link:hover {
-            color: #fbbf24;
-            transform: translateX(-5px);
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
             .login-container {
-                flex-direction: column;
-                gap: 20px;
+                background: white;
+                border-radius: 20px;
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+                overflow: hidden;
+                width: 100%;
+                max-width: 400px;
+                position: relative;
             }
 
-            .header h1 {
+            .login-header {
+                background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+                color: white;
+                padding: 40px 30px;
+                text-align: center;
+                position: relative;
+            }
+
+            .login-header h1 {
                 font-size: 2rem;
+                margin-bottom: 10px;
             }
 
-            .info-card, .login-card {
-                padding: 25px;
+            .login-header p {
+                opacity: 0.9;
+                font-size: 1rem;
             }
 
-            .features-grid {
-                grid-template-columns: 1fr;
+            .login-form {
+                padding: 40px 30px;
             }
-        }
-    </style>
-</head>
-<body>
-    <a href="index.html" class="back-link">
-        <i class="fas fa-arrow-left"></i>
-        Back to Portal
-    </a>
 
-    <div class="header">
-        <h1>Patient Portal</h1>
-        <p class="subtitle">Patient Self-Service Access</p>
-        <p class="description">Limited Access - Personal Health Information</p>
-    </div>
+            .form-group {
+                margin-bottom: 25px;
+            }
 
-    <div class="login-container">
-        <div class="info-card">
-            <div class="access-level">
-                <i class="fas fa-lock"></i>
-                <h3>Access Level: Patient Self-Service</h3>
+            .form-group label {
+                display: block;
+                color: #374151;
+                margin-bottom: 8px;
+                font-size: 1rem;
+                font-weight: 500;
+            }
+
+            .form-group input {
+                width: 100%;
+                padding: 15px;
+                border: 2px solid #e5e7eb;
+                border-radius: 12px;
+                font-size: 1rem;
+                transition: all 0.3s ease;
+                background: white;
+            }
+
+            .form-group input:focus {
+                outline: none;
+                border-color: #8b5cf6;
+                box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+            }
+
+            .login-buttons {
+                display: flex;
+                flex-direction: column;
+                gap: 15px;
+                margin-bottom: 20px;
+            }
+
+            .btn {
+                padding: 15px 25px;
+                border: none;
+                border-radius: 12px;
+                font-size: 1rem;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 10px;
+            }
+
+            .btn-primary {
+                background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+                color: white;
+            }
+
+            .btn-primary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 20px rgba(139, 92, 246, 0.3);
+            }
+
+            .btn-secondary {
+                background: #f3f4f6;
+                color: #374151;
+                border: 2px solid #e5e7eb;
+            }
+
+            .btn-secondary:hover {
+                background: #e5e7eb;
+                transform: translateY(-1px);
+            }
+
+            .btn:disabled {
+                opacity: 0.6;
+                cursor: not-allowed;
+                transform: none !important;
+            }
+
+            .back-link {
+                text-align: center;
+                margin-top: 20px;
+            }
+
+            .back-link a {
+                color: #6b7280;
+                text-decoration: none;
+                font-size: 0.9rem;
+                transition: color 0.3s ease;
+            }
+
+            .back-link a:hover {
+                color: #8b5cf6;
+            }
+
+            .demo-info {
+                background: #faf5ff;
+                border: 1px solid #e9d5ff;
+                border-radius: 8px;
+                padding: 15px;
+                margin-bottom: 20px;
+                font-size: 0.9rem;
+                color: #7c3aed;
+            }
+
+            .demo-info strong {
+                display: block;
+                margin-bottom: 5px;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="login-container">
+            <div class="login-header">
+                <h1><i class="fas fa-user-injured"></i> Patient Portal</h1>
+                <p>Access your personal health dashboard</p>
             </div>
-            <div class="divider"></div>
-            <ul class="features-list">
-                <li><i class="fas fa-check"></i> View personal medical records and history</li>
-                <li><i class="fas fa-check"></i> Schedule and manage appointments</li>
-                <li><i class="fas fa-check"></i> Access prescription information and refills</li>
-                <li><i class="fas fa-check"></i> View billing statements and payments</li>
-                <li><i class="fas fa-check"></i> Communicate with healthcare providers</li>
-            </ul>
 
-            <div class="key-features">
-                <i class="fas fa-bolt"></i>
-                <h3>Key Features</h3>
-            </div>
-            <div class="divider-red"></div>
-            <div class="features-grid">
-                <div class="feature-card">
-                    <h4>Medical Records</h4>
-                    <p>View your personal health information</p>
+            <div class="login-form">
+                <div class="demo-info">
+                    <strong>Demo Credentials:</strong>
+                    Username: patient<br>
+                    Password: patient123
                 </div>
-                <div class="feature-card">
-                    <h4>Appointments</h4>
-                    <p>Schedule and manage your appointments</p>
-                </div>
-                <div class="feature-card">
-                    <h4>Prescriptions</h4>
-                    <p>View prescriptions and request refills</p>
-                </div>
-                <div class="feature-card">
-                    <h4>Billing</h4>
-                    <p>View statements and make payments</p>
+
+                <form id="patientLoginForm">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username" value="patient" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" value="patient123" required>
+                    </div>
+
+                    <div class="login-buttons">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-sign-in-alt"></i>
+                            Login to Dashboard
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="demoLogin()">
+                            <i class="fas fa-flask"></i>
+                            Demo Login
+                        </button>
+                    </div>
+                </form>
+
+                <div class="back-link">
+                    <a href="index.html">
+                        <i class="fas fa-arrow-left"></i>
+                        Back to Main Portal
+                    </a>
                 </div>
             </div>
         </div>
 
-        <div class="login-card">
-            <div class="login-title">
-                <i class="fas fa-key"></i>
-                <h3>Patient Login</h3>
-            </div>
-            <div class="divider-purple"></div>
+        <script src="auth-service.js"></script>
+        <script>
+            document.getElementById('patientLoginForm').addEventListener('submit', async function (e) {
+                e.preventDefault();
 
-            <form id="patientLoginForm">
-                <div class="form-group">
-                    <label for="username">Username</label>
-                    <input type="text" id="username" name="username" value="patient" required>
-                </div>
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" name="password" value="password123" required>
-                </div>
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
 
-                <div class="login-buttons">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-key"></i>
-                        Patient Login
-                    </button>
-                    <button type="button" class="btn btn-secondary" onclick="demoLogin()">
-                        <i class="fas fa-file-alt"></i>
-                        Demo Login
-                    </button>
-                </div>
-            </form>
+                // Show loading state
+                const submitBtn = e.target.querySelector('button[type="submit"]');
+                const originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
+                submitBtn.disabled = true;
 
-            <div class="demo-credentials">
-                Demo: patient / password123
-            </div>
-        </div>
-    </div>
+                try {
+                    const result = await authService.login(username, password);
 
-    <div class="footer">
-        <p>© 2024 HMIS - Hospital Management Information System</p>
-        <p>Restricted Access - Patients Only</p>
-    </div>
+                    if (result.success) {
+                        authService.showNotification('Login successful! Redirecting...', 'success');
 
-    <script src="config.js"></script>
-    <script src="dashboard-common.js"></script>
-    <script>
-        const dashboardCommon = new DashboardCommon();
-
-        document.getElementById('patientLoginForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-
-            try {
-                const response = await fetch(`${window.APP_CONFIG.API_BASE_URL}/api/auth/login`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ username, password })
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    localStorage.setItem('authToken', data.token);
-                    localStorage.setItem('userRole', 'patient');
-                    localStorage.setItem('userData', JSON.stringify(data.user));
-                    
-                    dashboardCommon.showNotification('Login successful! Redirecting...', 'success');
-                    
-                    setTimeout(() => {
-                        window.location.href = 'patient-dashboard.html';
-                    }, 1500);
-                } else {
-                    dashboardCommon.showNotification(data.message || 'Login failed', 'error');
+                        setTimeout(() => {
+                            authService.redirectToDashboard();
+                        }, 1500);
+                    } else {
+                        authService.showNotification(result.message || 'Login failed', 'error');
+                        submitBtn.innerHTML = originalText;
+                        submitBtn.disabled = false;
+                    }
+                } catch (error) {
+                    console.error('Login error:', error);
+                    authService.showNotification('Connection error. Using demo mode.', 'warning');
+                    demoLogin();
                 }
-            } catch (error) {
-                console.error('Login error:', error);
-                dashboardCommon.showNotification('Connection error. Using demo mode.', 'warning');
-                demoLogin();
-            }
-        });
+            });
 
-        function demoLogin() {
-            localStorage.setItem('authToken', 'demo-token');
-            localStorage.setItem('userRole', 'patient');
-            localStorage.setItem('userData', JSON.stringify({
-                id: 3,
-                first_name: 'Jane',
-                last_name: 'Doe',
-                email: 'patient@hospital.com',
-                role: 'patient'
-            }));
-            
-            dashboardCommon.showNotification('Demo login successful!', 'success');
-            
-            setTimeout(() => {
-                window.location.href = 'patient-dashboard.html';
-            }, 1000);
-        }
-    </script>
-</body>
+            function demoLogin() {
+                const result = authService.demoLogin('patient');
+                if (result.success) {
+                    authService.showNotification('Demo login successful!', 'success');
+                    setTimeout(() => {
+                        authService.redirectToDashboard();
+                    }, 1000);
+                }
+            }
+        </script>
+    </body>
+
 </html>

@@ -1,15 +1,18 @@
 const { Pool } = require('pg');
 const config = require('./config');
-const logger = require('./logger');
+const { logger } = require('./logger');
+
+// Get the service configuration
+const serviceConfig = config.getServiceConfig();
 
 // Database configuration based on environment
 const dbConfig = {
-  host: config.database.host,
-  port: config.database.port,
-  database: config.database.name,
-  user: config.database.user,
-  password: config.database.password,
-  ssl: config.database.ssl ? { rejectUnauthorized: false } : false,
+  host: serviceConfig.database.host,
+  port: serviceConfig.database.port,
+  database: serviceConfig.database.database,
+  user: serviceConfig.database.user,
+  password: serviceConfig.database.password,
+  ssl: serviceConfig.database.ssl ? { rejectUnauthorized: false } : false,
   max: 20,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 2000,
