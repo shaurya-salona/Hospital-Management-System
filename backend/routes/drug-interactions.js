@@ -1,4 +1,9 @@
 
+const express = require('express');
+const router = express.Router();
+const { body, param } = require('express-validator');
+const { validateDrugInteractionCheck, handleValidationErrors } = require('../middlewares/validation');
+
 // POST /api/drug-interactions/check - Check for drug interactions
 router.post('/check', validateDrugInteractionCheck, async (req, res) => {
   try {
@@ -6,7 +11,7 @@ router.post('/check', validateDrugInteractionCheck, async (req, res) => {
 
     // Mock drug interaction check - replace with actual interaction checking logic
     const interactions = [];
-    
+
     // Simple mock logic - in real implementation, this would query a drug interaction database
     if (medications.includes('Warfarin') && medications.includes('Aspirin')) {
       interactions.push({
@@ -33,12 +38,12 @@ router.post('/check', validateDrugInteractionCheck, async (req, res) => {
     const result = {
       medications: medications,
       interactions: interactions,
-      severity: interactions.length > 0 ? 
+      severity: interactions.length > 0 ?
         interactions.some(i => i.severity === 'major') ? 'major' :
         interactions.some(i => i.severity === 'moderate') ? 'moderate' : 'minor'
         : 'none',
-      recommendations: interactions.length > 0 ? 
-        'Review interactions carefully before prescribing' : 
+      recommendations: interactions.length > 0 ?
+        'Review interactions carefully before prescribing' :
         'No significant interactions found',
       checked_at: new Date().toISOString()
     };

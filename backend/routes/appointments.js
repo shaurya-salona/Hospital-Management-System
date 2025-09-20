@@ -45,7 +45,7 @@ router.get('/', validatePagination, async (req, res) => {
 
     // Build query with filters
     let query = `
-      SELECT a.*, 
+      SELECT a.*,
              p.patient_id, pu.first_name as patient_first_name, pu.last_name as patient_last_name,
              s.employee_id, su.first_name as doctor_first_name, su.last_name as doctor_last_name
       FROM appointments a
@@ -72,11 +72,11 @@ router.get('/', validatePagination, async (req, res) => {
 
     // Add pagination
     query += ` ORDER BY a.appointment_date DESC, a.appointment_time DESC`;
-    
+
     paramCount++;
     query += ` LIMIT $${paramCount}`;
     queryParams.push(parseInt(limit));
-    
+
     paramCount++;
     query += ` OFFSET $${paramCount}`;
     queryParams.push(offset);
@@ -151,7 +151,7 @@ router.get('/:id', validateId, async (req, res) => {
     const db = require('../config/database-manager');
 
     const query = `
-      SELECT a.*, 
+      SELECT a.*,
              p.patient_id, pu.first_name as patient_first_name, pu.last_name as patient_last_name,
              s.employee_id, su.first_name as doctor_first_name, su.last_name as doctor_last_name
       FROM appointments a
@@ -163,7 +163,7 @@ router.get('/:id', validateId, async (req, res) => {
     `;
 
     const result = await db.query(query, [id]);
-    
+
     if (result.rows.length === 0) {
       return res.status(404).json({
         success: false,
@@ -206,7 +206,7 @@ router.post('/', validateAppointment, async (req, res) => {
   try {
     const { validationResult } = require('express-validator');
     const errors = validationResult(req);
-    
+
     if (!errors.isEmpty()) {
       return res.status(400).json({
         success: false,
@@ -215,14 +215,14 @@ router.post('/', validateAppointment, async (req, res) => {
       });
     }
 
-    const { 
-      patientId, 
-      doctorId, 
-      appointmentDate, 
-      appointmentTime, 
-      reason, 
+    const {
+      patientId,
+      doctorId,
+      appointmentDate,
+      appointmentTime,
+      reason,
       durationMinutes = 30,
-      notes 
+      notes
     } = req.body;
 
     const db = require('../config/database-manager');
@@ -247,10 +247,10 @@ router.post('/', validateAppointment, async (req, res) => {
 
     // Check for conflicting appointments
     const conflictCheck = await db.query(`
-      SELECT id FROM appointments 
-      WHERE doctor_id = $1 
-      AND appointment_date = $2 
-      AND appointment_time = $3 
+      SELECT id FROM appointments
+      WHERE doctor_id = $1
+      AND appointment_date = $2
+      AND appointment_time = $3
       AND status NOT IN ('cancelled', 'completed')
     `, [doctorId, appointmentDate, appointmentTime]);
 
@@ -264,18 +264,18 @@ router.post('/', validateAppointment, async (req, res) => {
     // Create appointment
     const appointmentQuery = `
       INSERT INTO appointments (
-        patient_id, doctor_id, appointment_date, appointment_time, 
+        patient_id, doctor_id, appointment_date, appointment_time,
         duration_minutes, status, reason, notes
       )
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
       RETURNING *
     `;
-    
+
     const appointmentValues = [
       patientId, doctorId, appointmentDate, appointmentTime,
       durationMinutes, 'scheduled', reason, notes
     ];
-    
+
     const appointmentResult = await db.query(appointmentQuery, appointmentValues);
     const newAppointment = appointmentResult.rows[0];
 
@@ -352,7 +352,7 @@ router.put('/:id', validateId, validateAppointmentUpdate, async (req, res) => {
     values.push(id);
 
     const query = `
-      UPDATE appointments 
+      UPDATE appointments
       SET ${updates.join(', ')}, updated_at = CURRENT_TIMESTAMP
       WHERE id = $${paramCount}
       RETURNING *
@@ -418,7 +418,7 @@ router.get('/doctor/:doctorId', async (req, res) => {
     const db = require('../config/database-manager');
 
     let query = `
-      SELECT a.*, 
+      SELECT a.*,
              p.patient_id, pu.first_name as patient_first_name, pu.last_name as patient_last_name
       FROM appointments a
       JOIN patients p ON a.patient_id = p.id

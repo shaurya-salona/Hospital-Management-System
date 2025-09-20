@@ -6,7 +6,7 @@ const { body, param, query, validationResult } = require('express-validator');
  */
 const handleValidationErrors = (req, res, next) => {
   const errors = validationResult(req);
-  
+
   if (!errors.isEmpty()) {
     const formattedErrors = errors.array().map(error => ({
       field: error.param,
@@ -34,7 +34,7 @@ const ValidationRules = {
       body('username')
         .isLength({ min: 1 })
         .withMessage('Username is required'),
-      
+
       body('password')
         .isLength({ min: 1 })
         .withMessage('Password is required')
@@ -47,66 +47,66 @@ const ValidationRules = {
       body('firstName')
         .isLength({ min: 1, max: 50 })
         .withMessage('First name is required and must not exceed 50 characters'),
-      
+
       body('lastName')
         .isLength({ min: 1, max: 50 })
         .withMessage('Last name is required and must not exceed 50 characters'),
-      
+
       body('email')
         .isEmail()
         .withMessage('Must be a valid email address')
         .normalizeEmail(),
-      
+
       body('phone')
         .matches(/^\+?[1-9]\d{1,14}$/)
         .withMessage('Phone number must be in international format'),
-      
+
       body('dateOfBirth')
         .isISO8601()
         .withMessage('Date of birth must be a valid date (YYYY-MM-DD)'),
-      
+
       body('gender')
         .isIn(['male', 'female', 'other'])
         .withMessage('Gender must be one of: male, female, other'),
-      
+
       body('bloodType')
         .optional()
         .isIn(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'])
         .withMessage('Blood type must be one of: A+, A-, B+, B-, AB+, AB-, O+, O-')
     ],
-    
+
     update: [
       body('firstName')
         .optional()
         .isLength({ min: 1, max: 50 })
         .withMessage('First name must not exceed 50 characters'),
-      
+
       body('lastName')
         .optional()
         .isLength({ min: 1, max: 50 })
         .withMessage('Last name must not exceed 50 characters'),
-      
+
       body('email')
         .optional()
         .isEmail()
         .withMessage('Must be a valid email address')
         .normalizeEmail(),
-      
+
       body('phone')
         .optional()
         .matches(/^\+?[1-9]\d{1,14}$/)
         .withMessage('Phone number must be in international format'),
-      
+
       body('dateOfBirth')
         .optional()
         .isISO8601()
         .withMessage('Date of birth must be a valid date (YYYY-MM-DD)'),
-      
+
       body('gender')
         .optional()
         .isIn(['male', 'female', 'other'])
         .withMessage('Gender must be one of: male, female, other'),
-      
+
       body('bloodType')
         .optional()
         .isIn(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'])
@@ -120,19 +120,19 @@ const ValidationRules = {
       body('patientId')
         .isUUID()
         .withMessage('Patient ID must be a valid UUID'),
-      
+
       body('doctorId')
         .isUUID()
         .withMessage('Doctor ID must be a valid UUID'),
-      
+
       body('appointmentDate')
         .isISO8601()
         .withMessage('Appointment date must be a valid date (YYYY-MM-DD)'),
-      
+
       body('appointmentTime')
         .matches(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$/)
         .withMessage('Appointment time must be in HH:MM:SS format'),
-      
+
       body('reason')
         .isLength({ min: 3, max: 500 })
         .withMessage('Reason is required and must be between 3 and 500 characters')
@@ -155,13 +155,13 @@ const ValidationRules = {
         .optional()
         .isInt({ min: 1 })
         .withMessage('Page must be a positive integer'),
-      
+
       query('limit')
         .optional()
         .isInt({ min: 1, max: 100 })
         .withMessage('Limit must be between 1 and 100')
     ],
-    
+
     search: [
       query('q')
         .optional()
@@ -209,9 +209,27 @@ const sanitizeInput = (req, res, next) => {
   next();
 };
 
+// Drug interaction validation
+const validateDrugInteractionCheck = [
+  body('medications')
+    .isArray({ min: 1 })
+    .withMessage('At least one medication is required'),
+
+  body('medications.*.name')
+    .isLength({ min: 1 })
+    .withMessage('Medication name is required'),
+
+  body('medications.*.dosage')
+    .isLength({ min: 1 })
+    .withMessage('Medication dosage is required'),
+
+  handleValidationErrors
+];
+
 module.exports = {
   handleValidationErrors,
   ValidationRules,
   validateRequest,
-  sanitizeInput
+  sanitizeInput,
+  validateDrugInteractionCheck
 };

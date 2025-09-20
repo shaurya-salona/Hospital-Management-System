@@ -17,9 +17,9 @@ const { logger, contextLogger, stream, setupProcessErrorHandlers } = require('./
 // setupProcessErrorHandlers();
 
 // Initialize error handling
-const { 
-  errorHandler, 
-  notFoundHandler, 
+const {
+  errorHandler,
+  notFoundHandler,
   catchAsync
 } = require('./middlewares/errorHandler');
 
@@ -66,6 +66,7 @@ const counselingRoutes = require('./routes/counseling');
 const pharmacyRoutes = require('./routes/pharmacy');
 const patientPortalRoutes = require('./routes/patient-portal');
 const healthRoutes = require('./routes/health');
+const securityRoutes = require('./routes/security');
 
 // Initialize Swagger documentation
 const { specs, swaggerUi } = require('./config/swagger');
@@ -134,12 +135,12 @@ app.use(morgan('combined', { stream }));
 // Request logging middleware
 app.use((req, res, next) => {
   const start = Date.now();
-  
+
   res.on('finish', () => {
     const responseTime = Date.now() - start;
     contextLogger.http(req, res, responseTime);
   });
-  
+
   next();
 });
 
@@ -147,7 +148,7 @@ app.use((req, res, next) => {
 app.use(sanitizeInput);
 
 // Body parsing middleware
-app.use(express.json({ 
+app.use(express.json({
   limit: '10mb',
   verify: (req, res, buf) => {
     // Log large payloads
@@ -192,6 +193,7 @@ app.use('/api/drug-interactions', drugInteractionRoutes);
 app.use('/api/counseling', counselingRoutes);
 app.use('/api/pharmacy', pharmacyRoutes);
 app.use('/api/patient-portal', patientPortalRoutes);
+app.use('/api/security', securityRoutes);
 
 // Health check routes
 app.use('/health', healthRoutes);
@@ -205,14 +207,14 @@ io.on('connection', (socket) => {
     const { userId, role } = data;
     socket.join(`user-${userId}`);
     socket.join(`role-${role}`);
-    
+
     logger.info('👤 User joined WebSocket rooms', {
       userId,
       role,
       socketId: socket.id,
       rooms: [`user-${userId}`, `role-${role}`]
     });
-    
+
     // Log authentication event
     contextLogger.auth('websocket-join', { userId, role, socketId: socket.id });
   });
@@ -250,10 +252,10 @@ io.on('connection', (socket) => {
   });
 
   socket.on('disconnect', (reason) => {
-    logger.info('🔌 Client disconnected', { 
-      socketId: socket.id, 
+    logger.info('🔌 Client disconnected', {
+      socketId: socket.id,
       reason,
-      ip: socket.handshake.address 
+      ip: socket.handshake.address
     });
   });
 });
@@ -270,10 +272,10 @@ app.use(errorHandler);
 // Graceful shutdown
 const gracefulShutdown = (signal) => {
   logger.info(`${signal} received, shutting down gracefully`);
-  
+
   server.close(() => {
     logger.info('HTTP server closed');
-    
+
     // Close database connections if available
     if (global.db && global.db.end) {
       global.db.end(() => {
@@ -284,7 +286,7 @@ const gracefulShutdown = (signal) => {
       process.exit(0);
     }
   });
-  
+
   // Force close after 10 seconds
   setTimeout(() => {
     logger.error('Could not close connections in time, forcefully shutting down');
@@ -302,11 +304,11 @@ server.listen(PORT, () => {
   logger.info(`🔐 Auth API: http://localhost:${PORT}/api/auth`);
   logger.info(`🌍 Environment: ${config.env}`);
   logger.info(`🔌 WebSocket server initialized`);
-  
+
   if (config.features.apiDocs) {
     logger.info(`📚 API Documentation: http://localhost:${PORT}/api-docs`);
   }
-  
+
   // Log configuration summary
   logger.info('Server configuration', {
     port: PORT,

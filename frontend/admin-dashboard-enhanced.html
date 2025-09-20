@@ -6,6 +6,7 @@
     <title>Admin Dashboard - HMIS</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="dashboard-common.css">
+    <link rel="stylesheet" href="admin-dashboard-enhanced.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * {
@@ -515,7 +516,7 @@
 
             <!-- User Management Section -->
             <div id="user-management" class="dashboard-section">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+                <div class="section-header-flex">
                     <h3>User Management</h3>
                     <button class="btn btn-primary" onclick="showAddUserModal()">
                         <i class="fas fa-plus"></i> Add User
@@ -625,7 +626,7 @@
             <div id="reports" class="dashboard-section">
                 <h3>Reports & Analytics</h3>
 
-                <div style="display: flex; gap: 15px; margin-bottom: 30px;">
+                <div class="section-header-flex">
                     <button class="btn btn-primary" onclick="generateReport('users')">
                         <i class="fas fa-users"></i> User Report
                     </button>
@@ -650,7 +651,7 @@
             <div id="settings" class="dashboard-section">
                 <h3>System Settings</h3>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                <div class="reports-grid">
                     <div>
                         <h4>General Settings</h4>
                         <div class="form-group">
@@ -722,7 +723,7 @@
                     </div>
                 </div>
 
-                <div style="display: flex; gap: 15px; margin-top: 30px;">
+                <div class="form-actions">
                     <button class="btn btn-primary" onclick="createBackup()">
                         <i class="fas fa-download"></i> Create Backup
                     </button>
@@ -734,7 +735,7 @@
                     </button>
                 </div>
 
-                <div class="table-container" style="margin-top: 30px;">
+                <div class="table-container">
                     <h3>Backup History</h3>
                     <table class="table">
                         <thead>
@@ -757,11 +758,11 @@
             <div id="emergency" class="dashboard-section">
                 <h3>Emergency Protocols</h3>
 
-                <div style="background: #fef2f2; border: 2px solid #fecaca; border-radius: 12px; padding: 20px; margin-bottom: 30px;">
-                    <h4 style="color: #dc2626; margin-bottom: 10px;">
+                <div class="emergency-warning">
+                    <h4>
                         <i class="fas fa-exclamation-triangle"></i> Emergency Procedures
                     </h4>
-                    <p style="color: #7f1d1d;">Use these controls only in emergency situations. All actions are logged and monitored.</p>
+                    <p>Use these controls only in emergency situations. All actions are logged and monitored.</p>
                 </div>
 
                 <div class="stats-grid">
@@ -787,7 +788,7 @@
                     </div>
                 </div>
 
-                <div style="display: flex; gap: 15px; margin-top: 30px;">
+                <div class="form-actions">
                     <button class="btn btn-danger" onclick="emergencyShutdown()">
                         <i class="fas fa-power-off"></i> Emergency Shutdown
                     </button>
@@ -802,7 +803,7 @@
                     </button>
                 </div>
 
-                <div class="table-container" style="margin-top: 30px;">
+                <div class="table-container">
                     <h3>Emergency Contacts</h3>
                     <table class="table">
                         <thead>

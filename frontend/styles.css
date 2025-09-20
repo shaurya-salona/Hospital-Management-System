@@ -397,30 +397,39 @@ body {
     color: #333;
 }
 
+/* Utility Classes */
+.hidden {
+    display: none !important;
+}
+
+.loading-center {
+    text-align: center;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .container {
         padding: 10px;
     }
-    
+
     .header h1 {
         font-size: 2rem;
     }
-    
+
     .portals-grid {
         grid-template-columns: 1fr;
         gap: 20px;
     }
-    
+
     .portal-card {
         padding: 20px;
     }
-    
+
     .modal-content {
         margin: 10% auto;
         width: 95%;
     }
-    
+
     .form-actions {
         flex-direction: column;
     }
@@ -430,23 +439,23 @@ body {
             .header h1 {
                 font-size: 1.5rem;
             }
-            
+
             .subtitle {
                 font-size: 1rem;
             }
-            
+
             .description {
                 font-size: 0.9rem;
             }
-            
+
             .portal-card h3 {
                 font-size: 1.5rem;
             }
-            
+
             .features {
                 gap: 8px;
             }
-            
+
             .feature-tag {
                 font-size: 0.8rem;
                 padding: 6px 12px;
@@ -868,4 +877,3 @@ body {
     from { transform: translateX(100%); opacity: 0; }
     to { transform: translateX(0); opacity: 1; }
 }
-

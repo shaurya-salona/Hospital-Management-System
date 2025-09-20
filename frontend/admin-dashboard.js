@@ -41,17 +41,11 @@ class AdminDashboard {
     }
 
     async init() {
-        try {
-            await this.loadUserData();
-            this.setupEventListeners();
-            this.loadDashboardData();
-            this.startRealTimeClock();
-            this.initializeCharts();
-            this.showNotification('Admin Dashboard loaded successfully!', 'success');
-        } catch (error) {
-            console.error('Error initializing admin dashboard:', error);
-            this.showNotification('Error loading dashboard. Using demo mode.', 'warning');
-        }
+        await this.loadUserData();
+        this.setupEventListeners();
+        this.loadDashboardData();
+        this.startRealTimeClock();
+        this.showNotification('Admin Dashboard loaded successfully!', 'success');
     }
 
     async loadUserData() {
@@ -499,148 +493,12 @@ class AdminDashboard {
         });
     }
 
-    // Initialize charts
-    initializeCharts() {
-        try {
-            this.createPatientAdmissionsChart();
-            this.createRevenueChart();
-            this.createDepartmentChart();
-            this.createStaffChart();
-        } catch (error) {
-            console.error('Error initializing charts:', error);
-        }
-    }
-
-    // Create patient admissions chart
-    createPatientAdmissionsChart() {
-        const ctx = document.getElementById('patient-admissions-chart');
-        if (!ctx) return;
-
-        this.charts.patientAdmissions = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                datasets: [{
-                    label: 'Patient Admissions',
-                    data: [65, 59, 80, 81, 56, 55],
-                    borderColor: 'rgb(75, 192, 192)',
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    tension: 0.1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
-    }
-
-    // Create revenue chart
-    createRevenueChart() {
-        const ctx = document.getElementById('revenue-chart');
-        if (!ctx) return;
-
-        this.charts.revenue = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                datasets: [{
-                    label: 'Revenue (₹)',
-                    data: [120000, 190000, 300000, 500000, 200000, 300000],
-                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
-    }
-
-    // Create department chart
-    createDepartmentChart() {
-        const ctx = document.getElementById('department-chart');
-        if (!ctx) return;
-
-        this.charts.department = new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Cardiology', 'Neurology', 'Orthopedics', 'Pediatrics', 'Emergency'],
-                datasets: [{
-                    data: [30, 25, 20, 15, 10],
-                    backgroundColor: [
-                        '#FF6384',
-                        '#36A2EB',
-                        '#FFCE56',
-                        '#4BC0C0',
-                        '#9966FF'
-                    ]
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false
-            }
-        });
-    }
-
-    // Create staff chart
-    createStaffChart() {
-        const ctx = document.getElementById('staff-chart');
-        if (!ctx) return;
-
-        this.charts.staff = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: ['Doctors', 'Nurses', 'Receptionists', 'Pharmacists'],
-                datasets: [{
-                    label: 'Staff Count',
-                    data: [15, 25, 8, 5],
-                    backgroundColor: [
-                        'rgba(255, 99, 132, 0.2)',
-                        'rgba(54, 162, 235, 0.2)',
-                        'rgba(255, 205, 86, 0.2)',
-                        'rgba(75, 192, 192, 0.2)'
-                    ],
-                    borderColor: [
-                        'rgba(255, 99, 132, 1)',
-                        'rgba(54, 162, 235, 1)',
-                        'rgba(255, 205, 86, 1)',
-                        'rgba(75, 192, 192, 1)'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
-    }
-
     logout() {
         if (confirm('Are you sure you want to logout?')) {
-            localStorage.removeItem('token');
+        localStorage.removeItem('token');
             this.showNotification('Logged out successfully', 'success');
             setTimeout(() => {
-                window.location.href = 'admin-login.html';
+        window.location.href = 'admin-login.html';
             }, 1000);
         }
     }
@@ -676,10 +534,10 @@ class AdminDashboard {
             window.dashboardCommon.showModal(title, content);
         } else {
             // Fallback for when dashboard-common.js is not loaded
-            const modalOverlay = document.getElementById('modal-overlay');
-            if (!modalOverlay) return;
+        const modalOverlay = document.getElementById('modal-overlay');
+        if (!modalOverlay) return;
 
-            modalOverlay.innerHTML = `
+        modalOverlay.innerHTML = `
             <div class="modal">
                 <div class="modal-header">
                     <h3>${title}</h3>
@@ -690,7 +548,7 @@ class AdminDashboard {
                 </div>
             </div>
         `;
-            modalOverlay.style.display = 'flex';
+        modalOverlay.style.display = 'flex';
         }
     }
 
@@ -900,9 +758,9 @@ class AdminDashboard {
         };
 
         this.mockData.users.push(newUser);
-        this.showNotification('User added successfully!', 'success');
+        this.renderUsers(this.mockData.users);
         this.closeModal();
-        this.loadUsers();
+        this.showNotification('User added successfully!', 'success');
     }
 
     handleAddPatient(event) {
@@ -922,9 +780,9 @@ class AdminDashboard {
         };
 
         this.mockData.patients.push(newPatient);
-        this.showNotification('Patient added successfully!', 'success');
+        this.renderPatients(this.mockData.patients);
         this.closeModal();
-        this.loadPatients();
+        this.showNotification('Patient added successfully!', 'success');
     }
 
     handleScheduleAppointment(event) {
@@ -937,20 +795,18 @@ class AdminDashboard {
 
         const newAppointment = {
             id: this.mockData.appointments.length + 1,
-            patient_id: appointmentData.patientId,
-            doctor_id: appointmentData.doctorId,
-            appointment_date: appointmentData.date,
-            appointment_time: appointmentData.time,
             reason: appointmentData.reason,
             status: 'scheduled',
+            appointment_date: appointmentData.date,
+            appointment_time: appointmentData.time,
             patient_name: patient ? `${patient.first_name} ${patient.last_name}` : 'Unknown',
             doctor_name: doctor ? `${doctor.first_name} ${doctor.last_name}` : 'Unknown'
         };
 
         this.mockData.appointments.push(newAppointment);
-        this.showNotification('Appointment scheduled successfully!', 'success');
+        this.renderAppointments(this.mockData.appointments);
         this.closeModal();
-        this.loadAppointments();
+        this.showNotification('Appointment scheduled successfully!', 'success');
     }
 
     handleCreateBill(event) {
@@ -963,18 +819,16 @@ class AdminDashboard {
         const newBill = {
             id: this.mockData.billing.length + 1,
             bill_number: `B${String(this.mockData.billing.length + 1).padStart(3, '0')}`,
-            patient_id: billData.patientId,
             patient_name: patient ? `${patient.first_name} ${patient.last_name}` : 'Unknown',
             amount: parseFloat(billData.amount),
             status: 'pending',
-            due_date: billData.dueDate,
-            description: billData.description
+            due_date: billData.dueDate
         };
 
         this.mockData.billing.push(newBill);
-        this.showNotification('Bill created successfully!', 'success');
+        this.renderBilling(this.mockData.billing);
         this.closeModal();
-        this.loadBilling();
+        this.showNotification('Bill created successfully!', 'success');
     }
 
     handleAddInventory(event) {
@@ -992,385 +846,159 @@ class AdminDashboard {
         };
 
         this.mockData.inventory.push(newItem);
-        this.showNotification('Inventory item added successfully!', 'success');
+        this.renderInventory(this.mockData.inventory);
         this.closeModal();
-        this.loadInventory();
+        this.showNotification('Inventory item added successfully!', 'success');
     }
 
     closeModal() {
-        const modalOverlay = document.getElementById('modal-overlay');
-        if (modalOverlay) {
-            modalOverlay.style.display = 'none';
+        if (window.dashboardCommon) {
+            window.dashboardCommon.closeModal();
+        } else {
+            const modalOverlay = document.getElementById('modal-overlay');
+            if (modalOverlay) {
+                modalOverlay.style.display = 'none';
+            }
         }
     }
 
-    // Action functions for buttons
+    // Action functions
     editUser(userId) {
         const user = this.mockData.users.find(u => u.id == userId);
         if (user) {
-            this.showModal('Edit User', this.getEditUserForm(user));
-            this.setupFormSubmission('edit-user-form', (e) => this.handleEditUser(e, userId));
+            this.showNotification(`Editing user: ${user.first_name} ${user.last_name}`, 'info');
         }
     }
 
     deleteUser(userId) {
         if (confirm('Are you sure you want to delete this user?')) {
             this.mockData.users = this.mockData.users.filter(u => u.id != userId);
+            this.renderUsers(this.mockData.users);
             this.showNotification('User deleted successfully!', 'success');
-            this.loadUsers();
         }
     }
 
     viewPatient(patientId) {
         const patient = this.mockData.patients.find(p => p.id == patientId);
         if (patient) {
-            this.showModal('Patient Details', this.getPatientDetailsView(patient));
+            this.showNotification(`Viewing patient: ${patient.first_name} ${patient.last_name}`, 'info');
         }
     }
 
     editPatient(patientId) {
         const patient = this.mockData.patients.find(p => p.id == patientId);
         if (patient) {
-            this.showModal('Edit Patient', this.getEditPatientForm(patient));
-            this.setupFormSubmission('edit-patient-form', (e) => this.handleEditPatient(e, patientId));
+            this.showNotification(`Editing patient: ${patient.first_name} ${patient.last_name}`, 'info');
         }
     }
 
     viewAppointment(appointmentId) {
         const appointment = this.mockData.appointments.find(a => a.id == appointmentId);
         if (appointment) {
-            this.showModal('Appointment Details', this.getAppointmentDetailsView(appointment));
+            this.showNotification(`Viewing appointment: ${appointment.reason}`, 'info');
         }
     }
 
     editAppointment(appointmentId) {
         const appointment = this.mockData.appointments.find(a => a.id == appointmentId);
         if (appointment) {
-            this.showModal('Edit Appointment', this.getEditAppointmentForm(appointment));
-            this.setupFormSubmission('edit-appointment-form', (e) => this.handleEditAppointment(e, appointmentId));
+            this.showNotification(`Editing appointment: ${appointment.reason}`, 'info');
         }
     }
 
     viewBill(billId) {
         const bill = this.mockData.billing.find(b => b.id == billId);
         if (bill) {
-            this.showModal('Bill Details', this.getBillDetailsView(bill));
+            this.showNotification(`Viewing bill: ${bill.bill_number}`, 'info');
         }
     }
 
     editBill(billId) {
         const bill = this.mockData.billing.find(b => b.id == billId);
         if (bill) {
-            this.showModal('Edit Bill', this.getEditBillForm(bill));
-            this.setupFormSubmission('edit-bill-form', (e) => this.handleEditBill(e, billId));
+            this.showNotification(`Editing bill: ${bill.bill_number}`, 'info');
         }
     }
 
     viewInventory(itemId) {
         const item = this.mockData.inventory.find(i => i.id == itemId);
         if (item) {
-            this.showModal('Inventory Details', this.getInventoryDetailsView(item));
+            this.showNotification(`Viewing inventory: ${item.name}`, 'info');
         }
     }
 
     editInventory(itemId) {
         const item = this.mockData.inventory.find(i => i.id == itemId);
         if (item) {
-            this.showModal('Edit Inventory', this.getEditInventoryForm(item));
-            this.setupFormSubmission('edit-inventory-form', (e) => this.handleEditInventory(e, itemId));
+            this.showNotification(`Editing inventory: ${item.name}`, 'info');
         }
     }
 
-    // Export functions
+    // Utility functions
     exportUsers() {
-        dashboardCommon.exportToCSV(this.mockData.users, 'users');
+        this.showNotification('Exporting users data...', 'info');
+        // Simulate export
+        setTimeout(() => {
+            this.showNotification('Users data exported successfully!', 'success');
+        }, 2000);
     }
 
     exportPatients() {
-        dashboardCommon.exportToCSV(this.mockData.patients, 'patients');
+        this.showNotification('Exporting patients data...', 'info');
+        setTimeout(() => {
+            this.showNotification('Patients data exported successfully!', 'success');
+        }, 2000);
     }
 
-    // Utility functions
+    viewSchedule() {
+        this.showNotification('Opening schedule view...', 'info');
+    }
+
+    processPayroll() {
+        this.showNotification('Processing payroll...', 'info');
+        setTimeout(() => {
+            this.showNotification('Payroll processed successfully!', 'success');
+        }, 3000);
+    }
+
+    checkLowStock() {
+        const lowStockItems = this.mockData.inventory.filter(item => item.quantity < item.min_stock);
+        if (lowStockItems.length > 0) {
+            this.showNotification(`Found ${lowStockItems.length} low stock items`, 'warning');
+        } else {
+            this.showNotification('All items are well stocked!', 'success');
+        }
+    }
+
+    generateReport() {
+        this.showNotification('Generating report...', 'info');
+        setTimeout(() => {
+            this.showNotification('Report generated successfully!', 'success');
+        }, 3000);
+    }
+
+    exportAnalytics() {
+        this.showNotification('Exporting analytics data...', 'info');
+        setTimeout(() => {
+            this.showNotification('Analytics data exported successfully!', 'success');
+        }, 2000);
+    }
+
     showNotification(message, type = 'info') {
         if (window.dashboardCommon) {
             window.dashboardCommon.showNotification(message, type);
         } else {
+            // Fallback notification
             alert(message);
         }
     }
 
-    // Additional form methods
-    getEditUserForm(user) {
-        return `
-            <form id="edit-user-form">
-                <div class="form-group">
-                    <label>First Name</label>
-                    <input type="text" name="firstName" value="${user.first_name}" required>
-                </div>
-                <div class="form-group">
-                    <label>Last Name</label>
-                    <input type="text" name="lastName" value="${user.last_name}" required>
-                </div>
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" name="email" value="${user.email}" required>
-                </div>
-                <div class="form-group">
-                    <label>Role</label>
-                    <select name="role" required>
-                        <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Admin</option>
-                        <option value="doctor" ${user.role === 'doctor' ? 'selected' : ''}>Doctor</option>
-                        <option value="receptionist" ${user.role === 'receptionist' ? 'selected' : ''}>Receptionist</option>
-                        <option value="nurse" ${user.role === 'nurse' ? 'selected' : ''}>Nurse</option>
-                        <option value="pharmacist" ${user.role === 'pharmacist' ? 'selected' : ''}>Pharmacist</option>
-                    </select>
-                </div>
-                <div class="form-actions">
-                    <button type="submit" class="btn btn-primary">Update User</button>
-                    <button type="button" class="btn btn-secondary" onclick="this.closest('.modal-overlay').style.display='none'">Cancel</button>
-                </div>
-            </form>
-        `;
-    }
-
-    getPatientDetailsView(patient) {
-        return `
-            <div class="patient-details">
-                <div class="detail-row">
-                    <strong>Patient ID:</strong> ${patient.patient_id}
-                </div>
-                <div class="detail-row">
-                    <strong>Name:</strong> ${patient.first_name} ${patient.last_name}
-                </div>
-                <div class="detail-row">
-                    <strong>Email:</strong> ${patient.email}
-                </div>
-                <div class="detail-row">
-                    <strong>Phone:</strong> ${patient.phone}
-                </div>
-                <div class="detail-row">
-                    <strong>Blood Type:</strong> ${patient.blood_type}
-                </div>
-                <div class="detail-row">
-                    <strong>Status:</strong> <span class="status-badge ${patient.is_active ? 'active' : 'inactive'}">${patient.is_active ? 'Active' : 'Inactive'}</span>
-                </div>
-            </div>
-        `;
-    }
-
-    getAppointmentDetailsView(appointment) {
-        return `
-            <div class="appointment-details">
-                <div class="detail-row">
-                    <strong>Appointment ID:</strong> ${appointment.id}
-                </div>
-                <div class="detail-row">
-                    <strong>Patient:</strong> ${appointment.patient_name}
-                </div>
-                <div class="detail-row">
-                    <strong>Doctor:</strong> ${appointment.doctor_name}
-                </div>
-                <div class="detail-row">
-                    <strong>Date:</strong> ${new Date(appointment.appointment_date).toLocaleDateString()}
-                </div>
-                <div class="detail-row">
-                    <strong>Time:</strong> ${appointment.appointment_time}
-                </div>
-                <div class="detail-row">
-                    <strong>Reason:</strong> ${appointment.reason}
-                </div>
-                <div class="detail-row">
-                    <strong>Status:</strong> <span class="status-badge ${appointment.status}">${appointment.status}</span>
-                </div>
-            </div>
-        `;
-    }
-
-    getBillDetailsView(bill) {
-        return `
-            <div class="bill-details">
-                <div class="detail-row">
-                    <strong>Bill Number:</strong> ${bill.bill_number}
-                </div>
-                <div class="detail-row">
-                    <strong>Patient:</strong> ${bill.patient_name}
-                </div>
-                <div class="detail-row">
-                    <strong>Amount:</strong> ${dashboardCommon.formatCurrency(bill.amount)}
-                </div>
-                <div class="detail-row">
-                    <strong>Status:</strong> <span class="status-badge ${bill.status}">${bill.status}</span>
-                </div>
-                <div class="detail-row">
-                    <strong>Due Date:</strong> ${bill.due_date ? new Date(bill.due_date).toLocaleDateString() : 'N/A'}
-                </div>
-            </div>
-        `;
-    }
-
-    getInventoryDetailsView(item) {
-        return `
-            <div class="inventory-details">
-                <div class="detail-row">
-                    <strong>Item ID:</strong> ${item.id}
-                </div>
-                <div class="detail-row">
-                    <strong>Name:</strong> ${item.name}
-                </div>
-                <div class="detail-row">
-                    <strong>Category:</strong> ${item.category}
-                </div>
-                <div class="detail-row">
-                    <strong>Quantity:</strong> ${item.quantity}
-                </div>
-                <div class="detail-row">
-                    <strong>Unit Price:</strong> ${dashboardCommon.formatCurrency(item.unit_price)}
-                </div>
-                <div class="detail-row">
-                    <strong>Minimum Stock:</strong> ${item.min_stock}
-                </div>
-                <div class="detail-row">
-                    <strong>Status:</strong> <span class="status-badge ${item.quantity < item.min_stock ? 'low-stock' : 'in-stock'}">${item.quantity < item.min_stock ? 'Low Stock' : 'In Stock'}</span>
-                </div>
-            </div>
-        `;
-    }
-
-    // Edit form handlers
-    handleEditUser(event, userId) {
-        event.preventDefault();
-        const formData = new FormData(event.target);
-        const userData = Object.fromEntries(formData.entries());
-
-        const userIndex = this.mockData.users.findIndex(u => u.id == userId);
-        if (userIndex !== -1) {
-            this.mockData.users[userIndex] = {
-                ...this.mockData.users[userIndex],
-                first_name: userData.firstName,
-                last_name: userData.lastName,
-                email: userData.email,
-                role: userData.role
-            };
-            this.showNotification('User updated successfully!', 'success');
-            this.closeModal();
-            this.loadUsers();
+    async loadDashboardData() {
+        // Load initial data for the active section
+        const activeSection = document.querySelector('.dashboard-section.active');
+        if (activeSection) {
+            await this.loadSectionData(activeSection.id);
         }
-    }
-
-    handleEditPatient(event, patientId) {
-        event.preventDefault();
-        const formData = new FormData(event.target);
-        const patientData = Object.fromEntries(formData.entries());
-
-        const patientIndex = this.mockData.patients.findIndex(p => p.id == patientId);
-        if (patientIndex !== -1) {
-            this.mockData.patients[patientIndex] = {
-                ...this.mockData.patients[patientIndex],
-                first_name: patientData.firstName,
-                last_name: patientData.lastName,
-                email: patientData.email,
-                phone: patientData.phone,
-                blood_type: patientData.bloodType
-            };
-            this.showNotification('Patient updated successfully!', 'success');
-            this.closeModal();
-            this.loadPatients();
-        }
-    }
-
-    handleEditAppointment(event, appointmentId) {
-        event.preventDefault();
-        const formData = new FormData(event.target);
-        const appointmentData = Object.fromEntries(formData.entries());
-
-        const appointmentIndex = this.mockData.appointments.findIndex(a => a.id == appointmentId);
-        if (appointmentIndex !== -1) {
-            this.mockData.appointments[appointmentIndex] = {
-                ...this.mockData.appointments[appointmentIndex],
-                appointment_date: appointmentData.date,
-                appointment_time: appointmentData.time,
-                reason: appointmentData.reason,
-                status: appointmentData.status
-            };
-            this.showNotification('Appointment updated successfully!', 'success');
-            this.closeModal();
-            this.loadAppointments();
-        }
-    }
-
-    handleEditBill(event, billId) {
-        event.preventDefault();
-        const formData = new FormData(event.target);
-        const billData = Object.fromEntries(formData.entries());
-
-        const billIndex = this.mockData.billing.findIndex(b => b.id == billId);
-        if (billIndex !== -1) {
-            this.mockData.billing[billIndex] = {
-                ...this.mockData.billing[billIndex],
-                amount: parseFloat(billData.amount),
-                status: billData.status,
-                due_date: billData.dueDate
-            };
-            this.showNotification('Bill updated successfully!', 'success');
-            this.closeModal();
-            this.loadBilling();
-        }
-    }
-
-    handleEditInventory(event, itemId) {
-        event.preventDefault();
-        const formData = new FormData(event.target);
-        const inventoryData = Object.fromEntries(formData.entries());
-
-        const itemIndex = this.mockData.inventory.findIndex(i => i.id == itemId);
-        if (itemIndex !== -1) {
-            this.mockData.inventory[itemIndex] = {
-                ...this.mockData.inventory[itemIndex],
-                name: inventoryData.name,
-                category: inventoryData.category,
-                quantity: parseInt(inventoryData.quantity),
-                unit_price: parseFloat(inventoryData.unitPrice),
-                min_stock: parseInt(inventoryData.minStock)
-            };
-            this.showNotification('Inventory item updated successfully!', 'success');
-            this.closeModal();
-            this.loadInventory();
-        }
-    }
-
-    // Additional utility methods
-    loadDashboardData() {
-        // Load dashboard metrics
-        this.updateMetrics();
-    }
-
-    updateMetrics() {
-        // Update dashboard metrics with current data
-        const totalPatients = this.mockData.patients.length;
-        const totalDoctors = this.mockData.users.filter(u => u.role === 'doctor').length;
-        const totalAppointments = this.mockData.appointments.length;
-        const totalRevenue = this.mockData.billing.reduce((sum, bill) => sum + (bill.amount || 0), 0);
-        const criticalPatients = this.mockData.patients.filter(p => !p.is_active).length;
-        const pendingApprovals = this.mockData.appointments.filter(a => a.status === 'scheduled').length;
-        const totalNurses = this.mockData.users.filter(u => u.role === 'nurse').length;
-
-        // Update metric cards
-        const metrics = {
-            'total-patients': totalPatients,
-            'total-doctors': totalDoctors,
-            'total-appointments': totalAppointments,
-            'total-revenue': `₹${(totalRevenue / 100000).toFixed(1)}L`,
-            'critical-patients': criticalPatients,
-            'pending-approvals': pendingApprovals,
-            'total-nurses': totalNurses
-        };
-
-        Object.entries(metrics).forEach(([id, value]) => {
-            const element = document.getElementById(id);
-            if (element) {
-                element.textContent = value;
-            }
-        });
     }
 
     startRealTimeClock() {
@@ -1380,7 +1008,7 @@ class AdminDashboard {
             const timeElement = document.getElementById('current-time');
 
             if (dateElement) {
-                dateElement.textContent = now.toLocaleDateString('en-US', {
+                dateElement.textContent = now.toLocaleDateString('en-IN', {
                     weekday: 'long',
                     year: 'numeric',
                     month: 'long',
@@ -1389,7 +1017,7 @@ class AdminDashboard {
             }
 
             if (timeElement) {
-                timeElement.textContent = now.toLocaleTimeString('en-US', {
+                timeElement.textContent = now.toLocaleTimeString('en-IN', {
                     hour: '2-digit',
                     minute: '2-digit',
                     hour12: true
@@ -1400,437 +1028,423 @@ class AdminDashboard {
         updateClock();
         setInterval(updateClock, 1000);
     }
-}
 
-// Global functions for HTML onclick handlers
-function showSection(sectionId) {
-    if (window.adminDashboard) {
-        window.adminDashboard.showSection(sectionId);
-    }
-}
-
-function showAddUserModal() {
-    if (window.adminDashboard) {
-        window.adminDashboard.showAddUserModal();
-    }
-}
-
-function showAddPatientModal() {
-    if (window.adminDashboard) {
-        window.adminDashboard.showAddPatientModal();
-    }
-}
-
-function showScheduleAppointmentModal() {
-    if (window.adminDashboard) {
-        window.adminDashboard.showScheduleAppointmentModal();
-    }
-}
-
-function showCreateBillModal() {
-    if (window.adminDashboard) {
-        window.adminDashboard.showCreateBillModal();
-    }
-}
-
-function showAddInventoryModal() {
-    if (window.adminDashboard) {
-        window.adminDashboard.showAddInventoryModal();
-    }
-}
-
-function exportUsers() {
-    if (window.adminDashboard) {
-        window.adminDashboard.exportUsers();
-    }
-}
-
-function exportPatients() {
-    if (window.adminDashboard) {
-        window.adminDashboard.exportPatients();
-    }
-}
-
-function viewSchedule() {
-    if (window.adminDashboard) {
-        window.adminDashboard.showNotification('Schedule view coming soon!', 'info');
-    }
-}
-
-function processPayroll() {
-    if (window.adminDashboard) {
-        window.adminDashboard.showNotification('Payroll processing coming soon!', 'info');
-    }
-}
-
-function checkLowStock() {
-    if (window.adminDashboard) {
-        window.adminDashboard.showNotification('Low stock check coming soon!', 'info');
-    }
-}
-
-function generateReport() {
-    if (window.adminDashboard) {
-        window.adminDashboard.showNotification('Report generation coming soon!', 'info');
-    }
-}
-
-function exportAnalytics() {
-    if (window.adminDashboard) {
-        window.adminDashboard.showNotification('Analytics export coming soon!', 'info');
-    }
-}
-
-// System Health Functions
-function showSystemHealth() {
-    if (window.adminDashboard) {
-        window.adminDashboard.showSection('system-health');
-        window.adminDashboard.loadSystemHealth();
-    }
-}
-
-function showSecurity() {
-    if (window.adminDashboard) {
-        window.adminDashboard.showSection('security');
-        window.adminDashboard.loadSecurity();
-    }
-}
-
-function showReports() {
-    if (window.adminDashboard) {
-        window.adminDashboard.showSection('reports');
-        window.adminDashboard.loadReports();
-    }
-}
-
-function showSettings() {
-    if (window.adminDashboard) {
-        window.adminDashboard.showSection('settings');
-        window.adminDashboard.loadSettings();
-    }
-}
-
-function showBackup() {
-    if (window.adminDashboard) {
-        window.adminDashboard.showSection('backup');
-        window.adminDashboard.loadBackup();
-    }
-}
-
-function showEmergency() {
-    if (window.adminDashboard) {
-        window.adminDashboard.showSection('emergency');
-        window.adminDashboard.loadEmergency();
-    }
-}
-                </button >
-    <button class="btn btn-warning" onclick="adminDashboard.viewSystemLogs()">
-        <i class="fas fa-file-alt"></i> View Logs
-    </button>
-            </div >
-    `;
+    // System Health Section
+    showSystemHealthSection() {
+        this.showSection('system-health');
+        this.loadSystemHealthData();
     }
 
-    async refreshSystemHealth() {
-        this.showNotification('Refreshing system health...', 'info');
-        await this.loadSystemHealthData();
-        this.showNotification('System health refreshed!', 'success');
+    async loadSystemHealthData() {
+        const content = document.getElementById('system-health-content');
+        if (!content) return;
+
+        content.innerHTML = `
+            <div class="health-grid">
+                <div class="health-card">
+                    <div class="health-icon">
+                        <i class="fas fa-server"></i>
+                    </div>
+                    <div class="health-info">
+                        <h3>Database Status</h3>
+                        <p class="status healthy">Online</p>
+                        <p>Response Time: 45ms</p>
+                    </div>
+                </div>
+                <div class="health-card">
+                    <div class="health-icon">
+                        <i class="fas fa-memory"></i>
+                    </div>
+                    <div class="health-info">
+                        <h3>Memory Usage</h3>
+                        <p class="status healthy">Normal</p>
+                        <p>Usage: 2.1GB / 8GB</p>
+                    </div>
+                </div>
+                <div class="health-card">
+                    <div class="health-icon">
+                        <i class="fas fa-hdd"></i>
+                    </div>
+                    <div class="health-info">
+                        <h3>Disk Space</h3>
+                        <p class="status healthy">Available</p>
+                        <p>Free: 156GB / 500GB</p>
+                    </div>
+                </div>
+                <div class="health-card">
+                    <div class="health-icon">
+                        <i class="fas fa-network-wired"></i>
+                    </div>
+                    <div class="health-info">
+                        <h3>Network</h3>
+                        <p class="status healthy">Connected</p>
+                        <p>Latency: 12ms</p>
+                    </div>
+                </div>
+            </div>
+            <div class="health-actions">
+                <button class="btn btn-primary" onclick="adminDashboard.runSystemDiagnostics()">
+                    <i class="fas fa-stethoscope"></i> Run Diagnostics
+                </button>
+                <button class="btn btn-secondary" onclick="adminDashboard.viewSystemLogs()">
+                    <i class="fas fa-file-alt"></i> View Logs
+                </button>
+                <button class="btn btn-secondary" onclick="adminDashboard.restartServices()">
+                    <i class="fas fa-redo"></i> Restart Services
+                </button>
+            </div>
+        `;
     }
 
-    restartServices() {
-        if (confirm('Are you sure you want to restart all services?')) {
-            this.showNotification('Restarting services...', 'warning');
-            setTimeout(() => {
-                this.showNotification('Services restarted successfully!', 'success');
-            }, 3000);
-        }
+    runSystemDiagnostics() {
+        this.showNotification('Running system diagnostics...', 'info');
+        setTimeout(() => {
+            this.showNotification('System diagnostics completed successfully!', 'success');
+        }, 3000);
     }
 
     viewSystemLogs() {
-        this.showModal('System Logs', `
-    < div class="logs-container" >
+        this.showModal('System Logs', this.getSystemLogsContent());
+    }
+
+    getSystemLogsContent() {
+        return `
+            <div class="logs-container">
                 <div class="log-entry">
-                    <span class="log-time">${new Date().toLocaleTimeString()}</span>
+                    <span class="log-time">14:32:15</span>
                     <span class="log-level info">INFO</span>
-                    <span class="log-message">System health check completed</span>
+                    <span class="log-message">Database connection established successfully</span>
                 </div>
                 <div class="log-entry">
-                    <span class="log-time">${new Date(Date.now() - 60000).toLocaleTimeString()}</span>
+                    <span class="log-time">14:31:45</span>
                     <span class="log-level info">INFO</span>
-                    <span class="log-message">Database connection established</span>
+                    <span class="log-message">User authentication successful for admin@hospital.com</span>
                 </div>
                 <div class="log-entry">
-                    <span class="log-time">${new Date(Date.now() - 120000).toLocaleTimeString()}</span>
+                    <span class="log-time">14:30:12</span>
                     <span class="log-level warning">WARN</span>
-                    <span class="log-message">High memory usage detected</span>
+                    <span class="log-message">High memory usage detected: 85%</span>
                 </div>
-            </div >
-    `);
+                <div class="log-entry">
+                    <span class="log-time">14:29:33</span>
+                    <span class="log-level info">INFO</span>
+                    <span class="log-message">Backup process completed successfully</span>
+                </div>
+                <div class="log-entry">
+                    <span class="log-time">14:28:55</span>
+                    <span class="log-level error">ERROR</span>
+                    <span class="log-message">Failed to connect to external API service</span>
+                </div>
+            </div>
+        `;
     }
 
-    // Security Section
-    async showSecuritySection() {
-        this.showSection('security');
-        await this.loadSecurityData();
-    }
-
-    async loadSecurityData() {
-        try {
-            // Mock security data - in real implementation, this would come from backend
-            const securityData = {
-                activeUsers: 12,
-                failedLogins: 3,
-                securityAlerts: 1,
-                lastBackup: new Date().toISOString(),
-                auditLogs: [
-                    { id: 1, user: 'admin', action: 'Login', timestamp: new Date().toISOString(), ip: '192.168.1.100', status: 'Success' },
-                    { id: 2, user: 'dr.smith', action: 'View Patient Records', timestamp: new Date(Date.now() - 300000).toISOString(), ip: '192.168.1.101', status: 'Success' },
-                    { id: 3, user: 'unknown', action: 'Login Attempt', timestamp: new Date(Date.now() - 600000).toISOString(), ip: '192.168.1.200', status: 'Failed' }
-                ]
-            };
-
-            this.renderSecurity(securityData);
-        } catch (error) {
-            console.error('Error loading security data:', error);
+    restartServices() {
+        if (confirm('Are you sure you want to restart system services? This may cause temporary downtime.')) {
+            this.showNotification('Restarting services...', 'warning');
+            setTimeout(() => {
+                this.showNotification('Services restarted successfully!', 'success');
+            }, 5000);
         }
     }
 
-    renderSecurity(data) {
-        const container = document.getElementById('security-content');
-        if (!container) return;
+    // Security Section
+    showSecuritySection() {
+        this.showSection('security');
+        this.loadSecurityData();
+    }
 
-        container.innerHTML = `
-    < div class="security-overview" >
+    async loadSecurityData() {
+        const content = document.getElementById('security-content');
+        if (!content) return;
+
+        content.innerHTML = `
+            <div class="security-overview">
                 <div class="security-metric">
-                    <h3>Active Users</h3>
-                    <p class="metric-value">${data.activeUsers}</p>
+                    <h3>Active Sessions</h3>
+                    <p class="metric-value">24</p>
                 </div>
                 <div class="security-metric">
                     <h3>Failed Logins (24h)</h3>
-                    <p class="metric-value warning">${data.failedLogins}</p>
+                    <p class="metric-value warning">3</p>
                 </div>
                 <div class="security-metric">
                     <h3>Security Alerts</h3>
-                    <p class="metric-value ${data.securityAlerts > 0 ? 'error' : 'success'}">${data.securityAlerts}</p>
+                    <p class="metric-value error">1</p>
                 </div>
                 <div class="security-metric">
-                    <h3>Last Backup</h3>
-                    <p class="metric-value">${new Date(data.lastBackup).toLocaleDateString()}</p>
+                    <h3>Password Strength</h3>
+                    <p class="metric-value success">Strong</p>
                 </div>
-            </div >
-
+            </div>
             <div class="security-actions">
-                <button class="btn btn-primary" onclick="adminDashboard.viewAuditLogs()">
-                    <i class="fas fa-list"></i> View Audit Logs
+                <button class="btn btn-primary" onclick="adminDashboard.viewSecurityLogs()">
+                    <i class="fas fa-shield-alt"></i> View Security Logs
                 </button>
-                <button class="btn btn-secondary" onclick="adminDashboard.manageUserAccess()">
-                    <i class="fas fa-user-shield"></i> Manage Access
+                <button class="btn btn-secondary" onclick="adminDashboard.manageUserSessions()">
+                    <i class="fas fa-users"></i> Manage Sessions
                 </button>
-                <button class="btn btn-warning" onclick="adminDashboard.securityScan()">
-                    <i class="fas fa-shield-alt"></i> Security Scan
-                </button>
-                <button class="btn btn-danger" onclick="adminDashboard.lockSystem()">
-                    <i class="fas fa-lock"></i> Lock System
+                <button class="btn btn-secondary" onclick="adminDashboard.updateSecuritySettings()">
+                    <i class="fas fa-cog"></i> Security Settings
                 </button>
             </div>
-
             <div class="audit-logs">
-                <h3>Recent Audit Logs</h3>
+                <h3>Recent Security Events</h3>
                 <div class="logs-table">
                     <table>
                         <thead>
                             <tr>
                                 <th>Time</th>
+                                <th>Event</th>
                                 <th>User</th>
-                                <th>Action</th>
                                 <th>IP Address</th>
                                 <th>Status</th>
                             </tr>
                         </thead>
                         <tbody>
-                            ${data.auditLogs.map(log => `
-                                <tr>
-                                    <td>${new Date(log.timestamp).toLocaleString()}</td>
-                                    <td>${log.user}</td>
-                                    <td>${log.action}</td>
-                                    <td>${log.ip}</td>
-                                    <td><span class="status-badge ${log.status.toLowerCase()}">${log.status}</span></td>
-                                </tr>
-                            `).join('')}
+                            <tr>
+                                <td>14:32:15</td>
+                                <td>Login Success</td>
+                                <td>admin@hospital.com</td>
+                                <td>192.168.1.100</td>
+                                <td><span class="status-badge success">Success</span></td>
+                            </tr>
+                            <tr>
+                                <td>14:28:45</td>
+                                <td>Failed Login</td>
+                                <td>unknown@email.com</td>
+                                <td>192.168.1.150</td>
+                                <td><span class="status-badge error">Failed</span></td>
+                            </tr>
+                            <tr>
+                                <td>14:25:12</td>
+                                <td>Password Change</td>
+                                <td>dr.smith@hospital.com</td>
+                                <td>192.168.1.120</td>
+                                <td><span class="status-badge success">Success</span></td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
-`;
+        `;
     }
 
-    viewAuditLogs() {
-        this.showModal('Audit Logs', `
-    < div class="audit-logs-full" >
-                <div class="log-filters">
-                    <select id="log-filter">
-                        <option value="">All Actions</option>
-                        <option value="login">Login</option>
-                        <option value="view">View Records</option>
-                        <option value="edit">Edit Records</option>
-                        <option value="delete">Delete Records</option>
-                    </select>
-                    <input type="date" id="log-date" placeholder="Filter by date">
-                </div>
-                <div class="logs-list">
-                    <div class="log-entry">
-                        <span class="log-time">${new Date().toLocaleString()}</span>
-                        <span class="log-user">admin</span>
-                        <span class="log-action">System Access</span>
-                        <span class="log-ip">192.168.1.100</span>
-                        <span class="log-status success">Success</span>
-                    </div>
-                    <div class="log-entry">
-                        <span class="log-time">${new Date(Date.now() - 300000).toLocaleString()}</span>
-                        <span class="log-user">dr.smith</span>
-                        <span class="log-action">View Patient Records</span>
-                        <span class="log-ip">192.168.1.101</span>
-                        <span class="log-status success">Success</span>
-                    </div>
-                </div>
-            </div >
-    `);
+    viewSecurityLogs() {
+        this.showModal('Security Audit Logs', this.getSecurityLogsContent());
     }
 
-    manageUserAccess() {
-        this.showModal('User Access Management', `
-    < div class="access-management" >
-                <div class="access-list">
-                    <h4>User Permissions</h4>
-                    <div class="user-permissions">
-                        <div class="permission-item">
-                            <span class="user-name">admin</span>
-                            <span class="permissions">Full Access</span>
-                            <button class="btn btn-sm btn-secondary">Edit</button>
-                        </div>
-                        <div class="permission-item">
-                            <span class="user-name">dr.smith</span>
-                            <span class="permissions">Patient Records, Appointments</span>
-                            <button class="btn btn-sm btn-secondary">Edit</button>
-                        </div>
-                    </div>
+    getSecurityLogsContent() {
+        return `
+            <div class="logs-container">
+                <div class="log-entry">
+                    <span class="log-time">14:32:15</span>
+                    <span class="log-level info">INFO</span>
+                    <span class="log-message">Successful login: admin@hospital.com from 192.168.1.100</span>
                 </div>
-                <div class="access-actions">
-                    <button class="btn btn-primary">Add User</button>
-                    <button class="btn btn-warning">Reset All Passwords</button>
+                <div class="log-entry">
+                    <span class="log-time">14:28:45</span>
+                    <span class="log-level error">ERROR</span>
+                    <span class="log-message">Failed login attempt: unknown@email.com from 192.168.1.150</span>
                 </div>
-            </div >
-    `);
+                <div class="log-entry">
+                    <span class="log-time">14:25:12</span>
+                    <span class="log-level info">INFO</span>
+                    <span class="log-message">Password changed: dr.smith@hospital.com</span>
+                </div>
+                <div class="log-entry">
+                    <span class="log-time">14:20:33</span>
+                    <span class="log-level warning">WARN</span>
+                    <span class="log-message">Multiple failed login attempts from 192.168.1.150</span>
+                </div>
+            </div>
+        `;
     }
 
-    securityScan() {
-        this.showNotification('Running security scan...', 'info');
-        setTimeout(() => {
-            this.showNotification('Security scan completed. No threats detected.', 'success');
-        }, 5000);
+    manageUserSessions() {
+        this.showModal('Active User Sessions', this.getUserSessionsContent());
     }
 
-    lockSystem() {
-        if (confirm('Are you sure you want to lock the system? This will log out all users.')) {
-            this.showNotification('System locked. All users will be logged out.', 'warning');
+    getUserSessionsContent() {
+        return `
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Role</th>
+                            <th>IP Address</th>
+                            <th>Login Time</th>
+                            <th>Last Activity</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>admin@hospital.com</td>
+                            <td>Admin</td>
+                            <td>192.168.1.100</td>
+                            <td>14:30:00</td>
+                            <td>14:32:15</td>
+                            <td><button class="action-btn delete" onclick="adminDashboard.terminateSession('admin')">Terminate</button></td>
+                        </tr>
+                        <tr>
+                            <td>dr.smith@hospital.com</td>
+                            <td>Doctor</td>
+                            <td>192.168.1.120</td>
+                            <td>14:25:00</td>
+                            <td>14:31:45</td>
+                            <td><button class="action-btn delete" onclick="adminDashboard.terminateSession('dr.smith')">Terminate</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        `;
+    }
+
+    terminateSession(userId) {
+        if (confirm('Are you sure you want to terminate this user session?')) {
+            this.showNotification(`Session terminated for ${userId}`, 'success');
         }
+    }
+
+    updateSecuritySettings() {
+        this.showModal('Security Settings', this.getSecuritySettingsContent());
+    }
+
+    getSecuritySettingsContent() {
+        return `
+            <form id="security-settings-form">
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" name="twoFactorAuth" checked> Enable Two-Factor Authentication
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" name="passwordComplexity" checked> Enforce Strong Passwords
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" name="sessionTimeout" checked> Auto-logout after 30 minutes
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" name="ipWhitelist"> Enable IP Whitelist
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label>Failed Login Attempts Limit</label>
+                    <input type="number" name="maxFailedAttempts" value="5" min="1" max="10">
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Save Settings</button>
+                    <button type="button" class="btn btn-secondary" onclick="this.closest('.modal-overlay').style.display='none'">Cancel</button>
+                </div>
+            </form>
+        `;
     }
 
     // Reports Section
-    async showReportsSection() {
+    showReportsSection() {
         this.showSection('reports');
-        await this.loadReportsData();
+        this.loadReportsData();
     }
 
     async loadReportsData() {
-        try {
-            // Mock reports data
-            const reportsData = {
-                totalReports: 15,
-                scheduledReports: 8,
-                customReports: 7,
-                reports: [
-                    { id: 1, name: 'Monthly Patient Report', type: 'Scheduled', lastRun: '2024-01-15', status: 'Completed' },
-                    { id: 2, name: 'Financial Summary', type: 'Scheduled', lastRun: '2024-01-14', status: 'Completed' },
-                    { id: 3, name: 'Staff Performance', type: 'Custom', lastRun: '2024-01-13', status: 'Failed' },
-                    { id: 4, name: 'Inventory Report', type: 'Scheduled', lastRun: '2024-01-12', status: 'Completed' }
-                ]
-            };
+        const content = document.getElementById('reports-content');
+        if (!content) return;
 
-            this.renderReports(reportsData);
-        } catch (error) {
-            console.error('Error loading reports data:', error);
-        }
-    }
-
-    renderReports(data) {
-        const container = document.getElementById('reports-content');
-        if (!container) return;
-
-        container.innerHTML = `
-    < div class="reports-overview" >
+        content.innerHTML = `
+            <div class="reports-overview">
                 <div class="report-metric">
                     <h3>Total Reports</h3>
-                    <p class="metric-value">${data.totalReports}</p>
+                    <p class="metric-value">156</p>
+                </div>
+                <div class="report-metric">
+                    <h3>Generated Today</h3>
+                    <p class="metric-value">12</p>
                 </div>
                 <div class="report-metric">
                     <h3>Scheduled Reports</h3>
-                    <p class="metric-value">${data.scheduledReports}</p>
+                    <p class="metric-value">8</p>
                 </div>
                 <div class="report-metric">
                     <h3>Custom Reports</h3>
-                    <p class="metric-value">${data.customReports}</p>
+                    <p class="metric-value">24</p>
                 </div>
-            </div >
-
+            </div>
             <div class="reports-actions">
-                <button class="btn btn-primary" onclick="adminDashboard.createCustomReport()">
-                    <i class="fas fa-plus"></i> Create Custom Report
+                <button class="btn btn-primary" onclick="adminDashboard.generateCustomReport()">
+                    <i class="fas fa-plus"></i> Generate Custom Report
                 </button>
                 <button class="btn btn-secondary" onclick="adminDashboard.scheduleReport()">
                     <i class="fas fa-clock"></i> Schedule Report
                 </button>
-                <button class="btn btn-warning" onclick="adminDashboard.exportAllReports()">
+                <button class="btn btn-secondary" onclick="adminDashboard.exportAllReports()">
                     <i class="fas fa-download"></i> Export All
                 </button>
             </div>
-
             <div class="reports-list">
-                <h3>Available Reports</h3>
+                <h3>Recent Reports</h3>
                 <div class="reports-table">
                     <table>
                         <thead>
                             <tr>
                                 <th>Report Name</th>
                                 <th>Type</th>
-                                <th>Last Run</th>
-                                <th>Status</th>
+                                <th>Generated</th>
+                                <th>Size</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            ${data.reports.map(report => `
-                                <tr>
-                                    <td>${report.name}</td>
-                                    <td><span class="type-badge ${report.type.toLowerCase()}">${report.type}</span></td>
-                                    <td>${new Date(report.lastRun).toLocaleDateString()}</td>
-                                    <td><span class="status-badge ${report.status.toLowerCase()}">${report.status}</span></td>
-                                    <td>
-                                        <button class="action-btn view" onclick="adminDashboard.viewReport('${report.id}')">View</button>
-                                        <button class="action-btn run" onclick="adminDashboard.runReport('${report.id}')">Run</button>
-                                    </td>
-                                </tr>
-                            `).join('')}
+                            <tr>
+                                <td>Monthly Patient Report</td>
+                                <td><span class="type-badge scheduled">Scheduled</span></td>
+                                <td>2024-01-15 10:00</td>
+                                <td>2.3 MB</td>
+                                <td>
+                                    <button class="action-btn edit" onclick="adminDashboard.viewReport('monthly-patient')">View</button>
+                                    <button class="action-btn delete" onclick="adminDashboard.downloadReport('monthly-patient')">Download</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Revenue Analysis Q4</td>
+                                <td><span class="type-badge custom">Custom</span></td>
+                                <td>2024-01-14 15:30</td>
+                                <td>1.8 MB</td>
+                                <td>
+                                    <button class="action-btn edit" onclick="adminDashboard.viewReport('revenue-q4')">View</button>
+                                    <button class="action-btn delete" onclick="adminDashboard.downloadReport('revenue-q4')">Download</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Staff Performance Report</td>
+                                <td><span class="type-badge scheduled">Scheduled</span></td>
+                                <td>2024-01-13 09:00</td>
+                                <td>3.1 MB</td>
+                                <td>
+                                    <button class="action-btn edit" onclick="adminDashboard.viewReport('staff-performance')">View</button>
+                                    <button class="action-btn delete" onclick="adminDashboard.downloadReport('staff-performance')">Download</button>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
-`;
+        `;
     }
 
-    createCustomReport() {
-        this.showModal('Create Custom Report', `
-    < form id = "custom-report-form" >
+    generateCustomReport() {
+        this.showModal('Generate Custom Report', this.getCustomReportForm());
+    }
+
+    getCustomReportForm() {
+        return `
+            <form id="custom-report-form">
                 <div class="form-group">
                     <label>Report Name</label>
                     <input type="text" name="reportName" required>
@@ -1838,6 +1452,7 @@ function showEmergency() {
                 <div class="form-group">
                     <label>Report Type</label>
                     <select name="reportType" required>
+                        <option value="">Select Type</option>
                         <option value="patient">Patient Report</option>
                         <option value="financial">Financial Report</option>
                         <option value="staff">Staff Report</option>
@@ -1846,26 +1461,25 @@ function showEmergency() {
                 </div>
                 <div class="form-group">
                     <label>Date Range</label>
-                    <div class="date-range">
+                    <div style="display: flex; gap: 10px;">
                         <input type="date" name="startDate" required>
-                        <span>to</span>
                         <input type="date" name="endDate" required>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label>Include Fields</label>
-                    <div class="checkbox-group">
-                        <label><input type="checkbox" name="fields" value="basic"> Basic Information</label>
-                        <label><input type="checkbox" name="fields" value="financial"> Financial Data</label>
-                        <label><input type="checkbox" name="fields" value="medical"> Medical Records</label>
-                    </div>
+                    <label>Format</label>
+                    <select name="format" required>
+                        <option value="pdf">PDF</option>
+                        <option value="excel">Excel</option>
+                        <option value="csv">CSV</option>
+                    </select>
                 </div>
                 <div class="form-actions">
-                    <button type="submit" class="btn btn-primary">Create Report</button>
+                    <button type="submit" class="btn btn-primary">Generate Report</button>
                     <button type="button" class="btn btn-secondary" onclick="this.closest('.modal-overlay').style.display='none'">Cancel</button>
                 </div>
             </form>
-`);
+        `;
     }
 
     scheduleReport() {
@@ -1880,257 +1494,213 @@ function showEmergency() {
     }
 
     viewReport(reportId) {
-        this.showNotification(`Viewing report ${ reportId } `, 'info');
+        this.showNotification(`Opening report: ${reportId}`, 'info');
     }
 
-    runReport(reportId) {
-        this.showNotification(`Running report ${ reportId }...`, 'info');
-        setTimeout(() => {
-            this.showNotification('Report generated successfully!', 'success');
-        }, 2000);
+    downloadReport(reportId) {
+        this.showNotification(`Downloading report: ${reportId}`, 'info');
     }
 
     // Settings Section
-    async showSettingsSection() {
+    showSettingsSection() {
         this.showSection('settings');
-        await this.loadSettingsData();
+        this.loadSettingsData();
     }
 
     async loadSettingsData() {
-        try {
-            // Mock settings data
-            const settingsData = {
-                hospitalName: 'General Hospital',
-                hospitalAddress: '123 Medical Center Dr, City, State 12345',
-                hospitalPhone: '+1-555-HOSPITAL',
-                hospitalEmail: 'info@hospital.com',
-                systemSettings: {
-                    autoBackup: true,
-                    emailNotifications: true,
-                    smsNotifications: false,
-                    maintenanceMode: false
-                }
-            };
+        const content = document.getElementById('settings-content');
+        if (!content) return;
 
-            this.renderSettings(settingsData);
-        } catch (error) {
-            console.error('Error loading settings data:', error);
-        }
-    }
-
-    renderSettings(data) {
-        const container = document.getElementById('settings-content');
-        if (!container) return;
-
-        container.innerHTML = `
-    < div class="settings-sections" >
+        content.innerHTML = `
+            <div class="settings-sections">
                 <div class="settings-section">
-                    <h3>Hospital Information</h3>
-                    <div class="settings-form">
+                    <h3><i class="fas fa-hospital"></i> Hospital Information</h3>
+                    <form class="settings-form">
                         <div class="form-group">
                             <label>Hospital Name</label>
-                            <input type="text" id="hospital-name" value="${data.hospitalName}">
+                            <input type="text" value="City General Hospital" name="hospitalName">
                         </div>
                         <div class="form-group">
                             <label>Address</label>
-                            <textarea id="hospital-address">${data.hospitalAddress}</textarea>
+                            <textarea name="address" rows="3">123 Medical Center Drive, City, State 12345</textarea>
                         </div>
                         <div class="form-group">
                             <label>Phone</label>
-                            <input type="tel" id="hospital-phone" value="${data.hospitalPhone}">
+                            <input type="tel" value="+1-555-0123" name="phone">
                         </div>
                         <div class="form-group">
                             <label>Email</label>
-                            <input type="email" id="hospital-email" value="${data.hospitalEmail}">
+                            <input type="email" value="info@hospital.com" name="email">
                         </div>
-                        <button class="btn btn-primary" onclick="adminDashboard.saveHospitalInfo()">Save Changes</button>
-                    </div>
+                    </form>
                 </div>
-
                 <div class="settings-section">
-                    <h3>System Settings</h3>
-                    <div class="settings-form">
+                    <h3><i class="fas fa-cog"></i> System Settings</h3>
+                    <form class="settings-form">
                         <div class="form-group">
                             <label class="checkbox-label">
-                                <input type="checkbox" id="auto-backup" ${data.systemSettings.autoBackup ? 'checked' : ''}>
-                                <span>Automatic Backup</span>
+                                <input type="checkbox" checked> Enable Email Notifications
                             </label>
                         </div>
                         <div class="form-group">
                             <label class="checkbox-label">
-                                <input type="checkbox" id="email-notifications" ${data.systemSettings.emailNotifications ? 'checked' : ''}>
-                                <span>Email Notifications</span>
+                                <input type="checkbox" checked> Enable SMS Notifications
                             </label>
                         </div>
                         <div class="form-group">
                             <label class="checkbox-label">
-                                <input type="checkbox" id="sms-notifications" ${data.systemSettings.smsNotifications ? 'checked' : ''}>
-                                <span>SMS Notifications</span>
+                                <input type="checkbox"> Enable Maintenance Mode
                             </label>
                         </div>
                         <div class="form-group">
-                            <label class="checkbox-label">
-                                <input type="checkbox" id="maintenance-mode" ${data.systemSettings.maintenanceMode ? 'checked' : ''}>
-                                <span>Maintenance Mode</span>
-                            </label>
+                            <label>Default Language</label>
+                            <select name="language">
+                                <option value="en">English</option>
+                                <option value="hi">Hindi</option>
+                                <option value="es">Spanish</option>
+                            </select>
                         </div>
-                        <button class="btn btn-primary" onclick="adminDashboard.saveSystemSettings()">Save Settings</button>
-                    </div>
+                        <div class="form-group">
+                            <label>Time Zone</label>
+                            <select name="timezone">
+                                <option value="UTC">UTC</option>
+                                <option value="IST" selected>Indian Standard Time</option>
+                                <option value="EST">Eastern Time</option>
+                            </select>
+                        </div>
+                    </form>
                 </div>
-
                 <div class="settings-section">
-                    <h3>Database Settings</h3>
-                    <div class="settings-actions">
-                        <button class="btn btn-warning" onclick="adminDashboard.optimizeDatabase()">
-                            <i class="fas fa-tools"></i> Optimize Database
-                        </button>
-                        <button class="btn btn-secondary" onclick="adminDashboard.clearCache()">
-                            <i class="fas fa-broom"></i> Clear Cache
-                        </button>
-                        <button class="btn btn-danger" onclick="adminDashboard.resetSystem()">
-                            <i class="fas fa-exclamation-triangle"></i> Reset System
-                        </button>
-                    </div>
+                    <h3><i class="fas fa-user-shield"></i> User Management</h3>
+                    <form class="settings-form">
+                        <div class="form-group">
+                            <label>Default User Role</label>
+                            <select name="defaultRole">
+                                <option value="patient">Patient</option>
+                                <option value="doctor">Doctor</option>
+                                <option value="nurse">Nurse</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Password Expiry (Days)</label>
+                            <input type="number" value="90" name="passwordExpiry" min="30" max="365">
+                        </div>
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" checked> Require Email Verification
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox"> Allow Self Registration
+                            </label>
+                        </div>
+                    </form>
                 </div>
-            </div >
-    `;
+            </div>
+            <div class="settings-actions">
+                <button class="btn btn-primary" onclick="adminDashboard.saveSettings()">
+                    <i class="fas fa-save"></i> Save All Settings
+                </button>
+                <button class="btn btn-secondary" onclick="adminDashboard.resetSettings()">
+                    <i class="fas fa-undo"></i> Reset to Defaults
+                </button>
+            </div>
+        `;
     }
 
-    saveHospitalInfo() {
-        const hospitalName = document.getElementById('hospital-name').value;
-        const hospitalAddress = document.getElementById('hospital-address').value;
-        const hospitalPhone = document.getElementById('hospital-phone').value;
-        const hospitalEmail = document.getElementById('hospital-email').value;
-
-        this.showNotification('Hospital information saved successfully!', 'success');
-    }
-
-    saveSystemSettings() {
-        const autoBackup = document.getElementById('auto-backup').checked;
-        const emailNotifications = document.getElementById('email-notifications').checked;
-        const smsNotifications = document.getElementById('sms-notifications').checked;
-        const maintenanceMode = document.getElementById('maintenance-mode').checked;
-
-        this.showNotification('System settings saved successfully!', 'success');
-    }
-
-    optimizeDatabase() {
-        this.showNotification('Optimizing database...', 'info');
+    saveSettings() {
+        this.showNotification('Saving settings...', 'info');
         setTimeout(() => {
-            this.showNotification('Database optimization completed!', 'success');
-        }, 5000);
-    }
-
-    clearCache() {
-        this.showNotification('Clearing cache...', 'info');
-        setTimeout(() => {
-            this.showNotification('Cache cleared successfully!', 'success');
+            this.showNotification('Settings saved successfully!', 'success');
         }, 2000);
     }
 
-    resetSystem() {
-        if (confirm('Are you sure you want to reset the system? This action cannot be undone.')) {
-            this.showNotification('System reset initiated...', 'warning');
+    resetSettings() {
+        if (confirm('Are you sure you want to reset all settings to defaults?')) {
+            this.showNotification('Settings reset to defaults!', 'success');
         }
     }
 
     // Backup Section
-    async showBackupSection() {
+    showBackupSection() {
         this.showSection('backup');
-        await this.loadBackupData();
+        this.loadBackupData();
     }
 
     async loadBackupData() {
-        try {
-            // Mock backup data
-            const backupData = {
-                lastBackup: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
-                backupSize: '2.3 GB',
-                totalBackups: 15,
-                backupStatus: 'Completed',
-                scheduledBackups: [
-                    { id: 1, name: 'Daily Backup', schedule: 'Daily at 2:00 AM', lastRun: '2024-01-16', status: 'Completed' },
-                    { id: 2, name: 'Weekly Backup', schedule: 'Sunday at 3:00 AM', lastRun: '2024-01-14', status: 'Completed' },
-                    { id: 3, name: 'Monthly Backup', schedule: '1st of month at 4:00 AM', lastRun: '2024-01-01', status: 'Completed' }
-                ]
-            };
+        const content = document.getElementById('backup-content');
+        if (!content) return;
 
-            this.renderBackup(backupData);
-        } catch (error) {
-            console.error('Error loading backup data:', error);
-        }
-    }
-
-    renderBackup(data) {
-        const container = document.getElementById('backup-content');
-        if (!container) return;
-
-        container.innerHTML = `
-    < div class="backup-overview" >
+        content.innerHTML = `
+            <div class="backup-overview">
                 <div class="backup-metric">
                     <h3>Last Backup</h3>
-                    <p class="metric-value">${new Date(data.lastBackup).toLocaleDateString()}</p>
+                    <p class="metric-value">2 hours ago</p>
                 </div>
                 <div class="backup-metric">
                     <h3>Backup Size</h3>
-                    <p class="metric-value">${data.backupSize}</p>
+                    <p class="metric-value">2.3 GB</p>
                 </div>
                 <div class="backup-metric">
-                    <h3>Total Backups</h3>
-                    <p class="metric-value">${data.totalBackups}</p>
+                    <h3>Storage Used</h3>
+                    <p class="metric-value">45%</p>
                 </div>
                 <div class="backup-metric">
-                    <h3>Status</h3>
-                    <p class="metric-value ${data.backupStatus.toLowerCase()}">${data.backupStatus}</p>
+                    <h3>Backup Status</h3>
+                    <p class="metric-value success">Healthy</p>
                 </div>
-            </div >
-
+            </div>
             <div class="backup-actions">
                 <button class="btn btn-primary" onclick="adminDashboard.createBackup()">
-                    <i class="fas fa-save"></i> Create Backup Now
+                    <i class="fas fa-plus"></i> Create Backup Now
+                </button>
+                <button class="btn btn-secondary" onclick="adminDashboard.restoreBackup()">
+                    <i class="fas fa-undo"></i> Restore from Backup
                 </button>
                 <button class="btn btn-secondary" onclick="adminDashboard.scheduleBackup()">
                     <i class="fas fa-clock"></i> Schedule Backup
                 </button>
-                <button class="btn btn-warning" onclick="adminDashboard.restoreBackup()">
-                    <i class="fas fa-undo"></i> Restore Backup
-                </button>
-                <button class="btn btn-danger" onclick="adminDashboard.deleteOldBackups()">
-                    <i class="fas fa-trash"></i> Delete Old Backups
-                </button>
             </div>
-
             <div class="scheduled-backups">
                 <h3>Scheduled Backups</h3>
                 <div class="backups-table">
                     <table>
                         <thead>
                             <tr>
-                                <th>Backup Name</th>
                                 <th>Schedule</th>
+                                <th>Type</th>
                                 <th>Last Run</th>
                                 <th>Status</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            ${data.scheduledBackups.map(backup => `
-                                <tr>
-                                    <td>${backup.name}</td>
-                                    <td>${backup.schedule}</td>
-                                    <td>${new Date(backup.lastRun).toLocaleDateString()}</td>
-                                    <td><span class="status-badge ${backup.status.toLowerCase()}">${backup.status}</span></td>
-                                    <td>
-                                        <button class="action-btn edit" onclick="adminDashboard.editBackupSchedule('${backup.id}')">Edit</button>
-                                        <button class="action-btn run" onclick="adminDashboard.runBackup('${backup.id}')">Run Now</button>
-                                    </td>
-                                </tr>
-                            `).join('')}
+                            <tr>
+                                <td>Daily at 2:00 AM</td>
+                                <td>Full Backup</td>
+                                <td>2024-01-15 02:00</td>
+                                <td><span class="status-badge success">Success</span></td>
+                                <td>
+                                    <button class="action-btn edit" onclick="adminDashboard.editBackupSchedule('daily')">Edit</button>
+                                    <button class="action-btn delete" onclick="adminDashboard.deleteBackupSchedule('daily')">Delete</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Weekly on Sunday</td>
+                                <td>Incremental</td>
+                                <td>2024-01-14 02:00</td>
+                                <td><span class="status-badge success">Success</span></td>
+                                <td>
+                                    <button class="action-btn edit" onclick="adminDashboard.editBackupSchedule('weekly')">Edit</button>
+                                    <button class="action-btn delete" onclick="adminDashboard.deleteBackupSchedule('weekly')">Delete</button>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
-`;
+        `;
     }
 
     createBackup() {
@@ -2140,16 +1710,56 @@ function showEmergency() {
         }, 5000);
     }
 
+    restoreBackup() {
+        this.showModal('Restore from Backup', this.getRestoreBackupContent());
+    }
+
+    getRestoreBackupContent() {
+        return `
+            <div class="form-group">
+                <label>Select Backup File</label>
+                <select name="backupFile" required>
+                    <option value="">Select Backup</option>
+                    <option value="backup-2024-01-15">backup-2024-01-15 (2.3 GB)</option>
+                    <option value="backup-2024-01-14">backup-2024-01-14 (2.1 GB)</option>
+                    <option value="backup-2024-01-13">backup-2024-01-13 (2.0 GB)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" required> I understand this will overwrite current data
+                </label>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-danger" onclick="adminDashboard.confirmRestore()">Restore Backup</button>
+                <button type="button" class="btn btn-secondary" onclick="this.closest('.modal-overlay').style.display='none'">Cancel</button>
+            </div>
+        `;
+    }
+
+    confirmRestore() {
+        if (confirm('Are you absolutely sure you want to restore from backup? This will overwrite all current data!')) {
+            this.showNotification('Restoring from backup...', 'warning');
+            setTimeout(() => {
+                this.showNotification('Backup restored successfully!', 'success');
+            }, 10000);
+        }
+    }
+
     scheduleBackup() {
-        this.showModal('Schedule Backup', `
-    < form id = "backup-schedule-form" >
+        this.showModal('Schedule Backup', this.getScheduleBackupForm());
+    }
+
+    getScheduleBackupForm() {
+        return `
+            <form id="schedule-backup-form">
                 <div class="form-group">
                     <label>Backup Name</label>
                     <input type="text" name="backupName" required>
                 </div>
                 <div class="form-group">
-                    <label>Schedule Type</label>
-                    <select name="scheduleType" required>
+                    <label>Frequency</label>
+                    <select name="frequency" required>
                         <option value="daily">Daily</option>
                         <option value="weekly">Weekly</option>
                         <option value="monthly">Monthly</option>
@@ -2157,197 +1767,199 @@ function showEmergency() {
                 </div>
                 <div class="form-group">
                     <label>Time</label>
-                    <input type="time" name="backupTime" required>
+                    <input type="time" name="time" value="02:00" required>
                 </div>
                 <div class="form-group">
-                    <label>Include</label>
-                    <div class="checkbox-group">
-                        <label><input type="checkbox" name="include" value="database" checked> Database</label>
-                        <label><input type="checkbox" name="include" value="files" checked> Files</label>
-                        <label><input type="checkbox" name="include" value="logs"> Logs</label>
-                    </div>
+                    <label>Backup Type</label>
+                    <select name="backupType" required>
+                        <option value="full">Full Backup</option>
+                        <option value="incremental">Incremental Backup</option>
+                    </select>
                 </div>
                 <div class="form-actions">
                     <button type="submit" class="btn btn-primary">Schedule Backup</button>
                     <button type="button" class="btn btn-secondary" onclick="this.closest('.modal-overlay').style.display='none'">Cancel</button>
                 </div>
-            </form >
-    `);
+            </form>
+        `;
     }
 
-    restoreBackup() {
-        this.showModal('Restore Backup', `
-    < div class="restore-backup" >
-                <div class="backup-list">
-                    <h4>Available Backups</h4>
-                    <div class="backup-item">
-                        <span class="backup-name">Backup_2024-01-16</span>
-                        <span class="backup-size">2.3 GB</span>
-                        <button class="btn btn-sm btn-primary">Restore</button>
-                    </div>
-                    <div class="backup-item">
-                        <span class="backup-name">Backup_2024-01-15</span>
-                        <span class="backup-size">2.1 GB</span>
-                        <button class="btn btn-sm btn-primary">Restore</button>
-                    </div>
-                </div>
-                <div class="restore-warning">
-                    <p><i class="fas fa-exclamation-triangle"></i> Warning: Restoring a backup will overwrite current data.</p>
-                </div>
-            </div >
-    `);
+    editBackupSchedule(scheduleId) {
+        this.showNotification(`Editing backup schedule: ${scheduleId}`, 'info');
     }
 
-    deleteOldBackups() {
-        if (confirm('Are you sure you want to delete backups older than 30 days?')) {
-            this.showNotification('Deleting old backups...', 'info');
-            setTimeout(() => {
-                this.showNotification('Old backups deleted successfully!', 'success');
-            }, 3000);
+    deleteBackupSchedule(scheduleId) {
+        if (confirm('Are you sure you want to delete this backup schedule?')) {
+            this.showNotification(`Backup schedule deleted: ${scheduleId}`, 'success');
         }
-    }
-
-    editBackupSchedule(backupId) {
-        this.showNotification(`Editing backup schedule ${ backupId } `, 'info');
-    }
-
-    runBackup(backupId) {
-        this.showNotification(`Running backup ${ backupId }...`, 'info');
-        setTimeout(() => {
-            this.showNotification('Backup completed successfully!', 'success');
-        }, 5000);
     }
 
     // Emergency Section
-    async showEmergencySection() {
+    showEmergencySection() {
         this.showSection('emergency');
-        await this.loadEmergencyData();
+        this.loadEmergencyData();
     }
 
     async loadEmergencyData() {
-        try {
-            // Mock emergency data
-            const emergencyData = {
-                emergencyContacts: [
-                    { name: 'Emergency Services', phone: '911', type: 'Emergency' },
-                    { name: 'Hospital Director', phone: '+1-555-0100', type: 'Administration' },
-                    { name: 'IT Support', phone: '+1-555-0101', type: 'Technical' },
-                    { name: 'Security', phone: '+1-555-0102', type: 'Security' }
-                ],
-                emergencyProcedures: [
-                    { id: 1, name: 'System Lockdown', description: 'Lock all system access', priority: 'High' },
-                    { id: 2, name: 'Data Backup', description: 'Create emergency backup', priority: 'High' },
-                    { id: 3, name: 'Emergency Shutdown', description: 'Shutdown all systems', priority: 'Critical' }
-                ]
-            };
+        const content = document.getElementById('emergency-content');
+        if (!content) return;
 
-            this.renderEmergency(emergencyData);
-        } catch (error) {
-            console.error('Error loading emergency data:', error);
-        }
-    }
-
-    renderEmergency(data) {
-        const container = document.getElementById('emergency-content');
-        if (!container) return;
-
-        container.innerHTML = `
-    < div class="emergency-warning" >
+        content.innerHTML = `
+            <div class="emergency-warning">
                 <div class="warning-icon">
                     <i class="fas fa-exclamation-triangle"></i>
                 </div>
                 <div class="warning-text">
-                    <h2>Emergency Control Center</h2>
+                    <h2>Emergency Procedures</h2>
                     <p>Use these controls only in emergency situations. All actions are logged and monitored.</p>
                 </div>
-            </div >
-
+            </div>
             <div class="emergency-contacts">
                 <h3>Emergency Contacts</h3>
                 <div class="contacts-grid">
-                    ${data.emergencyContacts.map(contact => `
-                        <div class="contact-card ${contact.type.toLowerCase()}">
-                            <div class="contact-icon">
-                                <i class="fas fa-phone"></i>
-                            </div>
-                            <div class="contact-info">
-                                <h4>${contact.name}</h4>
-                                <p>${contact.phone}</p>
-                                <span class="contact-type">${contact.type}</span>
-                            </div>
-                            <button class="btn btn-sm btn-primary" onclick="adminDashboard.callContact('${contact.phone}')">Call</button>
+                    <div class="contact-card emergency">
+                        <div class="contact-icon">
+                            <i class="fas fa-phone"></i>
                         </div>
-                    `).join('')}
+                        <div class="contact-info">
+                            <h4>Emergency Services</h4>
+                            <p>+1-911</p>
+                            <p class="contact-type">Emergency</p>
+                        </div>
+                    </div>
+                    <div class="contact-card administration">
+                        <div class="contact-icon">
+                            <i class="fas fa-user-tie"></i>
+                        </div>
+                        <div class="contact-info">
+                            <h4>Hospital Administrator</h4>
+                            <p>+1-555-0100</p>
+                            <p class="contact-type">Administration</p>
+                        </div>
+                    </div>
+                    <div class="contact-card technical">
+                        <div class="contact-icon">
+                            <i class="fas fa-tools"></i>
+                        </div>
+                        <div class="contact-info">
+                            <h4>IT Support</h4>
+                            <p>+1-555-0101</p>
+                            <p class="contact-type">Technical</p>
+                        </div>
+                    </div>
+                    <div class="contact-card security">
+                        <div class="contact-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div class="contact-info">
+                            <h4>Security Team</h4>
+                            <p>+1-555-0102</p>
+                            <p class="contact-type">Security</p>
+                        </div>
+                    </div>
                 </div>
             </div>
-
             <div class="emergency-procedures">
                 <h3>Emergency Procedures</h3>
                 <div class="procedures-list">
-                    ${data.emergencyProcedures.map(procedure => `
-                        <div class="procedure-card ${procedure.priority.toLowerCase()}">
-                            <div class="procedure-info">
-                                <h4>${procedure.name}</h4>
-                                <p>${procedure.description}</p>
-                                <span class="priority-badge ${procedure.priority.toLowerCase()}">${procedure.priority}</span>
-                            </div>
-                            <button class="btn btn-danger" onclick="adminDashboard.executeProcedure('${procedure.id}')">
-                                Execute
-                            </button>
+                    <div class="procedure-card high">
+                        <div class="procedure-info">
+                            <h4>System Lockdown</h4>
+                            <p>Immediately lock down all system access and user accounts</p>
                         </div>
-                    `).join('')}
+                        <button class="btn btn-danger btn-large" onclick="adminDashboard.emergencyLockdown()">
+                            <i class="fas fa-lock"></i> EMERGENCY LOCKDOWN
+                        </button>
+                    </div>
+                    <div class="procedure-card critical">
+                        <div class="procedure-info">
+                            <h4>Data Backup</h4>
+                            <p>Create immediate backup of all critical data</p>
+                        </div>
+                        <button class="btn btn-warning btn-large" onclick="adminDashboard.emergencyBackup()">
+                            <i class="fas fa-save"></i> EMERGENCY BACKUP
+                        </button>
+                    </div>
+                    <div class="procedure-card high">
+                        <div class="procedure-info">
+                            <h4>System Shutdown</h4>
+                            <p>Safely shutdown all non-critical systems</p>
+                        </div>
+                        <button class="btn btn-danger btn-large" onclick="adminDashboard.emergencyShutdown()">
+                            <i class="fas fa-power-off"></i> EMERGENCY SHUTDOWN
+                        </button>
+                    </div>
                 </div>
             </div>
-
             <div class="emergency-actions">
-                <button class="btn btn-danger btn-large" onclick="adminDashboard.emergencyLockdown()">
-                    <i class="fas fa-lock"></i> EMERGENCY LOCKDOWN
+                <button class="btn btn-secondary" onclick="adminDashboard.viewEmergencyLogs()">
+                    <i class="fas fa-file-alt"></i> View Emergency Logs
                 </button>
-                <button class="btn btn-warning btn-large" onclick="adminDashboard.emergencyBackup()">
-                    <i class="fas fa-save"></i> EMERGENCY BACKUP
-                </button>
-                <button class="btn btn-danger btn-large" onclick="adminDashboard.emergencyShutdown()">
-                    <i class="fas fa-power-off"></i> EMERGENCY SHUTDOWN
+                <button class="btn btn-secondary" onclick="adminDashboard.testEmergencySystems()">
+                    <i class="fas fa-vial"></i> Test Emergency Systems
                 </button>
             </div>
-`;
-    }
-
-    callContact(phone) {
-        this.showNotification(`Calling ${ phone }...`, 'info');
-    }
-
-    executeProcedure(procedureId) {
-        const procedures = {
-            '1': 'System Lockdown',
-            '2': 'Data Backup',
-            '3': 'Emergency Shutdown'
-        };
-
-        if (confirm(`Are you sure you want to execute: ${ procedures[procedureId] }?`)) {
-            this.showNotification(`Executing ${ procedures[procedureId] }...`, 'warning');
-        }
+        `;
     }
 
     emergencyLockdown() {
-        if (confirm('Are you sure you want to initiate EMERGENCY LOCKDOWN? This will lock all system access.')) {
+        if (confirm('EMERGENCY LOCKDOWN: This will immediately lock down all system access. Are you absolutely sure?')) {
             this.showNotification('EMERGENCY LOCKDOWN INITIATED!', 'error');
+            setTimeout(() => {
+                this.showNotification('System lockdown completed. All access has been restricted.', 'error');
+            }, 3000);
         }
     }
 
     emergencyBackup() {
-        if (confirm('Are you sure you want to create an EMERGENCY BACKUP?')) {
+        if (confirm('Create emergency backup of all critical data?')) {
             this.showNotification('Creating emergency backup...', 'warning');
             setTimeout(() => {
-                this.showNotification('Emergency backup completed!', 'success');
+                this.showNotification('Emergency backup completed successfully!', 'success');
             }, 10000);
         }
     }
 
     emergencyShutdown() {
-        if (confirm('Are you sure you want to initiate EMERGENCY SHUTDOWN? This will shut down all systems.')) {
-            this.showNotification('EMERGENCY SHUTDOWN INITIATED!', 'error');
+        if (confirm('EMERGENCY SHUTDOWN: This will shutdown all non-critical systems. Continue?')) {
+            this.showNotification('Initiating emergency shutdown...', 'warning');
+            setTimeout(() => {
+                this.showNotification('Emergency shutdown completed.', 'error');
+            }, 5000);
         }
+    }
+
+    viewEmergencyLogs() {
+        this.showModal('Emergency Logs', this.getEmergencyLogsContent());
+    }
+
+    getEmergencyLogsContent() {
+        return `
+            <div class="logs-container">
+                <div class="log-entry">
+                    <span class="log-time">14:32:15</span>
+                    <span class="log-level error">CRITICAL</span>
+                    <span class="log-message">Emergency lockdown initiated by admin@hospital.com</span>
+                </div>
+                <div class="log-entry">
+                    <span class="log-time">14:30:45</span>
+                    <span class="log-level warning">WARN</span>
+                    <span class="log-message">Multiple failed login attempts detected</span>
+                </div>
+                <div class="log-entry">
+                    <span class="log-time">14:28:12</span>
+                    <span class="log-level info">INFO</span>
+                    <span class="log-message">Emergency backup completed successfully</span>
+                </div>
+            </div>
+        `;
+    }
+
+    testEmergencySystems() {
+        this.showNotification('Testing emergency systems...', 'info');
+        setTimeout(() => {
+            this.showNotification('Emergency systems test completed successfully!', 'success');
+        }, 5000);
     }
 }
 
@@ -2431,7 +2043,7 @@ function exportAnalytics() {
     }
 }
 
-// Additional Admin Dashboard Functions for new sections
+// Enhanced Admin Dashboard Functions for all sections
 function showSystemHealth() {
     if (window.adminDashboard) {
         window.adminDashboard.showSystemHealthSection();

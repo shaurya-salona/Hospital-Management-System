@@ -1,3 +1,5 @@
+const express = require('express');
+const router = express.Router();
 
 router.get('/stats', async (req, res) => {
   try {
@@ -8,12 +10,7 @@ router.get('/stats', async (req, res) => {
       patients_counseled: 35,
       follow_up_required: 12,
       average_duration: 18,
-      top_medications: [
-        { medication: 'Lisinopril', count: 8 },
-        { medication: 'Metformin', count: 6 },
-        { medication: 'Warfarin', count: 5 },
-        { medication: 'Atorvastatin', count: 4 }
-      ]
+      satisfaction_score: 4.2
     };
 
     res.json({
@@ -29,95 +26,40 @@ router.get('/stats', async (req, res) => {
   }
 });
 
-module.exports = router;
-
-const express = require('express');
-const router = express.Router();
-const { authenticateToken, staffOnly } = require('../middlewares/auth');
-const { body, param, query } = require('express-validator');
-
-// Validation middleware
-const validateCounseling = [
-  body('patientId').isUUID().withMessage('Valid patient ID is required'),
-  body('medication').notEmpty().withMessage('Medication name is required'),
-  body('date').isISO8601().withMessage('Valid date is required'),
-  body('duration').isInt({ min: 5, max: 120 }).withMessage('Duration must be between 5 and 120 minutes'),
-  body('notes').notEmpty().withMessage('Counseling notes are required'),
-  body('followUpRequired').optional().isBoolean().withMessage('Follow-up required must be a boolean')
-];
-
-const validateId = [
-  param('id').isUUID().withMessage('Valid counseling session ID is required')
-];
-
-const validatePagination = [
-  query('page').optional().isInt({ min: 1 }).withMessage('Page must be a positive integer'),
-  query('limit').optional().isInt({ min: 1, max: 100 }).withMessage('Limit must be between 1 and 100'),
-  query('status').optional().isIn(['completed', 'scheduled', 'follow-up-required']).withMessage('Invalid status filter'),
-  query('patientId').optional().isUUID().withMessage('Valid patient ID filter is required')
-];
-
-// All routes require authentication and staff access
-router.use(authenticateToken);
-router.use(staffOnly);
-
-// GET /api/counseling - Get all counseling sessions
-router.get('/', validatePagination, async (req, res) => {
+// GET /api/counseling/sessions - Get all counseling sessions
+router.get('/sessions', async (req, res) => {
   try {
-    const { page = 1, limit = 10, status, patientId } = req.query;
-
-    // Mock data for now - replace with actual database queries
-    const mockCounseling = [
+    // Mock counseling sessions data - replace with actual database queries
+    const sessions = [
       {
         id: '1',
-        patient_id: '1',
+        patient_id: 'P001',
         patient_name: 'John Doe',
-        medication: 'Lisinopril 10mg',
-        date: '2024-01-15T10:00:00Z',
-        duration: 15,
-        notes: 'Explained proper administration, side effects, and importance of regular monitoring',
-        status: 'completed',
-        follow_up_required: false,
-        pharmacist_name: 'Sarah Davis',
-        created_at: new Date().toISOString()
+        counselor_id: 'C001',
+        counselor_name: 'Dr. Smith',
+        session_date: '2024-01-15',
+        duration: 45,
+        type: 'Individual',
+        status: 'Completed',
+        notes: 'Patient showed good progress in managing anxiety'
       },
       {
         id: '2',
-        patient_id: '2',
+        patient_id: 'P002',
         patient_name: 'Jane Smith',
-        medication: 'Metformin 500mg',
-        date: '2024-01-15T11:00:00Z',
-        duration: 20,
-        notes: 'Discussed diabetes management, medication timing, and lifestyle modifications',
-        status: 'completed',
-        follow_up_required: true,
-        pharmacist_name: 'Sarah Davis',
-        created_at: new Date().toISOString()
-      },
-      {
-        id: '3',
-        patient_id: '3',
-        patient_name: 'Mike Johnson',
-        medication: 'Warfarin 5mg',
-        date: '2024-01-16T09:00:00Z',
-        duration: 25,
-        notes: 'Scheduled for tomorrow - will discuss blood thinning medication and monitoring',
-        status: 'scheduled',
-        follow_up_required: false,
-        pharmacist_name: 'Sarah Davis',
-        created_at: new Date().toISOString()
+        counselor_id: 'C002',
+        counselor_name: 'Dr. Johnson',
+        session_date: '2024-01-15',
+        duration: 30,
+        type: 'Group',
+        status: 'Scheduled',
+        notes: 'Group therapy session for depression management'
       }
     ];
 
     res.json({
       success: true,
-      data: mockCounseling,
-      pagination: {
-        page: parseInt(page),
-        limit: parseInt(limit),
-        total: mockCounseling.length,
-        pages: Math.ceil(mockCounseling.length / limit)
-      }
+      data: sessions
     });
   } catch (error) {
     res.status(500).json({
@@ -128,57 +70,28 @@ router.get('/', validatePagination, async (req, res) => {
   }
 });
 
-// GET /api/counseling/:id - Get counseling session by ID
-router.get('/:id', validateId, async (req, res) => {
+// POST /api/counseling/sessions - Create new counseling session
+router.post('/sessions', async (req, res) => {
   try {
-    const { id } = req.params;
-    
-    // Mock data - replace with actual database query
-    const session = {
-      id,
-      patient_id: '1',
-      patient_name: 'John Doe',
-      medication: 'Lisinopril 10mg',
-      date: '2024-01-15T10:00:00Z',
-      duration: 15,
-      notes: 'Explained proper administration, side effects, and importance of regular monitoring',
-      status: 'completed',
-      follow_up_required: false,
-      pharmacist_name: 'Sarah Davis',
-      created_at: new Date().toISOString()
-    };
+    const { patient_id, counselor_id, session_date, duration, type, notes } = req.body;
 
-    res.json({
-      success: true,
-      data: session
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Error fetching counseling session',
-      error: error.message
-    });
-  }
-});
-
-// POST /api/counseling - Create new counseling session
-router.post('/', validateCounseling, async (req, res) => {
-  try {
-    const counselingData = req.body;
-    
-    // Mock creation - replace with actual database insert
+    // Mock session creation - replace with actual database insertion
     const newSession = {
       id: Date.now().toString(),
-      ...counselingData,
-      status: 'completed',
-      pharmacist_name: req.user.username || 'Current Pharmacist',
+      patient_id,
+      counselor_id,
+      session_date,
+      duration,
+      type,
+      status: 'Scheduled',
+      notes,
       created_at: new Date().toISOString()
     };
 
     res.status(201).json({
       success: true,
-      data: newSession,
-      message: 'Counseling session created successfully'
+      message: 'Counseling session created successfully',
+      data: newSession
     });
   } catch (error) {
     res.status(500).json({
@@ -189,23 +102,29 @@ router.post('/', validateCounseling, async (req, res) => {
   }
 });
 
-// PUT /api/counseling/:id - Update counseling session
-router.put('/:id', validateId, validateCounseling, async (req, res) => {
+// PUT /api/counseling/sessions/:id - Update counseling session
+router.put('/sessions/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const updateData = req.body;
-    
-    // Mock update - replace with actual database update
+    const { patient_id, counselor_id, session_date, duration, type, status, notes } = req.body;
+
+    // Mock session update - replace with actual database update
     const updatedSession = {
       id,
-      ...updateData,
+      patient_id,
+      counselor_id,
+      session_date,
+      duration,
+      type,
+      status,
+      notes,
       updated_at: new Date().toISOString()
     };
 
     res.json({
       success: true,
-      data: updatedSession,
-      message: 'Counseling session updated successfully'
+      message: 'Counseling session updated successfully',
+      data: updatedSession
     });
   } catch (error) {
     res.status(500).json({
@@ -216,82 +135,131 @@ router.put('/:id', validateId, validateCounseling, async (req, res) => {
   }
 });
 
-// GET /api/counseling/patient/:patientId - Get patient's counseling history
-router.get('/patient/:patientId', [
-  param('patientId').isUUID().withMessage('Valid patient ID is required'),
-  query('medication').optional().isString()
-], async (req, res) => {
+// DELETE /api/counseling/sessions/:id - Delete counseling session
+router.delete('/sessions/:id', async (req, res) => {
   try {
-    const { patientId } = req.params;
-    const { medication } = req.query;
+    const { id } = req.params;
 
-    // Mock patient counseling history - replace with actual database query
-    const history = [
-      {
-        id: '1',
-        medication: 'Lisinopril 10mg',
-        date: '2024-01-15T10:00:00Z',
-        duration: 15,
-        notes: 'Explained proper administration, side effects, and importance of regular monitoring',
-        status: 'completed',
-        follow_up_required: false,
-        pharmacist_name: 'Sarah Davis'
-      },
-      {
-        id: '2',
-        medication: 'Metformin 500mg',
-        date: '2024-01-10T14:00:00Z',
-        duration: 20,
-        notes: 'Discussed diabetes management and medication timing',
-        status: 'completed',
-        follow_up_required: true,
-        pharmacist_name: 'Sarah Davis'
-      }
-    ];
-
+    // Mock session deletion - replace with actual database deletion
     res.json({
       success: true,
-      data: {
-        patient_id: patientId,
-        counseling_history: history,
-        total_sessions: history.length
-      }
+      message: 'Counseling session deleted successfully'
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Error fetching patient counseling history',
+      message: 'Error deleting counseling session',
       error: error.message
     });
   }
 });
 
-// GET /api/counseling/stats - Get counseling statistics
-router.get('/stats', async (req, res) => {
+// GET /api/counseling/patients/:id/sessions - Get sessions for specific patient
+router.get('/patients/:id/sessions', async (req, res) => {
   try {
-    // Mock counseling statistics - replace with actual database queries
-    const stats = {
+    const { id } = req.params;
+
+    // Mock patient sessions - replace with actual database queries
+    const patientSessions = [
+      {
+        id: '1',
+        patient_id: id,
+        counselor_id: 'C001',
+        counselor_name: 'Dr. Smith',
+        session_date: '2024-01-15',
+        duration: 45,
+        type: 'Individual',
+        status: 'Completed',
+        notes: 'Patient showed good progress in managing anxiety'
+      }
+    ];
+
+    res.json({
+      success: true,
+      data: patientSessions
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching patient counseling sessions',
+      error: error.message
+    });
+  }
+});
+
+// GET /api/counseling/counselors - Get all counselors
+router.get('/counselors', async (req, res) => {
+  try {
+    // Mock counselors data - replace with actual database queries
+    const counselors = [
+      {
+        id: 'C001',
+        name: 'Dr. Smith',
+        specialization: 'Anxiety and Depression',
+        experience_years: 8,
+        patients_count: 25,
+        rating: 4.5
+      },
+      {
+        id: 'C002',
+        name: 'Dr. Johnson',
+        specialization: 'Group Therapy',
+        experience_years: 12,
+        patients_count: 40,
+        rating: 4.8
+      }
+    ];
+
+    res.json({
+      success: true,
+      data: counselors
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching counselors',
+      error: error.message
+    });
+  }
+});
+
+// GET /api/counseling/reports - Get counseling reports
+router.get('/reports', async (req, res) => {
+  try {
+    const { period = 'month' } = req.query;
+
+    // Mock counseling reports - replace with actual database queries
+    const reports = {
+      period,
       total_sessions: 45,
-      sessions_today: 8,
-      patients_counseled: 35,
-      follow_up_required: 12,
+      completed_sessions: 42,
+      cancelled_sessions: 3,
       average_duration: 18,
-      top_medications: [
-        { medication: 'Lisinopril', count: 8 },
-        { medication: 'Metformin', count: 6 },
-        { medication: 'Warfarin', count: 5 },
-        { medication: 'Atorvastatin', count: 4 }
+      patient_satisfaction: 4.2,
+      counselor_performance: [
+        {
+          counselor_id: 'C001',
+          counselor_name: 'Dr. Smith',
+          sessions_count: 20,
+          average_rating: 4.5
+        },
+        {
+          counselor_id: 'C002',
+          counselor_name: 'Dr. Johnson',
+          sessions_count: 25,
+          average_rating: 4.8
+        }
       ]
     };
 
     res.json({
       success: true,
-      data: stats
+      data: reports
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Error fetching counseling statistics',
+      message: 'Error generating counseling reports',
       error: error.message
     });
   }

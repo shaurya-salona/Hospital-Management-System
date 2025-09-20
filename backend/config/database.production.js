@@ -1,115 +1,289 @@
 const { Pool } = require('pg');
-const config = require('./config');
-const logger = require('./logger');
+const { logger } = require('./logger');
 
-// Production PostgreSQL Configuration
+// Production database configuration
 const productionConfig = {
-  user: config.database.user,
-  host: config.database.host,
-  database: config.database.name,
-  password: config.database.password,
-  port: config.database.port,
-  ssl: config.database.ssl ? { rejectUnauthorized: false } : false,
-  max: 20, // Maximum number of clients in the pool
-  idleTimeoutMillis: 30000, // Close idle clients after 30 seconds
-  connectionTimeoutMillis: 2000, // Return an error after 2 seconds if connection could not be established
-  statement_timeout: 30000, // Terminate any statement that takes more than 30 seconds
-  query_timeout: 30000, // Terminate any query that takes more than 30 seconds
+  // Connection settings
+  host: process.env.DB_HOST || 'localhost',
+  port: parseInt(process.env.DB_PORT) || 5432,
+  database: process.env.DB_NAME || 'hmis_production',
+  user: process.env.DB_USER || 'hmis_user',
+  password: process.env.DB_PASSWORD,
+
+  // Connection pool settings
+  max: parseInt(process.env.DB_MAX_CONNECTIONS) || 20,
+  min: parseInt(process.env.DB_MIN_CONNECTIONS) || 5,
+  idleTimeoutMillis: parseInt(process.env.DB_IDLE_TIMEOUT) || 30000,
+  connectionTimeoutMillis: parseInt(process.env.DB_CONNECTION_TIMEOUT) || 2000,
+
+  // SSL settings for production
+  ssl: process.env.NODE_ENV === 'production' ? {
+    rejectUnauthorized: process.env.DB_SSL_REJECT_UNAUTHORIZED !== 'false',
+    ca: process.env.DB_SSL_CA,
+    cert: process.env.DB_SSL_CERT,
+    key: process.env.DB_SSL_KEY
+  } : false,
+
+  // Query timeout
+  query_timeout: parseInt(process.env.DB_QUERY_TIMEOUT) || 30000,
+
+  // Application name for monitoring
+  application_name: 'HMIS-Backend',
+
+  // Statement timeout
+  statement_timeout: parseInt(process.env.DB_STATEMENT_TIMEOUT) || 30000,
+
+  // Keep alive settings
+  keepAlive: true,
+  keepAliveInitialDelayMillis: 10000
 };
 
-// Create production database pool
-const pool = new Pool(productionConfig);
+// Create production pool
+let pool;
 
-// Handle pool errors
-pool.on('error', (err) => {
-  logger.error('Unexpected error on idle client', err);
-  process.exit(-1);
-});
+try {
+  pool = new Pool(productionConfig);
 
-// Test database connection
+  // Handle pool errors
+  pool.on('error', (err) => {
+    logger.error('Unexpected error on idle client', {
+      error: err.message,
+      stack: err.stack,
+      timestamp: new Date().toISOString()
+    });
+  });
+
+  // Handle pool connect
+  pool.on('connect', (client) => {
+    logger.info('New client connected to database', {
+      totalCount: pool.totalCount,
+      idleCount: pool.idleCount,
+      waitingCount: pool.waitingCount
+    });
+  });
+
+  // Handle pool acquire
+  pool.on('acquire', (client) => {
+    logger.debug('Client acquired from pool', {
+      totalCount: pool.totalCount,
+      idleCount: pool.idleCount,
+      waitingCount: pool.waitingCount
+    });
+  });
+
+  // Handle pool remove
+  pool.on('remove', (client) => {
+    logger.info('Client removed from pool', {
+      totalCount: pool.totalCount,
+      idleCount: pool.idleCount,
+      waitingCount: pool.waitingCount
+    });
+  });
+
+  logger.info('Production database pool created successfully', {
+    host: productionConfig.host,
+    port: productionConfig.port,
+    database: productionConfig.database,
+    maxConnections: productionConfig.max,
+    ssl: !!productionConfig.ssl
+  });
+
+} catch (error) {
+  logger.error('Failed to create production database pool', {
+    error: error.message,
+    stack: error.stack,
+    config: {
+      host: productionConfig.host,
+      port: productionConfig.port,
+      database: productionConfig.database
+    }
+  });
+  throw error;
+}
+
+// Enhanced query function with retry logic
+const queryWithRetry = async (text, params, retries = 3) => {
+  let lastError;
+
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      const start = Date.now();
+      const result = await pool.query(text, params);
+      const duration = Date.now() - start;
+
+      logger.debug('Database query executed', {
+        query: text.substring(0, 100) + (text.length > 100 ? '...' : ''),
+        duration: `${duration}ms`,
+        rowCount: result.rowCount,
+        attempt
+      });
+
+      return result;
+    } catch (error) {
+      lastError = error;
+
+      logger.warn('Database query failed', {
+        query: text.substring(0, 100) + (text.length > 100 ? '...' : ''),
+        error: error.message,
+        attempt,
+        maxRetries: retries
+      });
+
+      // Don't retry on certain errors
+      if (error.code === '42P01' || // relation does not exist
+          error.code === '42703' || // column does not exist
+          error.code === '23505' || // unique violation
+          error.code === '23503') { // foreign key violation
+        break;
+      }
+
+      // Wait before retry (exponential backoff)
+      if (attempt < retries) {
+        const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    }
+  }
+
+  logger.error('Database query failed after all retries', {
+    query: text.substring(0, 100) + (text.length > 100 ? '...' : ''),
+    error: lastError.message,
+    maxRetries: retries
+  });
+
+  throw lastError;
+};
+
+// Health check function
+const healthCheck = async () => {
+  try {
+    const start = Date.now();
+    const result = await pool.query('SELECT NOW() as current_time, version() as version');
+    const duration = Date.now() - start;
+
+    return {
+      status: 'healthy',
+      responseTime: duration,
+      currentTime: result.rows[0].current_time,
+      version: result.rows[0].version,
+      poolStats: {
+        totalCount: pool.totalCount,
+        idleCount: pool.idleCount,
+        waitingCount: pool.waitingCount
+      }
+    };
+  } catch (error) {
+    logger.error('Database health check failed', {
+      error: error.message,
+      stack: error.stack
+    });
+
+    return {
+      status: 'unhealthy',
+      error: error.message,
+      poolStats: {
+        totalCount: pool.totalCount,
+        idleCount: pool.idleCount,
+        waitingCount: pool.waitingCount
+      }
+    };
+  }
+};
+
+// Connection test function
 const testConnection = async () => {
   try {
     const client = await pool.connect();
-    const result = await client.query('SELECT NOW()');
+    const result = await client.query('SELECT 1 as test');
     client.release();
-    logger.info('✅ PostgreSQL connection established successfully');
-    logger.info(`Database time: ${result.rows[0].now}`);
-    return true;
-  } catch (err) {
-    logger.error('❌ Failed to connect to PostgreSQL database:', err.message);
-    return false;
-  }
-};
 
-// Initialize database schema
-const initializeDatabase = async () => {
-  try {
-    const client = await pool.connect();
-    
-    // Read and execute schema
-    const fs = require('fs');
-    const path = require('path');
-    const schemaPath = path.join(__dirname, '..', 'schema.sql');
-    const schema = fs.readFileSync(schemaPath, 'utf8');
-    
-    await client.query(schema);
-    client.release();
-    
-    logger.info('✅ Database schema initialized successfully');
+    logger.info('Database connection test successful');
     return true;
-  } catch (err) {
-    logger.error('❌ Failed to initialize database schema:', err.message);
-    return false;
-  }
-};
-
-// Seed demo data
-const seedDemoData = async () => {
-  try {
-    const client = await pool.connect();
-    
-    // Check if data already exists
-    const result = await client.query('SELECT COUNT(*) FROM users');
-    if (result.rows[0].count > 0) {
-      logger.info('Database already contains data, skipping seed');
-      client.release();
-      return true;
-    }
-    
-    // Read and execute seed data
-    const fs = require('fs');
-    const path = require('path');
-    const seedPath = path.join(__dirname, '..', 'scripts', 'seedDemoData.js');
-    
-    // Execute seed script
-    const { exec } = require('child_process');
-    exec(`node ${seedPath}`, (error, stdout, stderr) => {
-      if (error) {
-        logger.error('Seed data execution error:', error);
-        return;
-      }
-      logger.info('✅ Demo data seeded successfully');
+  } catch (error) {
+    logger.error('Database connection test failed', {
+      error: error.message,
+      stack: error.stack
     });
-    
-    client.release();
-    return true;
-  } catch (err) {
-    logger.error('❌ Failed to seed demo data:', err.message);
     return false;
   }
 };
 
-module.exports = {
-  pool,
-  testConnection,
-  initializeDatabase,
-  seedDemoData,
-  query: (text, params) => pool.query(text, params),
-  getClient: () => pool.connect(),
-  end: () => pool.end()
+// Graceful shutdown function
+const closePool = async () => {
+  try {
+    logger.info('Closing database pool...');
+    await pool.end();
+    logger.info('Database pool closed successfully');
+  } catch (error) {
+    logger.error('Error closing database pool', {
+      error: error.message,
+      stack: error.stack
+    });
+  }
 };
 
+// Transaction helper
+const withTransaction = async (callback) => {
+  const client = await pool.connect();
 
+  try {
+    await client.query('BEGIN');
+    const result = await callback(client);
+    await client.query('COMMIT');
+    return result;
+  } catch (error) {
+    await client.query('ROLLBACK');
+    throw error;
+  } finally {
+    client.release();
+  }
+};
 
+// Batch insert helper
+const batchInsert = async (table, columns, values, batchSize = 1000) => {
+  if (values.length === 0) return [];
 
+  const results = [];
 
+  for (let i = 0; i < values.length; i += batchSize) {
+    const batch = values.slice(i, i + batchSize);
+    const placeholders = batch.map((_, index) => {
+      const rowIndex = i + index;
+      const rowPlaceholders = columns.map((_, colIndex) =>
+        `$${rowIndex * columns.length + colIndex + 1}`
+      ).join(', ');
+      return `(${rowPlaceholders})`;
+    }).join(', ');
+
+    const query = `
+      INSERT INTO ${table} (${columns.join(', ')})
+      VALUES ${placeholders}
+      RETURNING *
+    `;
+
+    const flatValues = batch.flat();
+    const result = await queryWithRetry(query, flatValues);
+    results.push(...result.rows);
+  }
+
+  return results;
+};
+
+// Export the enhanced database interface
+module.exports = {
+  // Main query function
+  query: queryWithRetry,
+
+  // Pool instance for advanced operations
+  pool,
+
+  // Utility functions
+  healthCheck,
+  testConnection,
+  closePool,
+  withTransaction,
+  batchInsert,
+
+  // Configuration
+  config: productionConfig
+};

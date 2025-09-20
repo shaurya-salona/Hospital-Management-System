@@ -1,86 +1,144 @@
 const express = require('express');
 const router = express.Router();
-const { authenticateToken, staffOnly } = require('../middlewares/auth');
+const { authenticateToken, staffOnly, doctorOrAdmin } = require('../middlewares/auth');
 const { body, param, query } = require('express-validator');
 
 // Validation middleware
 const validateMedicalRecord = [
   body('patientId').isUUID().withMessage('Valid patient ID is required'),
-  body('type').isIn(['consultation', 'diagnosis', 'treatment', 'follow-up']).withMessage('Invalid record type'),
-  body('diagnosis').notEmpty().withMessage('Diagnosis is required'),
-  body('treatment').notEmpty().withMessage('Treatment is required'),
-  body('notes').optional().isString()
+  body('doctorId').isUUID().withMessage('Valid doctor ID is required'),
+  body('visitDate').isISO8601().withMessage('Valid visit date is required'),
+  body('chiefComplaint').isString().withMessage('Chief complaint is required'),
+  body('diagnosis').optional().isString().withMessage('Diagnosis must be a string'),
+  body('treatment').optional().isString().withMessage('Treatment must be a string'),
+  body('prescription').optional().isString().withMessage('Prescription must be a string'),
+  body('vitalSigns').optional().isObject().withMessage('Vital signs must be an object')
 ];
 
 const validatePrescription = [
   body('patientId').isUUID().withMessage('Valid patient ID is required'),
-  body('medication').notEmpty().withMessage('Medication name is required'),
-  body('dosage').notEmpty().withMessage('Dosage is required'),
-  body('instructions').notEmpty().withMessage('Instructions are required'),
-  body('startDate').isISO8601().withMessage('Valid start date is required'),
-  body('endDate').optional().isISO8601().withMessage('Valid end date is required'),
-  body('quantity').optional().isInt({ min: 1 }).withMessage('Quantity must be a positive integer')
+  body('doctorId').isUUID().withMessage('Valid doctor ID is required'),
+  body('medications').isArray().withMessage('Medications must be an array'),
+  body('medications.*.name').isString().withMessage('Medication name is required'),
+  body('medications.*.dosage').isString().withMessage('Medication dosage is required'),
+  body('medications.*.frequency').isString().withMessage('Medication frequency is required'),
+  body('medications.*.duration').isString().withMessage('Medication duration is required')
 ];
 
 const validateId = [
-  param('id').isUUID().withMessage('Valid ID is required')
+  param('id').isUUID().withMessage('Valid medical record ID is required')
 ];
 
 const validatePagination = [
   query('page').optional().isInt({ min: 1 }).withMessage('Page must be a positive integer'),
   query('limit').optional().isInt({ min: 1, max: 100 }).withMessage('Limit must be between 1 and 100'),
-  query('type').optional().isIn(['consultation', 'diagnosis', 'treatment', 'follow-up']).withMessage('Invalid type filter'),
-  query('patientId').optional().isUUID().withMessage('Valid patient ID filter is required')
+  query('patientId').optional().isUUID().withMessage('Valid patient ID is required'),
+  query('doctorId').optional().isUUID().withMessage('Valid doctor ID is required')
 ];
 
-// All routes require authentication and staff access
+// All routes require authentication
 router.use(authenticateToken);
-router.use(staffOnly);
 
-// Medical Records Routes
-
-// GET /api/medical/records - Get all medical records
-router.get('/records', validatePagination, async (req, res) => {
+// GET /api/medical - Get all medical records with pagination and filters
+router.get('/', validatePagination, staffOnly, async (req, res) => {
   try {
-    const { page = 1, limit = 10, type, patientId } = req.query;
+    const { page = 1, limit = 10, patientId, doctorId } = req.query;
+    const offset = (page - 1) * limit;
+    const db = require('../config/database-manager');
 
-    // Mock data for now - replace with actual database queries
-    const mockRecords = [
-      {
-        id: '1',
-        patient_id: '1',
-        patient_name: 'John Doe',
-        type: 'consultation',
-        diagnosis: 'Hypertension',
-        treatment: 'Lifestyle modifications and medication',
-        notes: 'Patient shows improvement with current treatment',
-        status: 'active',
-        created_at: new Date().toISOString()
-      },
-      {
-        id: '2',
-        patient_id: '2',
-        patient_name: 'Jane Smith',
-        type: 'diagnosis',
-        diagnosis: 'Type 2 Diabetes',
-        treatment: 'Metformin and dietary changes',
-        notes: 'New diagnosis, patient education provided',
-        status: 'active',
-        created_at: new Date().toISOString()
-      }
-    ];
+    // Build query with filters
+    let query = `
+      SELECT mr.*,
+             p.patient_id, pu.first_name as patient_first_name, pu.last_name as patient_last_name,
+             s.employee_id, su.first_name as doctor_first_name, su.last_name as doctor_last_name
+      FROM medical_records mr
+      JOIN patients p ON mr.patient_id = p.id
+      JOIN users pu ON p.user_id = pu.id
+      JOIN staff s ON mr.doctor_id = s.id
+      JOIN users su ON s.user_id = su.id
+      WHERE 1=1
+    `;
+    const queryParams = [];
+    let paramCount = 0;
+
+    if (patientId) {
+      paramCount++;
+      query += ` AND mr.patient_id = $${paramCount}`;
+      queryParams.push(patientId);
+    }
+
+    if (doctorId) {
+      paramCount++;
+      query += ` AND mr.doctor_id = $${paramCount}`;
+      queryParams.push(doctorId);
+    }
+
+    // Add pagination
+    query += ` ORDER BY mr.visit_date DESC`;
+
+    paramCount++;
+    query += ` LIMIT $${paramCount}`;
+    queryParams.push(parseInt(limit));
+
+    paramCount++;
+    query += ` OFFSET $${paramCount}`;
+    queryParams.push(offset);
+
+    // Get count for pagination
+    let countQuery = `
+      SELECT COUNT(*) as total
+      FROM medical_records mr
+      WHERE 1=1
+    `;
+    const countParams = [];
+    let countParamCount = 0;
+
+    if (patientId) {
+      countParamCount++;
+      countQuery += ` AND mr.patient_id = $${countParamCount}`;
+      countParams.push(patientId);
+    }
+
+    if (doctorId) {
+      countParamCount++;
+      countQuery += ` AND mr.doctor_id = $${countParamCount}`;
+      countParams.push(doctorId);
+    }
+
+    const [recordsResult, countResult] = await Promise.all([
+      db.query(query, queryParams),
+      db.query(countQuery, countParams)
+    ]);
+
+    const records = recordsResult.rows.map(record => ({
+      id: record.id,
+      patient_id: record.patient_id,
+      patient_name: `${record.patient_first_name} ${record.patient_last_name}`,
+      doctor_id: record.doctor_id,
+      doctor_name: `Dr. ${record.doctor_first_name} ${record.doctor_last_name}`,
+      visit_date: record.visit_date,
+      chief_complaint: record.chief_complaint,
+      diagnosis: record.diagnosis,
+      treatment: record.treatment,
+      prescription: record.prescription,
+      vital_signs: record.vital_signs,
+      created_at: record.created_at
+    }));
+
+    const totalCount = parseInt(countResult.rows[0]?.total || 0);
 
     res.json({
       success: true,
-      data: mockRecords,
+      data: records,
       pagination: {
         page: parseInt(page),
         limit: parseInt(limit),
-        total: mockRecords.length,
-        pages: Math.ceil(mockRecords.length / limit)
+        total: totalCount,
+        pages: Math.ceil(totalCount / limit)
       }
     });
   } catch (error) {
+    console.error('Error fetching medical records:', error);
     res.status(500).json({
       success: false,
       message: 'Error fetching medical records',
@@ -89,29 +147,55 @@ router.get('/records', validatePagination, async (req, res) => {
   }
 });
 
-// GET /api/medical/records/:id - Get medical record by ID
-router.get('/records/:id', validateId, async (req, res) => {
+// GET /api/medical/:id - Get medical record by ID
+router.get('/:id', validateId, staffOnly, async (req, res) => {
   try {
     const { id } = req.params;
-    
-    // Mock data - replace with actual database query
-    const record = {
-      id,
-      patient_id: '1',
-      patient_name: 'John Doe',
-      type: 'consultation',
-      diagnosis: 'Hypertension',
-      treatment: 'Lifestyle modifications and medication',
-      notes: 'Patient shows improvement with current treatment',
-      status: 'active',
-      created_at: new Date().toISOString()
+    const db = require('../config/database-manager');
+
+    const query = `
+      SELECT mr.*,
+             p.patient_id, pu.first_name as patient_first_name, pu.last_name as patient_last_name,
+             s.employee_id, su.first_name as doctor_first_name, su.last_name as doctor_last_name
+      FROM medical_records mr
+      JOIN patients p ON mr.patient_id = p.id
+      JOIN users pu ON p.user_id = pu.id
+      JOIN staff s ON mr.doctor_id = s.id
+      JOIN users su ON s.user_id = su.id
+      WHERE mr.id = $1
+    `;
+
+    const result = await db.query(query, [id]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Medical record not found'
+      });
+    }
+
+    const record = result.rows[0];
+    const recordData = {
+      id: record.id,
+      patient_id: record.patient_id,
+      patient_name: `${record.patient_first_name} ${record.patient_last_name}`,
+      doctor_id: record.doctor_id,
+      doctor_name: `Dr. ${record.doctor_first_name} ${record.doctor_last_name}`,
+      visit_date: record.visit_date,
+      chief_complaint: record.chief_complaint,
+      diagnosis: record.diagnosis,
+      treatment: record.treatment,
+      prescription: record.prescription,
+      vital_signs: record.vital_signs,
+      created_at: record.created_at
     };
 
     res.json({
       success: true,
-      data: record
+      data: recordData
     });
   } catch (error) {
+    console.error('Error fetching medical record:', error);
     res.status(500).json({
       success: false,
       message: 'Error fetching medical record',
@@ -120,18 +204,74 @@ router.get('/records/:id', validateId, async (req, res) => {
   }
 });
 
-// POST /api/medical/records - Create new medical record
-router.post('/records', validateMedicalRecord, async (req, res) => {
+// POST /api/medical - Create new medical record
+router.post('/', validateMedicalRecord, doctorOrAdmin, async (req, res) => {
   try {
-    const recordData = req.body;
-    
-    // Mock creation - replace with actual database insert
-    const newRecord = {
-      id: Date.now().toString(),
-      ...recordData,
-      status: 'active',
-      created_at: new Date().toISOString()
-    };
+    const { validationResult } = require('express-validator');
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Validation errors',
+        errors: errors.array()
+      });
+    }
+
+    const {
+      patientId,
+      doctorId,
+      visitDate,
+      chiefComplaint,
+      diagnosis,
+      treatment,
+      prescription,
+      vitalSigns
+    } = req.body;
+
+    const db = require('../config/database-manager');
+
+    // Check if patient exists
+    const patientCheck = await db.query('SELECT id FROM patients WHERE id = $1', [patientId]);
+    if (patientCheck.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Patient not found'
+      });
+    }
+
+    // Check if doctor exists
+    const doctorCheck = await db.query('SELECT id FROM staff WHERE id = $1', [doctorId]);
+    if (doctorCheck.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Doctor not found'
+      });
+    }
+
+    // Create medical record
+    const recordQuery = `
+      INSERT INTO medical_records (
+        patient_id, doctor_id, visit_date, chief_complaint,
+        diagnosis, treatment, prescription, vital_signs
+      )
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      RETURNING *
+    `;
+
+    const recordValues = [
+      patientId,
+      doctorId,
+      visitDate,
+      chiefComplaint,
+      diagnosis,
+      treatment,
+      prescription,
+      vitalSigns ? JSON.stringify(vitalSigns) : null
+    ];
+
+    const recordResult = await db.query(recordQuery, recordValues);
+    const newRecord = recordResult.rows[0];
 
     res.status(201).json({
       success: true,
@@ -139,6 +279,7 @@ router.post('/records', validateMedicalRecord, async (req, res) => {
       message: 'Medical record created successfully'
     });
   } catch (error) {
+    console.error('Error creating medical record:', error);
     res.status(500).json({
       success: false,
       message: 'Error creating medical record',
@@ -147,107 +288,150 @@ router.post('/records', validateMedicalRecord, async (req, res) => {
   }
 });
 
-// Prescriptions Routes
-
-// GET /api/medical/prescriptions - Get all prescriptions
-router.get('/prescriptions', validatePagination, async (req, res) => {
-  try {
-    const { page = 1, limit = 10, patientId } = req.query;
-
-    // Mock data for now - replace with actual database queries
-    const mockPrescriptions = [
-      {
-        id: '1',
-        patient_id: '1',
-        patient_name: 'John Doe',
-        medication: 'Lisinopril 10mg',
-        dosage: '10mg once daily',
-        instructions: 'Take with food, monitor blood pressure',
-        start_date: '2024-01-01',
-        end_date: '2024-04-01',
-        quantity: 90,
-        status: 'active',
-        created_at: new Date().toISOString()
-      },
-      {
-        id: '2',
-        patient_id: '2',
-        patient_name: 'Jane Smith',
-        medication: 'Metformin 500mg',
-        dosage: '500mg twice daily',
-        instructions: 'Take with meals',
-        start_date: '2024-01-15',
-        end_date: '2024-04-15',
-        quantity: 60,
-        status: 'active',
-        created_at: new Date().toISOString()
-      }
-    ];
-
-    res.json({
-      success: true,
-      data: mockPrescriptions,
-      pagination: {
-        page: parseInt(page),
-        limit: parseInt(limit),
-        total: mockPrescriptions.length,
-        pages: Math.ceil(mockPrescriptions.length / limit)
-      }
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Error fetching prescriptions',
-      error: error.message
-    });
-  }
-});
-
-// GET /api/medical/prescriptions/:id - Get prescription by ID
-router.get('/prescriptions/:id', validateId, async (req, res) => {
+// PUT /api/medical/:id - Update medical record
+router.put('/:id', validateId, doctorOrAdmin, async (req, res) => {
   try {
     const { id } = req.params;
-    
-    // Mock data - replace with actual database query
-    const prescription = {
-      id,
-      patient_id: '1',
-      patient_name: 'John Doe',
-      medication: 'Lisinopril 10mg',
-      dosage: '10mg once daily',
-      instructions: 'Take with food, monitor blood pressure',
-      start_date: '2024-01-01',
-      end_date: '2024-04-01',
-      quantity: 90,
-      status: 'active',
-      created_at: new Date().toISOString()
-    };
+    const {
+      visitDate,
+      chiefComplaint,
+      diagnosis,
+      treatment,
+      prescription,
+      vitalSigns
+    } = req.body;
+    const db = require('../config/database-manager');
+
+    // Check if record exists
+    const recordCheck = await db.query('SELECT * FROM medical_records WHERE id = $1', [id]);
+    if (recordCheck.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Medical record not found'
+      });
+    }
+
+    // Build update query
+    const updates = [];
+    const values = [];
+    let paramCount = 0;
+
+    if (visitDate) {
+      paramCount++;
+      updates.push(`visit_date = $${paramCount}`);
+      values.push(visitDate);
+    }
+    if (chiefComplaint) {
+      paramCount++;
+      updates.push(`chief_complaint = $${paramCount}`);
+      values.push(chiefComplaint);
+    }
+    if (diagnosis) {
+      paramCount++;
+      updates.push(`diagnosis = $${paramCount}`);
+      values.push(diagnosis);
+    }
+    if (treatment) {
+      paramCount++;
+      updates.push(`treatment = $${paramCount}`);
+      values.push(treatment);
+    }
+    if (prescription) {
+      paramCount++;
+      updates.push(`prescription = $${paramCount}`);
+      values.push(prescription);
+    }
+    if (vitalSigns) {
+      paramCount++;
+      updates.push(`vital_signs = $${paramCount}`);
+      values.push(JSON.stringify(vitalSigns));
+    }
+
+    if (updates.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'No valid fields to update'
+      });
+    }
+
+    paramCount++;
+    values.push(id);
+
+    const query = `
+      UPDATE medical_records
+      SET ${updates.join(', ')}, updated_at = CURRENT_TIMESTAMP
+      WHERE id = $${paramCount}
+      RETURNING *
+    `;
+
+    const result = await db.query(query, values);
 
     res.json({
       success: true,
-      data: prescription
+      data: result.rows[0],
+      message: 'Medical record updated successfully'
     });
   } catch (error) {
+    console.error('Error updating medical record:', error);
     res.status(500).json({
       success: false,
-      message: 'Error fetching prescription',
+      message: 'Error updating medical record',
       error: error.message
     });
   }
 });
 
-// POST /api/medical/prescriptions - Create new prescription
-router.post('/prescriptions', validatePrescription, async (req, res) => {
+// POST /api/medical/prescriptions - Create prescription
+router.post('/prescriptions', validatePrescription, doctorOrAdmin, async (req, res) => {
   try {
-    const prescriptionData = req.body;
-    
-    // Mock creation - replace with actual database insert
-    const newPrescription = {
-      id: Date.now().toString(),
-      ...prescriptionData,
-      status: 'pending',
-      created_at: new Date().toISOString()
-    };
+    const { validationResult } = require('express-validator');
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Validation errors',
+        errors: errors.array()
+      });
+    }
+
+    const { patientId, doctorId, medications, notes } = req.body;
+    const db = require('../config/database-manager');
+
+    // Check if patient exists
+    const patientCheck = await db.query('SELECT id FROM patients WHERE id = $1', [patientId]);
+    if (patientCheck.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Patient not found'
+      });
+    }
+
+    // Check if doctor exists
+    const doctorCheck = await db.query('SELECT id FROM staff WHERE id = $1', [doctorId]);
+    if (doctorCheck.rows.length === 0) {
+      return res.status(404).json({
+      success: false,
+        message: 'Doctor not found'
+      });
+    }
+
+    // Create prescription
+    const prescriptionQuery = `
+      INSERT INTO prescriptions (patient_id, doctor_id, medications, notes)
+      VALUES ($1, $2, $3, $4)
+      RETURNING *
+    `;
+
+    const prescriptionValues = [
+      patientId,
+      doctorId,
+      JSON.stringify(medications),
+      notes
+    ];
+
+    const prescriptionResult = await db.query(prescriptionQuery, prescriptionValues);
+    const newPrescription = prescriptionResult.rows[0];
 
     res.status(201).json({
       success: true,
@@ -255,6 +439,7 @@ router.post('/prescriptions', validatePrescription, async (req, res) => {
       message: 'Prescription created successfully'
     });
   } catch (error) {
+    console.error('Error creating prescription:', error);
     res.status(500).json({
       success: false,
       message: 'Error creating prescription',
@@ -263,28 +448,117 @@ router.post('/prescriptions', validatePrescription, async (req, res) => {
   }
 });
 
-// PUT /api/medical/prescriptions/:id - Update prescription
-router.put('/prescriptions/:id', validateId, validatePrescription, async (req, res) => {
+// GET /api/medical/patient/:patientId - Get medical records for a specific patient
+router.get('/patient/:patientId', staffOnly, async (req, res) => {
   try {
-    const { id } = req.params;
-    const updateData = req.body;
-    
-    // Mock update - replace with actual database update
-    const updatedPrescription = {
-      id,
-      ...updateData,
-      updated_at: new Date().toISOString()
-    };
+    const { patientId } = req.params;
+    const db = require('../config/database-manager');
+
+    const query = `
+      SELECT mr.*,
+             s.employee_id, su.first_name as doctor_first_name, su.last_name as doctor_last_name
+      FROM medical_records mr
+      JOIN staff s ON mr.doctor_id = s.id
+      JOIN users su ON s.user_id = su.id
+      WHERE mr.patient_id = $1
+      ORDER BY mr.visit_date DESC
+    `;
+
+    const result = await db.query(query, [patientId]);
+
+    const records = result.rows.map(record => ({
+      id: record.id,
+      doctor_name: `Dr. ${record.doctor_first_name} ${record.doctor_last_name}`,
+      visit_date: record.visit_date,
+      chief_complaint: record.chief_complaint,
+      diagnosis: record.diagnosis,
+      treatment: record.treatment,
+      prescription: record.prescription,
+      vital_signs: record.vital_signs,
+      created_at: record.created_at
+    }));
 
     res.json({
       success: true,
-      data: updatedPrescription,
-      message: 'Prescription updated successfully'
+      data: records
     });
   } catch (error) {
+    console.error('Error fetching patient medical records:', error);
     res.status(500).json({
       success: false,
-      message: 'Error updating prescription',
+      message: 'Error fetching patient medical records',
+      error: error.message
+    });
+  }
+});
+
+// GET /api/medical/prescriptions/patient/:patientId - Get prescriptions for a specific patient
+router.get('/prescriptions/patient/:patientId', staffOnly, async (req, res) => {
+  try {
+    const { patientId } = req.params;
+    const db = require('../config/database-manager');
+
+    const query = `
+      SELECT p.*,
+             s.employee_id, su.first_name as doctor_first_name, su.last_name as doctor_last_name
+      FROM prescriptions p
+      JOIN staff s ON p.doctor_id = s.id
+      JOIN users su ON s.user_id = su.id
+      WHERE p.patient_id = $1
+      ORDER BY p.created_at DESC
+    `;
+
+    const result = await db.query(query, [patientId]);
+
+    const prescriptions = result.rows.map(prescription => ({
+      id: prescription.id,
+      doctor_name: `Dr. ${prescription.doctor_first_name} ${prescription.doctor_last_name}`,
+      medications: prescription.medications,
+      notes: prescription.notes,
+      created_at: prescription.created_at
+    }));
+
+    res.json({
+      success: true,
+      data: prescriptions
+    });
+  } catch (error) {
+    console.error('Error fetching patient prescriptions:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching patient prescriptions',
+      error: error.message
+    });
+  }
+});
+
+// DELETE /api/medical/:id - Delete medical record (admin only)
+router.delete('/:id', validateId, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const db = require('../config/database-manager');
+
+    // Check if record exists
+    const recordCheck = await db.query('SELECT * FROM medical_records WHERE id = $1', [id]);
+    if (recordCheck.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Medical record not found'
+      });
+    }
+
+    // Delete record
+    await db.query('DELETE FROM medical_records WHERE id = $1', [id]);
+
+    res.json({
+      success: true,
+      message: 'Medical record deleted successfully'
+    });
+  } catch (error) {
+    console.error('Error deleting medical record:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error deleting medical record',
       error: error.message
     });
   }
