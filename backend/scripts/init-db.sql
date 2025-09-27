@@ -1,26 +1,21 @@
--- HMIS Database Initialization Script
--- This script creates the database user and sets up the schema
+-- Database initialization script
+-- Creates the database user and sets up permissions
 
--- Create the database user
+-- Create the database user (if it doesn't exist)
 DO $$
 BEGIN
     IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'hmis_user') THEN
-        CREATE ROLE hmis_user WITH LOGIN PASSWORD 'hmis_secure_password_2024';
+        CREATE USER hmis_user WITH PASSWORD 'secure_password_change_me';
     END IF;
 END
 $$;
 
--- Grant privileges on the default database (created by POSTGRES_DB)
+-- Grant necessary permissions
 GRANT ALL PRIVILEGES ON DATABASE hmis_db TO hmis_user;
-
--- Connect to the database and set up schema
-\c hmis_db;
-
--- Grant schema privileges
-GRANT ALL ON SCHEMA public TO hmis_user;
+GRANT ALL PRIVILEGES ON SCHEMA public TO hmis_user;
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO hmis_user;
 GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO hmis_user;
 
--- Set default privileges for future tables
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO hmis_user;
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO hmis_user;
+-- Allow the user to create tables and databases
+ALTER USER hmis_user CREATEDB;
+ALTER USER hmis_user CREATEROLE;

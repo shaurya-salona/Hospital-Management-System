@@ -5,7 +5,9 @@
 
 class APIService {
     constructor() {
-        this.baseURL = 'http://localhost:5000/api';
+        this.baseURL = (window.CONFIG && window.CONFIG.API_BASE_URL)
+            ? window.CONFIG.API_BASE_URL + '/api'
+            : 'http://localhost:5000/api';
         this.token = localStorage.getItem('token');
     }
 
@@ -381,4 +383,3 @@ window.apiService = new APIService();
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = APIService;
 }
-

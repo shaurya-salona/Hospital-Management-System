@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline - HMIS</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" href="icons/icon-192x192.png">
+    <link rel="apple-touch-icon" href="icons/icon-152x152.png">
+    <style>
+        .offline-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .offline-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.8;
+        }
+
+        .offline-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .offline-subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .offline-message {
+            font-size: 1rem;
+            margin-bottom: 40px;
+            max-width: 500px;
+            line-height: 1.6;
+        }
+
+        .offline-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .offline-btn {
+            padding: 12px 24px;
+            border: 2px solid white;
+            border-radius: 8px;
+            background: transparent;
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .offline-btn:hover {
+            background: white;
+            color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .offline-btn.primary {
+            background: white;
+            color: #667eea;
+        }
+
+        .offline-btn.primary:hover {
+            background: transparent;
+            color: white;
+        }
+
+        .connection-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.2);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+        }
+
+        .connection-status.online {
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .connection-status.offline {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .offline-features {
+            margin-top: 40px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            max-width: 600px;
+        }
+
+        .offline-features h3 {
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+
+        .feature-icon {
+            font-size: 1.2rem;
+        }
+
+        @media (max-width: 768px) {
+            .offline-title {
+                font-size: 2rem;
+            }
+
+            .offline-subtitle {
+                font-size: 1rem;
+            }
+
+            .offline-actions {
+                max-width: 100%;
+            }
+
+            .feature-list {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="offline-container">
+        <div class="connection-status offline" id="connectionStatus">
+            <i class="fas fa-wifi"></i>
+            <span>Offline</span>
+        </div>
+
+        <div class="offline-icon">
+            <i class="fas fa-wifi-slash"></i>
+        </div>
+
+        <h1 class="offline-title">You're Offline</h1>
+        <p class="offline-subtitle">HMIS is not available right now</p>
+
+        <p class="offline-message">
+            It looks like you're not connected to the internet. Don't worry!
+            Some features of HMIS are still available offline. Check your
+            connection and try again.
+        </p>
+
+        <div class="offline-actions">
+            <button class="offline-btn primary" onclick="window.location.reload()">
+                <i class="fas fa-sync-alt"></i>
+                Try Again
+            </button>
+
+            <a href="/" class="offline-btn">
+                <i class="fas fa-home"></i>
+                Go to Homepage
+            </a>
+
+            <button class="offline-btn" onclick="checkConnection()">
+                <i class="fas fa-network-wired"></i>
+                Check Connection
+            </button>
+        </div>
+
+        <div class="offline-features">
+            <h3><i class="fas fa-star"></i> Available Offline</h3>
+            <ul class="feature-list">
+                <li class="feature-item">
+                    <i class="fas fa-check-circle feature-icon"></i>
+                    <span>Cached Patient Data</span>
+                </li>
+                <li class="feature-item">
+                    <i class="fas fa-check-circle feature-icon"></i>
+                    <span>Offline Forms</span>
+                </li>
+                <li class="feature-item">
+                    <i class="fas fa-check-circle feature-icon"></i>
+                    <span>Emergency Contacts</span>
+                </li>
+                <li class="feature-item">
+                    <i class="fas fa-check-circle feature-icon"></i>
+                    <span>Basic Navigation</span>
+                </li>
+                <li class="feature-item">
+                    <i class="fas fa-check-circle feature-icon"></i>
+                    <span>Settings & Preferences</span>
+                </li>
+                <li class="feature-item">
+                    <i class="fas fa-check-circle feature-icon"></i>
+                    <span>Help & Documentation</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Connection status monitoring
+        function updateConnectionStatus() {
+            const statusElement = document.getElementById('connectionStatus');
+            const isOnline = navigator.onLine;
+
+            if (isOnline) {
+                statusElement.className = 'connection-status online';
+                statusElement.innerHTML = '<i class="fas fa-wifi"></i><span>Online</span>';
+            } else {
+                statusElement.className = 'connection-status offline';
+                statusElement.innerHTML = '<i class="fas fa-wifi-slash"></i><span>Offline</span>';
+            }
+        }
+
+        // Check connection function
+        function checkConnection() {
+            if (navigator.onLine) {
+                // Try to fetch a small resource to verify connection
+                fetch('/api/health', { method: 'HEAD' })
+                    .then(() => {
+                        alert('Connection restored! Redirecting to HMIS...');
+                        window.location.href = '/';
+                    })
+                    .catch(() => {
+                        alert('Still offline. Please check your internet connection.');
+                    });
+            } else {
+                alert('You are still offline. Please check your internet connection.');
+            }
+        }
+
+        // Listen for online/offline events
+        window.addEventListener('online', () => {
+            updateConnectionStatus();
+            setTimeout(() => {
+                if (navigator.onLine) {
+                    window.location.href = '/';
+                }
+            }, 2000);
+        });
+
+        window.addEventListener('offline', updateConnectionStatus);
+
+        // Initialize connection status
+        updateConnectionStatus();
+
+        // Periodic connection check
+        setInterval(() => {
+            if (navigator.onLine) {
+                fetch('/api/health', { method: 'HEAD' })
+                    .then(() => {
+                        if (window.location.pathname === '/offline.html') {
+                            window.location.href = '/';
+                        }
+                    })
+                    .catch(() => {
+                        // Still offline
+                    });
+            }
+        }, 5000);
+
+        // Service Worker registration
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js')
+                .then((registration) => {
+                    console.log('Service Worker registered successfully');
+                })
+                .catch((error) => {
+                    console.error('Service Worker registration failed:', error);
+                });
+        }
+    </script>
+</body>
+</html>

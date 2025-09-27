@@ -13,24 +13,24 @@ const { catchAsync } = require('../middlewares/errorHandler');
  */
 
 // Public routes
-router.post('/login', 
+router.post('/login',
   ValidationRules.auth.login,
   handleValidationErrors,
   catchAsync(authController.login)
 );
 
-router.post('/refresh', 
+router.post('/refresh',
   catchAsync(authController.refreshToken)
 );
 
 // Protected routes
-router.get('/profile', 
-  authenticateToken, 
+router.get('/profile',
+  authenticateToken,
   catchAsync(authController.getProfile)
 );
 
-router.post('/logout', 
-  authenticateToken, 
+router.post('/logout',
+  authenticateToken,
   catchAsync(authController.logout)
 );
 

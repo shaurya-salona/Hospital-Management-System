@@ -2,274 +2,41 @@
 <html lang="en">
 
     <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Hospital Management Information System</title>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-        <style>
-            * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-            }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Management Information System</title>
 
-            body {
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                min-height: 100vh;
-                padding: 20px;
-            }
+    <!-- PWA Meta Tags -->
+    <meta name="application-name" content="HMIS">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="HMIS">
+    <meta name="description" content="Comprehensive Hospital Management Information System">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="msapplication-config" content="/browserconfig.xml">
+    <meta name="msapplication-TileColor" content="#667eea">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="msapplication-navbutton-color" content="#667eea">
 
-            .main-container {
-                max-width: 1200px;
-                margin: 0 auto;
-                text-align: center;
-            }
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
 
-            .header {
-                color: white;
-                margin-bottom: 50px;
-            }
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" sizes="152x152" href="icons/icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180x180.png">
+    <link rel="apple-touch-icon" sizes="167x167" href="icons/icon-167x167.png">
 
-            .header h1 {
-                font-size: 3.5rem;
-                font-weight: 800;
-                margin-bottom: 20px;
-                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-            }
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="icons/icon-16x16.png">
 
-            .header p {
-                font-size: 1.3rem;
-                opacity: 0.9;
-                margin-bottom: 10px;
-            }
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
 
-            .header .subtitle {
-                font-size: 1.1rem;
-                opacity: 0.8;
-            }
-
-            .logo {
-                margin-bottom: 30px;
-            }
-
-            .logo h1 {
-                font-size: 3rem;
-                color: #1e293b;
-                margin-bottom: 10px;
-            }
-
-            .logo p {
-                font-size: 1.2rem;
-                color: #64748b;
-            }
-
-            .portals-grid {
-                display: grid;
-                grid-template-columns: repeat(3, 1fr);
-                gap: 30px;
-                margin-bottom: 50px;
-            }
-
-            .portal-card {
-                background: white;
-                border-radius: 15px;
-                padding: 30px 25px;
-                text-decoration: none;
-                color: #334155;
-                transition: all 0.3s ease;
-                position: relative;
-                overflow: hidden;
-                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-                border-left: 4px solid;
-            }
-
-            .portal-card::before {
-                content: '';
-                position: absolute;
-                top: 0;
-                left: -100%;
-                width: 100%;
-                height: 100%;
-                background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-                transition: left 0.5s;
-            }
-
-            .portal-card:hover::before {
-                left: 100%;
-            }
-
-            .portal-card:hover {
-                transform: translateY(-5px);
-                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-            }
-
-            .portal-card.admin {
-                border-left-color: #1e40af;
-            }
-
-            .portal-card.admin:hover {
-                background: #1e40af;
-                color: white;
-                transform: translateY(-5px);
-            }
-
-            .portal-card.doctor {
-                border-left-color: #059669;
-            }
-
-            .portal-card.doctor:hover {
-                background: #059669;
-                color: white;
-                transform: translateY(-5px);
-            }
-
-            .portal-card.receptionist {
-                border-left-color: #f59e0b;
-            }
-
-            .portal-card.receptionist:hover {
-                background: #f59e0b;
-                color: white;
-                transform: translateY(-5px);
-            }
-
-            .portal-card.nurse {
-                border-left-color: #ef4444;
-            }
-
-            .portal-card.nurse:hover {
-                background: #ef4444;
-                color: white;
-                transform: translateY(-5px);
-            }
-
-            .portal-card.pharmacist {
-                border-left-color: #059669;
-            }
-
-            .portal-card.pharmacist:hover {
-                background: #059669;
-                color: white;
-                transform: translateY(-5px);
-            }
-
-            .portal-card.patient {
-                border-left-color: #8b5cf6;
-            }
-
-            .portal-card.patient:hover {
-                background: #8b5cf6;
-                color: white;
-                transform: translateY(-5px);
-            }
-
-            .portal-icon {
-                font-size: 3rem;
-                margin-bottom: 15px;
-                display: block;
-            }
-
-            .portal-title {
-                font-size: 1.4rem;
-                font-weight: 700;
-                margin-bottom: 8px;
-                color: inherit;
-            }
-
-            .portal-subtitle {
-                font-size: 0.9rem;
-                font-weight: 500;
-                margin-bottom: 12px;
-                opacity: 0.8;
-                color: inherit;
-            }
-
-            .portal-description {
-                font-size: 0.85rem;
-                opacity: 0.7;
-                line-height: 1.4;
-                margin-bottom: 15px;
-                color: inherit;
-            }
-
-            .portal-features {
-                font-size: 0.8rem;
-                opacity: 0.6;
-                line-height: 1.3;
-                margin-bottom: 20px;
-                color: inherit;
-            }
-
-            .portal-features ul {
-                list-style: none;
-                padding: 0;
-                margin: 0;
-            }
-
-            .portal-features li {
-                margin-bottom: 3px;
-            }
-
-            .portal-features li:before {
-                content: "• ";
-                font-weight: bold;
-            }
-
-            .access-btn {
-                background: transparent;
-                border: 2px solid currentColor;
-                color: inherit;
-                padding: 8px 20px;
-                border-radius: 25px;
-                font-size: 0.9rem;
-                font-weight: 600;
-                cursor: pointer;
-                transition: all 0.3s ease;
-                text-decoration: none;
-                display: inline-block;
-            }
-
-            .access-btn:hover {
-                background: currentColor;
-                color: white;
-            }
-
-            .footer {
-                color: white;
-                text-align: center;
-                margin-top: 50px;
-                padding-top: 30px;
-                border-top: 1px solid rgba(255, 255, 255, 0.2);
-            }
-
-            .footer p {
-                margin: 5px 0;
-                opacity: 0.8;
-            }
-
-            @media (max-width: 1024px) {
-                .portals-grid {
-                    grid-template-columns: repeat(2, 1fr);
-                    gap: 25px;
-                }
-            }
-
-            @media (max-width: 768px) {
-                .header h1 {
-                    font-size: 2.5rem;
-                }
-
-                .portals-grid {
-                    grid-template-columns: 1fr;
-                    gap: 20px;
-                }
-
-                .portal-card {
-                    padding: 25px 20px;
-                }
-            }
-        </style>
+    <!-- Scripts -->
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     </head>
 
     <body>
@@ -430,6 +197,28 @@
         `;
             document.head.appendChild(style);
         </script>
+
+        <!-- Enhanced Features Scripts -->
+        <script src="js/theme-manager.js"></script>
+        <script src="js/advanced-search.js"></script>
+        <script src="js/export-manager.js"></script>
+
+        <!-- Real-Time Features Scripts -->
+        <script src="js/real-time-notifications.js"></script>
+        <script src="js/emergency-alert-system.js"></script>
+        <script src="js/live-dashboard.js"></script>
+
+        <!-- Advanced Reporting Scripts -->
+        <script src="js/reporting-dashboard.js"></script>
+
+        <!-- Enhanced Security Scripts -->
+        <script src="js/security-dashboard.js"></script>
+
+        <!-- Mobile Optimization Scripts -->
+        <script src="js/mobile-optimizer.js"></script>
+
+        <!-- AI/ML Features Scripts -->
+        <script src="js/ai-ml-dashboard.js"></script>
     </body>
 
 </html>

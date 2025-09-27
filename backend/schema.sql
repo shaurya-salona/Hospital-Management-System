@@ -1,73 +1,85 @@
--- HMIS Database Schema
+-- HMIS Database Schema with Security Enhancements
 -- Hospital Management Information System
--- PostgreSQL Database Setup
-
--- Create database (run this separately if needed)
--- CREATE DATABASE hmis_db;
-
--- Connect to the database
--- \c hmis_db;
 
 -- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- Users table (for authentication)
+-- Users table with enhanced security
 CREATE TABLE IF NOT EXISTS users (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id SERIAL PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
-    role VARCHAR(20) NOT NULL CHECK (role IN ('admin', 'doctor', 'nurse', 'receptionist', 'pharmacist', 'patient')),
     first_name VARCHAR(50) NOT NULL,
     last_name VARCHAR(50) NOT NULL,
+    role VARCHAR(20) NOT NULL CHECK (role IN ('admin', 'doctor', 'nurse', 'receptionist', 'pharmacist', 'patient')),
     phone VARCHAR(20),
     is_active BOOLEAN DEFAULT true,
+    failed_login_attempts INTEGER DEFAULT 0,
+    is_locked BOOLEAN DEFAULT false,
+    locked_until TIMESTAMP NULL,
+    last_login TIMESTAMP NULL,
+    password_changed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Staff table (extends users for hospital staff)
+-- Staff table
 CREATE TABLE IF NOT EXISTS staff (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
     employee_id VARCHAR(20) UNIQUE NOT NULL,
     department VARCHAR(50),
     specialization VARCHAR(100),
     license_number VARCHAR(50),
     hire_date DATE,
     salary DECIMAL(10,2),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Patients table
 CREATE TABLE IF NOT EXISTS patients (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
     patient_id VARCHAR(20) UNIQUE NOT NULL,
-    date_of_birth DATE NOT NULL,
+    date_of_birth DATE,
     gender VARCHAR(10) CHECK (gender IN ('male', 'female', 'other')),
-    address TEXT,
+    blood_type VARCHAR(5),
     emergency_contact_name VARCHAR(100),
     emergency_contact_phone VARCHAR(20),
-    insurance_provider VARCHAR(100),
-    insurance_number VARCHAR(50),
-    blood_type VARCHAR(5),
+    address TEXT,
     allergies TEXT,
     medical_history TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Doctors table
+CREATE TABLE IF NOT EXISTS doctors (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    doctor_id VARCHAR(20) UNIQUE NOT NULL,
+    specialization VARCHAR(100),
+    license_number VARCHAR(50),
+    experience_years INTEGER,
+    consultation_fee DECIMAL(10,2),
+    is_available BOOLEAN DEFAULT true,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Appointments table
 CREATE TABLE IF NOT EXISTS appointments (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    patient_id UUID REFERENCES patients(id) ON DELETE CASCADE,
-    doctor_id UUID REFERENCES staff(id) ON DELETE CASCADE,
+    id SERIAL PRIMARY KEY,
+    patient_id INTEGER REFERENCES patients(id) ON DELETE CASCADE,
+    doctor_id INTEGER REFERENCES doctors(id) ON DELETE CASCADE,
     appointment_date DATE NOT NULL,
     appointment_time TIME NOT NULL,
     duration_minutes INTEGER DEFAULT 30,
-    status VARCHAR(20) DEFAULT 'scheduled' CHECK (status IN ('scheduled', 'confirmed', 'in_progress', 'completed', 'cancelled', 'no_show')),
     reason TEXT,
+    status VARCHAR(20) DEFAULT 'scheduled' CHECK (status IN ('scheduled', 'confirmed', 'in_progress', 'completed', 'cancelled', 'no_show')),
+    priority VARCHAR(10) DEFAULT 'normal' CHECK (priority IN ('low', 'normal', 'high', 'urgent')),
     notes TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -75,84 +87,41 @@ CREATE TABLE IF NOT EXISTS appointments (
 
 -- Medical records table
 CREATE TABLE IF NOT EXISTS medical_records (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    patient_id UUID REFERENCES patients(id) ON DELETE CASCADE,
-    doctor_id UUID REFERENCES staff(id) ON DELETE CASCADE,
-    appointment_id UUID REFERENCES appointments(id) ON DELETE SET NULL,
+    id SERIAL PRIMARY KEY,
+    patient_id INTEGER REFERENCES patients(id) ON DELETE CASCADE,
+    doctor_id INTEGER REFERENCES doctors(id) ON DELETE CASCADE,
+    record_type VARCHAR(50) NOT NULL,
     diagnosis TEXT,
-    symptoms TEXT,
-    treatment_plan TEXT,
+    treatment TEXT,
     prescription TEXT,
-    vital_signs JSONB,
-    lab_results JSONB,
+    notes TEXT,
+    record_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Prescriptions table
-CREATE TABLE IF NOT EXISTS prescriptions (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    patient_id UUID REFERENCES patients(id) ON DELETE CASCADE,
-    doctor_id UUID REFERENCES staff(id) ON DELETE CASCADE,
-    medication_name VARCHAR(100) NOT NULL,
-    dosage VARCHAR(50) NOT NULL,
-    frequency VARCHAR(50) NOT NULL,
-    duration VARCHAR(50) NOT NULL,
-    instructions TEXT,
-    status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'filled', 'dispensed', 'cancelled')),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Billing table
-CREATE TABLE IF NOT EXISTS billing (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    patient_id UUID REFERENCES patients(id) ON DELETE CASCADE,
-    appointment_id UUID REFERENCES appointments(id) ON DELETE SET NULL,
-    total_amount DECIMAL(10,2) NOT NULL,
-    paid_amount DECIMAL(10,2) DEFAULT 0,
-    balance DECIMAL(10,2) NOT NULL,
-    billing_date DATE DEFAULT CURRENT_DATE,
-    due_date DATE,
-    status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'partial', 'paid', 'overdue', 'cancelled')),
-    payment_method VARCHAR(50),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Inventory table (for pharmacy)
+-- Inventory table
 CREATE TABLE IF NOT EXISTS inventory (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    medication_name VARCHAR(100) NOT NULL,
-    generic_name VARCHAR(100),
-    manufacturer VARCHAR(100),
-    batch_number VARCHAR(50),
-    expiry_date DATE,
-    quantity_in_stock INTEGER NOT NULL DEFAULT 0,
+    id SERIAL PRIMARY KEY,
+    item_name VARCHAR(100) NOT NULL,
+    category VARCHAR(50),
+    description TEXT,
+    quantity INTEGER DEFAULT 0,
     unit_price DECIMAL(10,2),
-    reorder_level INTEGER DEFAULT 10,
+    supplier VARCHAR(100),
+    expiry_date DATE,
+    status VARCHAR(20) DEFAULT 'available' CHECK (status IN ('available', 'low_stock', 'out_of_stock', 'expired')),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Notifications table
-CREATE TABLE IF NOT EXISTS notifications (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-    title VARCHAR(200) NOT NULL,
-    message TEXT NOT NULL,
-    type VARCHAR(50) DEFAULT 'info' CHECK (type IN ('info', 'warning', 'error', 'success')),
-    is_read BOOLEAN DEFAULT false,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Audit log table
+-- Audit log table for security tracking
 CREATE TABLE IF NOT EXISTS audit_logs (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    user_id UUID REFERENCES users(id) ON DELETE SET NULL,
-    action VARCHAR(100) NOT NULL,
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    action VARCHAR(50) NOT NULL,
     table_name VARCHAR(50),
-    record_id UUID,
+    record_id INTEGER,
     old_values JSONB,
     new_values JSONB,
     ip_address INET,
@@ -160,20 +129,42 @@ CREATE TABLE IF NOT EXISTS audit_logs (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Session management table
+CREATE TABLE IF NOT EXISTS user_sessions (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    session_token VARCHAR(255) UNIQUE NOT NULL,
+    refresh_token VARCHAR(255) UNIQUE,
+    expires_at TIMESTAMP NOT NULL,
+    is_active BOOLEAN DEFAULT true,
+    ip_address INET,
+    user_agent TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Password reset tokens table
+CREATE TABLE IF NOT EXISTS password_reset_tokens (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    token VARCHAR(255) UNIQUE NOT NULL,
+    expires_at TIMESTAMP NOT NULL,
+    used BOOLEAN DEFAULT false,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Create indexes for better performance
 CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
+CREATE INDEX IF NOT EXISTS idx_users_is_active ON users(is_active);
 CREATE INDEX IF NOT EXISTS idx_patients_patient_id ON patients(patient_id);
+CREATE INDEX IF NOT EXISTS idx_doctors_doctor_id ON doctors(doctor_id);
 CREATE INDEX IF NOT EXISTS idx_appointments_date ON appointments(appointment_date);
-CREATE INDEX IF NOT EXISTS idx_appointments_patient ON appointments(patient_id);
-CREATE INDEX IF NOT EXISTS idx_appointments_doctor ON appointments(doctor_id);
-CREATE INDEX IF NOT EXISTS idx_medical_records_patient ON medical_records(patient_id);
-CREATE INDEX IF NOT EXISTS idx_prescriptions_patient ON prescriptions(patient_id);
-CREATE INDEX IF NOT EXISTS idx_billing_patient ON billing(patient_id);
-CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id);
-CREATE INDEX IF NOT EXISTS idx_audit_logs_user ON audit_logs(user_id);
+CREATE INDEX IF NOT EXISTS idx_appointments_status ON appointments(status);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_user_id ON audit_logs(user_id);
 CREATE INDEX IF NOT EXISTS idx_audit_logs_created_at ON audit_logs(created_at);
+CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON user_sessions(user_id);
+CREATE INDEX IF NOT EXISTS idx_sessions_expires_at ON user_sessions(expires_at);
 
 -- Create triggers for updated_at timestamps
 CREATE OR REPLACE FUNCTION update_updated_at_column()
@@ -184,51 +175,60 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
+-- Apply triggers to all tables
 CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_staff_updated_at BEFORE UPDATE ON staff FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_patients_updated_at BEFORE UPDATE ON patients FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_doctors_updated_at BEFORE UPDATE ON doctors FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_appointments_updated_at BEFORE UPDATE ON appointments FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_medical_records_updated_at BEFORE UPDATE ON medical_records FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-CREATE TRIGGER update_prescriptions_updated_at BEFORE UPDATE ON prescriptions FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-CREATE TRIGGER update_billing_updated_at BEFORE UPDATE ON billing FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_inventory_updated_at BEFORE UPDATE ON inventory FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
--- Insert default admin user (password: admin123)
-INSERT INTO users (username, email, password_hash, role, first_name, last_name) 
-VALUES ('admin', 'admin@hmis.com', '$2b$10$rQZ8K9vL2mN3pO4qR5sT6uV7wX8yZ9aB0cD1eF2gH3iJ4kL5mN6oP7qR8sT9uV', 'admin', 'System', 'Administrator')
-ON CONFLICT (username) DO NOTHING;
+-- Create audit trigger function
+CREATE OR REPLACE FUNCTION audit_trigger_function()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF TG_OP = 'DELETE' THEN
+        INSERT INTO audit_logs (user_id, action, table_name, record_id, old_values, ip_address, user_agent)
+        VALUES (NULL, TG_OP, TG_TABLE_NAME, OLD.id, row_to_json(OLD), NULL, NULL);
+        RETURN OLD;
+    ELSIF TG_OP = 'UPDATE' THEN
+        INSERT INTO audit_logs (user_id, action, table_name, record_id, old_values, new_values, ip_address, user_agent)
+        VALUES (NULL, TG_OP, TG_TABLE_NAME, NEW.id, row_to_json(OLD), row_to_json(NEW), NULL, NULL);
+        RETURN NEW;
+    ELSIF TG_OP = 'INSERT' THEN
+        INSERT INTO audit_logs (user_id, action, table_name, record_id, new_values, ip_address, user_agent)
+        VALUES (NULL, TG_OP, TG_TABLE_NAME, NEW.id, row_to_json(NEW), NULL, NULL);
+        RETURN NEW;
+    END IF;
+    RETURN NULL;
+END;
+$$ language 'plpgsql';
 
--- Insert sample staff
-INSERT INTO users (username, email, password_hash, role, first_name, last_name, phone) VALUES
-('dr.smith', 'dr.smith@hmis.com', '$2b$10$rQZ8K9vL2mN3pO4qR5sT6uV7wX8yZ9aB0cD1eF2gH3iJ4kL5mN6oP7qR8sT9uV', 'doctor', 'John', 'Smith', '+1-555-0101'),
-('nurse.jones', 'nurse.jones@hmis.com', '$2b$10$rQZ8K9vL2mN3pO4qR5sT6uV7wX8yZ9aB0cD1eF2gH3iJ4kL5mN6oP7qR8sT9uV', 'nurse', 'Sarah', 'Jones', '+1-555-0102'),
-('reception.mike', 'reception.mike@hmis.com', '$2b$10$rQZ8K9vL2mN3pO4qR5sT6uV7wX8yZ9aB0cD1eF2gH3iJ4kL5mN6oP7qR8sT9uV', 'receptionist', 'Mike', 'Johnson', '+1-555-0103'),
-('pharm.wilson', 'pharm.wilson@hmis.com', '$2b$10$rQZ8K9vL2mN3pO4qR5sT6uV7wX8yZ9aB0cD1eF2gH3iJ4kL5mN6oP7qR8sT9uV', 'pharmacist', 'Emily', 'Wilson', '+1-555-0104')
-ON CONFLICT (username) DO NOTHING;
+-- Apply audit triggers to sensitive tables
+CREATE TRIGGER audit_users AFTER INSERT OR UPDATE OR DELETE ON users FOR EACH ROW EXECUTE FUNCTION audit_trigger_function();
+CREATE TRIGGER audit_patients AFTER INSERT OR UPDATE OR DELETE ON patients FOR EACH ROW EXECUTE FUNCTION audit_trigger_function();
+CREATE TRIGGER audit_appointments AFTER INSERT OR UPDATE OR DELETE ON appointments FOR EACH ROW EXECUTE FUNCTION audit_trigger_function();
+CREATE TRIGGER audit_medical_records AFTER INSERT OR UPDATE OR DELETE ON medical_records FOR EACH ROW EXECUTE FUNCTION audit_trigger_function();
 
--- Insert corresponding staff records
-INSERT INTO staff (user_id, employee_id, department, specialization, hire_date) 
-SELECT u.id, 'EMP001', 'Cardiology', 'Cardiologist', '2023-01-15' FROM users u WHERE u.username = 'dr.smith'
-ON CONFLICT (employee_id) DO NOTHING;
+-- Create function to clean up expired sessions
+CREATE OR REPLACE FUNCTION cleanup_expired_sessions()
+RETURNS void AS $$
+BEGIN
+    DELETE FROM user_sessions WHERE expires_at < CURRENT_TIMESTAMP;
+    DELETE FROM password_reset_tokens WHERE expires_at < CURRENT_TIMESTAMP;
+END;
+$$ language 'plpgsql';
 
-INSERT INTO staff (user_id, employee_id, department, hire_date) 
-SELECT u.id, 'EMP002', 'Nursing', '2023-02-01' FROM users u WHERE u.username = 'nurse.jones'
-ON CONFLICT (employee_id) DO NOTHING;
+-- Create function to reset failed login attempts
+CREATE OR REPLACE FUNCTION reset_failed_login_attempts()
+RETURNS void AS $$
+BEGIN
+    UPDATE users SET failed_login_attempts = 0, locked_until = NULL WHERE locked_until < CURRENT_TIMESTAMP;
+END;
+$$ language 'plpgsql';
 
-INSERT INTO staff (user_id, employee_id, department, hire_date) 
-SELECT u.id, 'EMP003', 'Administration', '2023-01-01' FROM users u WHERE u.username = 'reception.mike'
-ON CONFLICT (employee_id) DO NOTHING;
-
-INSERT INTO staff (user_id, employee_id, department, hire_date) 
-SELECT u.id, 'EMP004', 'Pharmacy', '2023-03-01' FROM users u WHERE u.username = 'pharm.wilson'
-ON CONFLICT (employee_id) DO NOTHING;
-
--- Insert sample medications
-INSERT INTO inventory (medication_name, generic_name, manufacturer, quantity_in_stock, unit_price, expiry_date) VALUES
-('Aspirin', 'Acetylsalicylic acid', 'Bayer', 500, 0.25, '2025-12-31'),
-('Paracetamol', 'Acetaminophen', 'Tylenol', 300, 0.50, '2025-10-15'),
-('Ibuprofen', 'Ibuprofen', 'Advil', 200, 0.75, '2025-11-20'),
-('Amoxicillin', 'Amoxicillin', 'Generic', 150, 2.50, '2025-09-30'),
-('Insulin', 'Human Insulin', 'Novo Nordisk', 50, 25.00, '2025-08-15')
-ON CONFLICT DO NOTHING;
-
-COMMIT;
+-- Grant permissions to application user
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO hmis_user;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO hmis_user;
+GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA public TO hmis_user;

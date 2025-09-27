@@ -1,19 +1,19 @@
 // Configuration file for HMIS Dashboard
 const CONFIG = {
     // API Configuration
-    API_BASE_URL: 'http://localhost:5000',
-    
+    API_BASE_URL: window.location.protocol + '//' + window.location.hostname + ':5000',
+
     // WebSocket Configuration
-    WS_URL: 'http://localhost:5000',
-    
+    WS_URL: window.location.protocol + '//' + window.location.hostname + ':5000',
+
     // Application Settings
     APP_NAME: 'Hospital Management Information System',
     VERSION: '1.0.0',
-    
+
     // Dashboard Settings
     AUTO_REFRESH_INTERVAL: 30000, // 30 seconds
     NOTIFICATION_DURATION: 5000, // 5 seconds
-    
+
     // Chart Colors
     CHART_COLORS: {
         primary: '#667eea',
@@ -23,7 +23,7 @@ const CONFIG = {
         error: '#ef4444',
         info: '#3b82f6'
     },
-    
+
     // User Roles
     ROLES: {
         ADMIN: 'admin',
@@ -33,7 +33,7 @@ const CONFIG = {
         PHARMACIST: 'pharmacist',
         PATIENT: 'patient'
     },
-    
+
     // Status Types
     STATUS: {
         ACTIVE: 'active',
@@ -46,7 +46,7 @@ const CONFIG = {
         PAID: 'paid',
         OVERDUE: 'overdue'
     },
-    
+
     // Priority Levels
     PRIORITY: {
         LOW: 'low',
@@ -60,4 +60,3 @@ const CONFIG = {
 // Make CONFIG available globally
 window.CONFIG = CONFIG;
 window.APP_CONFIG = CONFIG;
-

@@ -67,6 +67,9 @@ const pharmacyRoutes = require('./routes/pharmacy');
 const patientPortalRoutes = require('./routes/patient-portal');
 const healthRoutes = require('./routes/health');
 const securityRoutes = require('./routes/security');
+const securityEnhancedRoutes = require('./routes/security-enhanced');
+const reportingRoutes = require('./routes/reporting');
+const aiMLRoutes = require('./routes/ai-ml'); // NEW
 
 // Initialize Swagger documentation
 const { specs, swaggerUi } = require('./config/swagger');
@@ -194,11 +197,18 @@ app.use('/api/counseling', counselingRoutes);
 app.use('/api/pharmacy', pharmacyRoutes);
 app.use('/api/patient-portal', patientPortalRoutes);
 app.use('/api/security', securityRoutes);
+app.use('/api/security-enhanced', securityEnhancedRoutes);
+app.use('/api/reporting', reportingRoutes);
+app.use('/api/ai-ml', aiMLRoutes); // NEW
 
 // Health check routes
 app.use('/health', healthRoutes);
 
-// WebSocket connection handling
+// Initialize WebSocket Manager
+const WebSocketManager = require('./websocket/websocket-manager');
+const wsManager = new WebSocketManager(server);
+
+// Legacy WebSocket handling for backward compatibility
 io.on('connection', (socket) => {
   logger.info('🔌 New client connected', { socketId: socket.id, ip: socket.handshake.address });
 

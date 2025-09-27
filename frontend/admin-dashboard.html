@@ -249,7 +249,7 @@
             }
 
             .nav-title {
-                color: #374151;
+                color: rgba(255, 255, 255, 0.9);
                 font-size: 1.1rem;
                 font-weight: 700;
                 margin: 0 0 20px 20px;
@@ -605,6 +605,7 @@
                 box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
                 position: relative;
                 overflow: hidden;
+                color: #374151;
             }
 
             .content-card::before {
@@ -633,6 +634,7 @@
                 font-size: 0.95rem;
                 transition: all 0.3s ease;
                 background: white;
+                color: #374151;
             }
 
             .filters input:focus,
@@ -656,6 +658,7 @@
                 background: white;
                 border-radius: 15px;
                 overflow: hidden;
+                color: #374151;
             }
 
             .data-table th,
@@ -663,12 +666,13 @@
                 padding: 20px;
                 text-align: left;
                 border-bottom: 1px solid rgba(229, 231, 235, 0.5);
+                color: #374151;
             }
 
             .data-table th {
                 background: linear-gradient(135deg, #f9fafb, #f3f4f6);
                 font-weight: 700;
-                color: #374151;
+                color: #1f2937;
                 font-size: 0.95rem;
                 letter-spacing: 0.025em;
             }
@@ -862,28 +866,28 @@
                 }
             }
 
-            /* Dark mode support */
+            /* Dark mode support - disabled for admin dashboard */
             @media (prefers-color-scheme: dark) {
                 .content-card {
-                    background: rgba(31, 41, 55, 0.95);
-                    color: #f9fafb;
+                    background: rgba(255, 255, 255, 0.95);
+                    color: #374151;
                 }
 
                 .data-table {
-                    background: rgba(31, 41, 55, 0.95);
-                    color: #f9fafb;
+                    background: white;
+                    color: #374151;
                 }
 
                 .data-table th {
-                    background: linear-gradient(135deg, #374151, #4b5563);
-                    color: #f9fafb;
+                    background: linear-gradient(135deg, #f9fafb, #f3f4f6);
+                    color: #374151;
                 }
 
                 .filters input,
                 .filters select {
-                    background: #374151;
-                    color: #f9fafb;
-                    border-color: #4b5563;
+                    background: white;
+                    color: #374151;
+                    border-color: #e5e7eb;
                 }
             }
 
@@ -942,6 +946,40 @@
             }
 
             /* Additional Admin-specific styles */
+
+            /* Ensure all tables have proper text contrast */
+            table {
+                color: #374151;
+            }
+
+            table th {
+                color: #1f2937;
+                background: #f9fafb;
+            }
+
+            table td {
+                color: #374151;
+            }
+
+            /* Ensure all content in admin sections has proper contrast */
+            .dashboard-section {
+                color: #374151;
+            }
+
+            .dashboard-section h1,
+            .dashboard-section h2,
+            .dashboard-section h3,
+            .dashboard-section h4,
+            .dashboard-section h5,
+            .dashboard-section h6 {
+                color: #1f2937;
+            }
+
+            .dashboard-section p,
+            .dashboard-section span,
+            .dashboard-section div {
+                color: #374151;
+            }
 
             /* Additional status badge styles for admin-specific needs */
             .status-badge.low-stock {
@@ -1151,12 +1189,13 @@
                 padding: 0.75rem;
                 text-align: left;
                 border-bottom: 1px solid #e5e7eb;
+                color: #374151;
             }
 
             .logs-table th {
                 background: #f9fafb;
                 font-weight: 600;
-                color: #374151;
+                color: #1f2937;
             }
 
             /* Reports Styles */
@@ -1198,6 +1237,13 @@
                 padding: 0.75rem;
                 text-align: left;
                 border-bottom: 1px solid #e5e7eb;
+                color: #374151;
+            }
+
+            .reports-table th {
+                background: #f9fafb;
+                font-weight: 600;
+                color: #1f2937;
             }
 
             .type-badge {
@@ -1294,6 +1340,13 @@
                 padding: 0.75rem;
                 text-align: left;
                 border-bottom: 1px solid #e5e7eb;
+                color: #374151;
+            }
+
+            .backups-table th {
+                background: #f9fafb;
+                font-weight: 600;
+                color: #1f2937;
             }
 
             /* Emergency Styles */
@@ -1768,10 +1821,10 @@
 
             .nav-title {
                 color: rgba(255, 255, 255, 0.9);
-                font-size: 0.9rem;
-                font-weight: 600;
+                font-size: 1.1rem;
+                font-weight: 700;
                 text-transform: uppercase;
-                letter-spacing: 1px;
+                letter-spacing: 0.5px;
                 margin: 0 0 20px 20px;
                 padding-bottom: 10px;
                 border-bottom: 1px solid rgba(255, 255, 255, 0.1);
